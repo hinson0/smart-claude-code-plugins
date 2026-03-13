@@ -7,6 +7,10 @@
 </div>
 
 > 寫完程式碼，直接 `/smart:pr`，剩下的全幫你搞定。
+>
+> 什麼？你不想開 PR，只想 push？沒問題——`/smart:push`。
+> 什麼？push 也不要，只想 commit？也行——`/smart:commit`。
+> 什麼？你只想在提交前跑個檢查確認沒翻車？隨你——`/smart:check`。
 
 一個為 Claude Code 設計的外掛。程式碼寫完之後，你只需要執行一條指令——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。
 

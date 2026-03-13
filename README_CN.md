@@ -7,6 +7,10 @@
 </div>
 
 > 写完代码，直接 `/smart:pr`，剩下的全帮你搞定。
+>
+> 什么？你不想开 PR，只想 push？没问题——`/smart:push`。
+> 什么？push 也不要，就想 commit？也行——`/smart:commit`。
+> 什么？你只想在提交前跑个检查确认没翻车？随你——`/smart:check`。
 
 一个为 Claude Code 设计的插件。代码写完之后，你只需要运行一条命令——它自动检查、提交、推送，并向 `main` 分支创建 Pull Request，无需任何额外操作。
 
