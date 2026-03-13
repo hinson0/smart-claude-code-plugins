@@ -9,7 +9,9 @@
 > Done coding? Just run `/smart:pr` — it handles everything from there.
 >
 > Don't want a PR, just a push? No problem — `/smart:push`.
+>
 > Don't even want to push, just commit? Sure — `/smart:commit`.
+>
 > Just want to run checks before you commit? You got it — `/smart:check`.
 
 A Claude Code plugin that takes over the moment you finish writing code: runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps.
