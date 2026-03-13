@@ -20,6 +20,9 @@
 
 ```
 /plugin marketplace add hinson0/smart-claude-code-plugin
+```
+
+```
 /plugin install smart@smart-claude-code-plugin
 ```
 

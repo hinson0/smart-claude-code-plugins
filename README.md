@@ -20,6 +20,9 @@ In Claude Code, register the marketplace and install:
 
 ```
 /plugin marketplace add hinson0/smart-claude-code-plugin
+```
+
+```
 /plugin install smart@smart-claude-code-plugin
 ```
 
