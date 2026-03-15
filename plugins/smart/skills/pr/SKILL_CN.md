@@ -22,6 +22,7 @@ argument-hint: 无需参数。自动 [check+add+commit+push+pr]
 7) 收集基础信息（并行运行）：
 - `git branch --show-current`（当前分支名，记为 `HEAD_BRANCH`）
 - `git log -1 --oneline`（最新一条 commit，用于判断单 commit 场景）
+- 读取项目根目录的 `CLAUDE.md`（若存在），语义检测是否包含强制输出语言设置（如"Always respond in ..."、"language:" 等指令）。若检测到强制语言，则步骤 11 中的 PR 标题、Summary 和 Test Plan 使用该语言（但 section headers 保持英文，commit messages 保持原文）；否则默认英文。
 
 8) 确定目标分支（base branch）：
 - 如果用户使用了 $0 来显式指定了目标分支，则使用此分支名字作为 base branch。
@@ -38,21 +39,32 @@ argument-hint: 无需参数。自动 [check+add+commit+push+pr]
 - 记录所有 commit（hash + message），用于生成 PR 正文。
 
 11) 生成 PR 标题和正文：
+- **语言**：使用步骤 7 中检测到的语言。若未检测到强制语言，默认英文。Section headers（## Summary, ## Commits, ## Test Plan）始终保持英文。
 - **标题**：
   - 若本分支只有 1 个 commit，直接使用该 commit message 作为标题。
-  - 若有多个 commit，基于分支名和 commit 列表生成 1 句概括性英文标题（50 字以内），风格与最近提交一致。
+  - 若有多个 commit，基于分支名和 commit 列表生成 1 句概括性标题（50 字以内），风格与最近提交一致。
   - 若用户在命令后附加了描述文字，优先将其融入标题。
-- **正文**（英文，Markdown 格式）：
+- **正文**（Markdown 格式）：
   ```markdown
   ## Summary
-  <3-10 条要点，说明本次 PR 做了什么、为什么这样做>
+  <3-10 条要点，说明本次 PR 做了什么、为什么这样做。
+   每条要点必须回答"改了什么"和"为什么改"——不要只是列出文件名或重复 commit message。聚焦改动的意图和影响。>
 
   ## Commits
-  <列出 git log BASE_BRANCH..HEAD 的所有 commit，格式：`- <hash>: <message>`>
+  <列出 git log BASE_BRANCH..HEAD 的所有 commit，格式：`- <hash>: <message>` — 保持原始 commit message，不翻译>
 
   ## Test Plan
-  - [x] <本次改动需要验证的关键点1>
-  - [x] <本次改动需要验证的关键点2>
+  <根据 commit 列表中的 commit 类型生成测试项：
+   - `feat` commits → 验证新功能的核心行为和边界情况
+   - `fix` commits → 验证原始 bug 不再复现，检查回归问题
+   - `refactor` commits → 验证现有行为未受影响
+   - `docs` commits → 验证文档准确性和链接有效性
+   - `test` commits → 验证测试通过且覆盖率达标
+   - `perf` commits → 验证性能改善可度量
+   - `chore`/`ci` commits → 验证构建/CI 流程正常运行
+   - 无类型前缀的 commit → 从 message 和文件变更推断意图，生成对应测试项
+
+   使用 `- [ ]` 格式（未勾选/待验证），不要用 `- [x]`。每条必须针对本 PR 的实际改动，禁止使用泛泛的"验证功能正常"。>
   ```
 
 12) 执行 PR 创建：
