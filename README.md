@@ -22,9 +22,9 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 
 **💬 Just say it** — type naturally in chat:
 
-- "commit" / "提交" → stages & commits with smart grouping
+- "commit" / "save my work" → stages & commits with smart grouping
 - "push" → check + commit + push
-- "create PR" / "发个PR" → check + commit + push + PR
+- "create PR" / "open a PR" → check + commit + push + PR
 
 **⌨️ Slash commands** — for when you want to be explicit:
 
