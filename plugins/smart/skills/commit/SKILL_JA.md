@@ -1,5 +1,5 @@
 ---
-description: add+commit を自動実行（commit message を自動生成）
+description: ユーザーが変更をコミットしたい時（例：「commit」「コミットして」「保存して」）、タスク完了を確認してコミットが必要な時（例：「完了」「done」「終わった」）、またはpush/PRパイプラインの一部として使用。
 argument-hint: 引数不要。単一または複数の feature を自動識別し、グループ別にコミットします。
 ---
 

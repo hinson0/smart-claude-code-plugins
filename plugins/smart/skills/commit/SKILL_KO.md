@@ -1,5 +1,5 @@
 ---
-description: 자동으로 add+commit 실행 (commit message 자동 생성)
+description: 사용자가 변경 사항을 커밋하려 할 때(예: "commit", "커밋해", "저장해"), 작업 완료를 확인하고 커밋이 필요할 때(예: "완료", "done", "끝났어"), 또는 push/PR 파이프라인의 일부로 사용.
 argument-hint: 인수 불필요. 단일 또는 다중 feature를 자동 식별하여 그룹별로 커밋합니다.
 ---
 

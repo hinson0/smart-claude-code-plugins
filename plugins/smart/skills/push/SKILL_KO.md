@@ -1,5 +1,5 @@
 ---
-description: 로컬 검사, git add/commit/push 자동 실행 (commit message 자동 생성)
+description: 사용자가 코드를 원격에 푸시하려 할 때(예: "push", "푸시해", "원격에 올려"), 또는 전체 check+commit+push 파이프라인이 필요할 때 사용. PR 생성에는 사용하지 않음 — smart:pr 사용.
 argument-hint: 인수 불필요. 자동 [check+add+commit+push]
 ---
 
