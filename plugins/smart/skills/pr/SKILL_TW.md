@@ -22,6 +22,7 @@ argument-hint: 無需參數。自動 [check+add+commit+push+pr]
 7) 收集基礎資訊（並行執行）：
 - `git branch --show-current`（當前分支名，記為 `HEAD_BRANCH`）
 - `git log -1 --oneline`（最新一條 commit，用於判斷單 commit 場景）
+- 讀取專案根目錄的 `CLAUDE.md`（若存在），語義檢測是否包含強制輸出語言設定（如"Always respond in ..."、"language:" 等指令）。若檢測到強制語言，則步驟 11 中的 PR 標題、Summary 和 Test Plan 使用該語言（但 section headers 保持英文，commit messages 保持原文）；否則預設英文。
 
 8) 確定目標分支（base branch）：
 - 如果使用者透過 $0 明確指定了目標分支，則使用該分支名稱作為 base branch。
@@ -38,21 +39,32 @@ argument-hint: 無需參數。自動 [check+add+commit+push+pr]
 - 記錄所有 commit（hash + message），用於產生 PR 正文。
 
 11) 產生 PR 標題和正文：
+- **語言**：使用步驟 7 中檢測到的語言。若未檢測到強制語言，預設英文。Section headers（## Summary, ## Commits, ## Test Plan）始終保持英文。
 - **標題**：
   - 若本分支只有 1 個 commit，直接使用該 commit message 作為標題。
-  - 若有多個 commit，基於分支名和 commit 列表產生 1 句概括性英文標題（50 字以內），風格與最近提交一致。
+  - 若有多個 commit，基於分支名和 commit 列表產生 1 句概括性標題（50 字以內），風格與最近提交一致。
   - 若使用者在命令後附加了描述文字，優先將其融入標題。
-- **正文**（英文，Markdown 格式）：
+- **正文**（Markdown 格式）：
   ```markdown
   ## Summary
-  <3-10 條要點，說明本次 PR 做了什麼、為什麼這樣做>
+  <3-10 條要點，說明本次 PR 做了什麼、為什麼這樣做。
+   每條要點必須回答「改了什麼」和「為什麼改」——不要只是列出檔案名稱或重複 commit message。聚焦改動的意圖和影響。>
 
   ## Commits
-  <列出 git log BASE_BRANCH..HEAD 的所有 commit，格式：`- <hash>: <message>`>
+  <列出 git log BASE_BRANCH..HEAD 的所有 commit，格式：`- <hash>: <message>` — 保持原始 commit message，不翻譯>
 
   ## Test Plan
-  - [x] <本次改動需要驗證的關鍵點1>
-  - [x] <本次改動需要驗證的關鍵點2>
+  <根據 commit 列表中的 commit 類型產生測試項：
+   - `feat` commits → 驗證新功能的核心行為和邊界情況
+   - `fix` commits → 驗證原始 bug 不再重現，檢查回歸問題
+   - `refactor` commits → 驗證現有行為未受影響
+   - `docs` commits → 驗證文件準確性和連結有效性
+   - `test` commits → 驗證測試通過且覆蓋率達標
+   - `perf` commits → 驗證效能改善可度量
+   - `chore`/`ci` commits → 驗證建置/CI 流程正常運行
+   - 無類型前綴的 commit → 從 message 和檔案變更推斷意圖，產生對應測試項
+
+   使用 `- [ ]` 格式（未勾選/待驗證），不要用 `- [x]`。每條必須針對本 PR 的實際改動，禁止使用空泛的「驗證功能正常」。>
   ```
 
 12) 執行 PR 建立：
