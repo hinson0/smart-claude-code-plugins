@@ -71,7 +71,15 @@ Any step that fails stops the pipeline immediately.
 
 ---
 
-## All Commands
+## Two Ways to Use
+
+**💬 Just say it** — type naturally in chat:
+
+- "commit" / "提交" → stages & commits with smart grouping
+- "push" → check + commit + push
+- "create PR" / "发个PR" → check + commit + push + PR
+
+**⌨️ Slash commands** — for when you want to be explicit:
 
 | Command | What it does |
 |---|---|

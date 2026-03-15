@@ -71,14 +71,22 @@ gh auth login
 
 ---
 
-## 全部命令
+## 两种使用方式
 
-| 命令                   | 作用                                                         |
-| ---------------------- | ------------------------------------------------------------ |
+**💬 直接说** — 在对话中自然表达：
+
+- "commit" / "提交" / "完成了" → 智能提交
+- "push" / "推一下" → check + commit + push
+- "发个PR" / "create PR" → check + commit + push + PR
+
+**⌨️ 斜杠命令** — 精确控制：
+
+| 命令 | 作用 |
+|---|---|
 | `/smart:pr [目标分支]` | 完整流程：check → commit → push → PR（默认目标分支：`main`） |
-| `/smart:push`          | check → commit → push（不创建 PR）                           |
-| `/smart:commit`        | 仅提交（智能分组，自动生成 message）                         |
-| `/smart:check`         | 仅运行 CI 配置推断出的本地检查                               |
+| `/smart:push` | check → commit → push（不创建 PR） |
+| `/smart:commit` | 仅提交（智能分组，自动生成 message） |
+| `/smart:check` | 仅运行 CI 配置推断出的本地检查 |
 
 ---
 

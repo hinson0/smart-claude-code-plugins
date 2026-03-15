@@ -71,7 +71,15 @@ gh auth login
 
 ---
 
-## 全部指令
+## 兩種使用方式
+
+**💬 直接說** — 在對話中自然表達：
+
+- "commit" / "提交" / "完成了" → 智慧提交
+- "push" / "推一下" → check + commit + push
+- "發個PR" / "create PR" → check + commit + push + PR
+
+**⌨️ 斜線指令** — 精確控制：
 
 | 指令 | 作用 |
 |---|---|
