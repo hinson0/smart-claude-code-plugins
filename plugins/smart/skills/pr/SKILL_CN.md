@@ -1,5 +1,5 @@
 ---
-description: 自动完成 add/commit/push 并在 GitHub 上创建 Pull Request（自动生成 PR 标题和正文）
+description: 当用户想要创建 Pull Request（如"create PR"、"发个PR"、"提个PR"、"创建合并请求"），或需要完整的 check+commit+push+PR 管道时使用。已包含 push — 无需先手动推送。
 argument-hint: 无需参数。自动 [check+add+commit+push+pr]
 ---
 

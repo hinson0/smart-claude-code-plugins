@@ -1,5 +1,5 @@
 ---
-description: add/commit/push 자동 완료 및 GitHub에서 Pull Request 생성 (PR 제목 및 본문 자동 생성)
+description: 사용자가 Pull Request를 만들려 할 때(예: "create PR", "PR 만들어", "풀리퀘 올려"), 또는 전체 check+commit+push+PR 파이프라인이 필요할 때 사용. push 포함 — 먼저 push할 필요 없음.
 argument-hint: 인수 불필요. 자동 [check+add+commit+push+pr]
 ---
 

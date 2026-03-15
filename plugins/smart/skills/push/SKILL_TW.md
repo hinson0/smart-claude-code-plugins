@@ -1,5 +1,5 @@
 ---
-description: 自動執行本地檢查、git add/commit/push（自動生成 commit message）
+description: 當使用者想要推送程式碼到遠端（如「push」、「推一下」、「推到遠端」），或需要完整的 check+commit+push 管線時使用。不用於建立 PR — 請使用 smart:pr。
 argument-hint: 無需參數。自動 [check+add+commit+push]
 ---
 

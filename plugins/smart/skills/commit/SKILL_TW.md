@@ -1,5 +1,5 @@
 ---
-description: 自動執行 add+commit（自動生成 commit message）
+description: 當使用者想要提交變更（如「commit」、「提交」、「儲存變更」），確認任務完成需要提交（如「完成了」、「done」、「搞定」），或作為 push/PR 管線的一部分時使用。
 argument-hint: 無需參數。自動識別單個或多個 feature，按 feature 分組提交。
 ---
 

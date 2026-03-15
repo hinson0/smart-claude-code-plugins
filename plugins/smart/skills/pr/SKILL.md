@@ -1,5 +1,5 @@
 ---
-description: Auto-complete add/commit/push and create a Pull Request on GitHub (with auto-generated PR title and body)
+description: Use when the user wants to create a pull request (e.g. "create PR", "发个PR", "open a pull request", "提个PR"), or wants the full check+commit+push+PR pipeline. Includes push — no need to push first.
 argument-hint: No arguments needed. Auto [check+add+commit+push+pr]
 ---
 

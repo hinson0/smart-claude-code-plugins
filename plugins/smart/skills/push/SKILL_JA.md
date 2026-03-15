@@ -1,5 +1,5 @@
 ---
-description: ローカルチェック、git add/commit/push を自動実行（commit message を自動生成）
+description: ユーザーがコードをリモートにプッシュしたい時（例：「push」「プッシュして」「リモートに送って」）、またはcheck+commit+pushの完全パイプラインが必要な時に使用。PR作成には使用しない — smart:prを使用。
 argument-hint: 引数不要。自動 [check+add+commit+push]
 ---
 
