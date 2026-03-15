@@ -30,13 +30,19 @@ Execution steps (must follow strictly in order):
   - When in doubt, **split**. Too many small commits is always better than one bloated commit mixing unrelated changes.
 - **Must account for all three types**: `M` (modified), `A` (staged new files), and `??` (untracked new files). Do not omit any files.
 
-4) Generate commit message (in English):
+4) Generate commit message:
+- **Default format (used when project CLAUDE.md does not define a custom commit format):**
+  - Format: `<type>: <description>`
+  - Allowed types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`
+  - Description rules: start with lowercase letter, no trailing period, total line length (including type prefix) must not exceed 72 characters
+  - Language: English by default
+  - Focus on "why the change was made", avoid vague descriptions
+- **Project override:** If the project's CLAUDE.md defines custom commit message format or language requirements, follow the project's rules and ignore the defaults above.
 - Single feature:
-  - Generate a 1-sentence English commit message based on the changes, keeping the style consistent with recent commits.
-  - The message should focus on "why the change was made", avoiding vague descriptions.
+  - Generate 1 commit message following the rules above.
 - Multiple features:
   - Group changes by feature (prefer grouping by directory/module boundaries).
-  - Generate a 1-sentence English commit message for each feature, focusing on "why the change was made".
+  - Generate 1 commit message per feature following the rules above.
 
 5) Execute the commit:
 - Single feature (ONLY when step 3 confirms all files share one purpose):

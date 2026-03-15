@@ -30,13 +30,19 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
   - 拿不准时，**宁可多拆**。拆分过细永远好过将不相关改动混在一起。
 - **必须同时计入** `M`（已修改）、`A`（已暂存新文件）、`??`（未追踪新文件）三类，不得遗漏任何文件。
 
-4) 生成 commit message（英文）：
+4) 生成 commit message：
+- **默认格式（当项目 CLAUDE.md 未定义自定义 commit 格式时使用）：**
+  - 格式：`<type>: <description>`
+  - 允许的 type：`feat`、`fix`、`refactor`、`docs`、`test`、`chore`、`perf`、`ci`
+  - description 规则：首字母小写、不以句号结尾、整行长度（含 type 前缀）不超过 72 字符
+  - 语言：默认英文
+  - 聚焦"为什么改"，避免空泛描述
+- **项目覆盖：** 如果项目 CLAUDE.md 中定义了自定义 commit message 格式或语言要求，以项目规范为准，忽略上述默认规则。
 - 单 feature：
-  - 基于改动生成 1 句英文 commit message，风格与最近提交保持一致。
-  - message 要聚焦"为什么改"，避免空泛。
+  - 按上述规则生成 1 条 commit message。
 - 多 feature：
   - 按 feature 将改动分组（优先按目录/模块边界分组）。
-  - 每个 feature 生成 1 句英文 commit message，聚焦"为什么改"。
+  - 每个 feature 按上述规则生成 1 条 commit message。
 
 5) 执行提交：
 - 单 feature（仅当第 3 步确认所有文件属于同一目的时）：
