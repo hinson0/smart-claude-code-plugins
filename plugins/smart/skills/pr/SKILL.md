@@ -22,6 +22,7 @@ Execution steps (must follow in strict order, no skipping):
 7) Gather basic information (run in parallel):
 - `git branch --show-current` (current branch name, referred to as `HEAD_BRANCH`)
 - `git log -1 --oneline` (latest commit, used to determine single-commit scenario)
+- Read the project's `CLAUDE.md` file (if it exists) and check for explicit language directives (semantic detection, e.g., "Always respond in ...", "language:" settings). If a forced output language is found, use that language for the PR title, summary, and test plan in step 11 (but keep section headers in English and commit messages as-is). Otherwise, default to English.
 
 8) Determine the target branch (base branch):
 - If the user explicitly specified a target branch via $0, use that branch name as the base branch.
@@ -38,21 +39,32 @@ Execution steps (must follow in strict order, no skipping):
 - Record all commits (hash + message) for generating the PR body.
 
 11) Generate PR title and body:
+- **Language**: Use the language detected in step 7. If no forced language was found, default to English. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English.
 - **Title**:
   - If this branch has only 1 commit, use that commit message directly as the title.
-  - If there are multiple commits, generate a one-sentence summary title in English (under 50 characters) based on the branch name and commit list, matching the style of recent commits.
+  - If there are multiple commits, generate a one-sentence summary title (under 50 characters) based on the branch name and commit list, matching the style of recent commits.
   - If the user appended descriptive text after the command, prioritize incorporating it into the title.
-- **Body** (English, Markdown format):
+- **Body** (Markdown format):
   ```markdown
   ## Summary
-  <3-10 bullet points explaining what this PR does and why>
+  <3-10 bullet points explaining what this PR does and why.
+   Each bullet must answer "what changed" AND "why" — not just list files or repeat commit messages. Focus on the intent and impact of the change.>
 
   ## Commits
-  <List all commits from git log BASE_BRANCH..HEAD, format: `- <hash>: <message>`>
+  <List all commits from git log BASE_BRANCH..HEAD, format: `- <hash>: <message>` — keep original commit messages as-is, never translate>
 
   ## Test Plan
-  - [x] <Key verification point 1 for this change>
-  - [x] <Key verification point 2 for this change>
+  <Generate test items based on the commit types present in the commit list:
+   - `feat` commits → verify new feature's core behavior and edge cases
+   - `fix` commits → verify the original bug no longer reproduces, check for regressions
+   - `refactor` commits → verify existing behavior is unchanged
+   - `docs` commits → verify documentation accuracy and link validity
+   - `test` commits → verify tests pass and coverage is adequate
+   - `perf` commits → verify performance improvement is measurable
+   - `chore`/`ci` commits → verify build/CI pipeline runs correctly
+   - Commits without a type prefix → infer intent from message/files and generate appropriate items
+
+   Use `- [ ]` format (unchecked/pending), not `- [x]`. Each item must be specific to the actual changes in this PR — no generic "verify it works" items.>
   ```
 
 12) Execute PR creation:
