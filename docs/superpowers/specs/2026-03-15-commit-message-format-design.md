@@ -25,6 +25,8 @@
 
 **type 限定值：** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`
 
+**scope：** 不使用。默认格式不包含 scope（即不使用 `<type>(<scope>): <description>` 形式）。
+
 **description 约束：**
 - 首字母小写
 - 不以句号结尾
@@ -33,10 +35,14 @@
 
 **语言：** 默认英文。
 
+### 与原有"风格一致"指令的关系
+
+当前步骤 4 中的"风格与最近提交保持一致"将被新格式规范**替代**，而非并列。新规范作为唯一的格式标准，消除二者冲突的可能性。
+
 ### 项目覆盖规则
 
 如果项目 CLAUDE.md 中定义了 commit message 的自定义格式或语言要求，以项目规范为准，忽略上述默认规则。
 
-### 实现方式
+### 决策结论
 
-方案 A — 直接在 skill 步骤 4 中内联规范。CLAUDE.md 的内容本身已在 Claude Code 会话上下文中，skill 无需额外读取操作，只需声明"项目 CLAUDE.md 中的自定义规范优先"即可。
+选定方案 A — 直接在 skill 步骤 4 中内联规范。CLAUDE.md 的内容本身已在 Claude Code 会话上下文中，skill 无需额外读取操作，只需声明"项目 CLAUDE.md 中的自定义规范优先"即可。
