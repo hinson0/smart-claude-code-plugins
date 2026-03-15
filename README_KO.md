@@ -71,11 +71,19 @@ gh auth login
 
 ---
 
-## 전체 명령어
+## 두 가지 사용 방법
+
+**💬 그냥 말하세요** — 채팅에서 자연스럽게 입력:
+
+- "commit" / "커밋해" → 스마트 그룹화로 커밋
+- "push" / "푸시해" → check + commit + push
+- "PR 만들어" / "create PR" → check + commit + push + PR
+
+**⌨️ 슬래시 명령어** — 명시적으로 지정하고 싶을 때:
 
 | 명령어 | 기능 |
 |---|---|
-| `/smart:pr [대상 브랜치]` | 전체 파이프라인: check → commit → push → PR (기본 대상 브랜치: `main`) |
+| `/smart:pr [대상 브랜치]` | 전체 파이프라인: check → commit → push → PR (기본: `main`) |
 | `/smart:push` | check → commit → push (PR 생성 안 함) |
 | `/smart:commit` | 커밋만 수행 (스마트 그룹화, 자동 메시지 생성) |
 | `/smart:check` | CI 설정에서 추론된 로컬 검사만 실행 |

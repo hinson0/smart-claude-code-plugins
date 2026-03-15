@@ -71,11 +71,19 @@ gh auth login
 
 ---
 
-## 全コマンド
+## 2つの使い方
+
+**💬 話しかけるだけ** — チャットで自然に入力：
+
+- "commit" / "コミットして" → スマートグルーピングでコミット
+- "push" / "プッシュして" → check + commit + push
+- "PRを作って" / "create PR" → check + commit + push + PR
+
+**⌨️ スラッシュコマンド** — 明示的に指定したい時に：
 
 | コマンド | 機能 |
 |---|---|
-| `/smart:pr [ターゲットブランチ]` | フルパイプライン：check → commit → push → PR（デフォルトのターゲットブランチ：`main`） |
+| `/smart:pr [ターゲットブランチ]` | フルパイプライン：check → commit → push → PR（デフォルト：`main`） |
 | `/smart:push` | check → commit → push（PR は作成しない） |
 | `/smart:commit` | コミットのみ（スマートグルーピング、メッセージ自動生成） |
 | `/smart:check` | CI 設定から推論されたローカルチェックのみ実行 |
