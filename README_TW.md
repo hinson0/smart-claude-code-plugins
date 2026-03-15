@@ -6,15 +6,34 @@
 
 </div>
 
-> 寫完程式碼，直接 `/smart:pr`，剩下的全幫你搞定。
+> 寫完程式碼？直接說 **"發個PR"**，檢查、提交、推送、PR 全自動搞定。
 >
-> 什麼？你不想開 PR，只想 push？沒問題——`/smart:push`。
+> 不想開 PR，只想 push？說 **"推一下"**。
 >
-> 什麼？push 也不要，只想 commit？也行——`/smart:commit`。
+> 只想 commit？說 **"提交"**。
 >
-> 什麼？你只想在提交前跑個檢查確認沒翻車？隨你——`/smart:check`。
+> 也可以用斜線指令：`/smart:pr`、`/smart:push`、`/smart:commit`、`/smart:check`。
 
-一個為 Claude Code 設計的外掛。程式碼寫完之後，你只需要執行一條指令——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。
+一個為 Claude Code 設計的外掛。程式碼寫完之後，說一句話就行——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。
+
+---
+
+## 兩種使用方式
+
+**💬 直接說** — 在對話中自然表達：
+
+- "commit" / "提交" / "完成了" → 智慧提交
+- "push" / "推一下" → check + commit + push
+- "發個PR" / "create PR" → check + commit + push + PR
+
+**⌨️ 斜線指令** — 精確控制：
+
+| 指令 | 作用 |
+|---|---|
+| `/smart:pr [目標分支]` | 完整流程：check → commit → push → PR（預設目標分支：`main`） |
+| `/smart:push` | check → commit → push（不建立 PR） |
+| `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
+| `/smart:check` | 僅執行 CI 設定推斷出的本機檢查 |
 
 ---
 
@@ -68,25 +87,6 @@ gh auth login
 ```
 
 任意步驟失敗均立即停止，不會執行後續操作。
-
----
-
-## 兩種使用方式
-
-**💬 直接說** — 在對話中自然表達：
-
-- "commit" / "提交" / "完成了" → 智慧提交
-- "push" / "推一下" → check + commit + push
-- "發個PR" / "create PR" → check + commit + push + PR
-
-**⌨️ 斜線指令** — 精確控制：
-
-| 指令 | 作用 |
-|---|---|
-| `/smart:pr [目標分支]` | 完整流程：check → commit → push → PR（預設目標分支：`main`） |
-| `/smart:push` | check → commit → push（不建立 PR） |
-| `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
-| `/smart:check` | 僅執行 CI 設定推斷出的本機檢查 |
 
 ---
 

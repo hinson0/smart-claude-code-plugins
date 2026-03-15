@@ -6,15 +6,34 @@
 
 </div>
 
-> 코드 작성이 끝나면 `/smart:pr` 한 번이면 끝. 나머지는 전부 알아서 처리됩니다.
+> 코드 작성 끝? **"PR 만들어"**라고 말하면 검사, 커밋, 푸시, PR까지 전부 자동.
 >
-> PR은 필요 없고 push만 하고 싶다고? 문제없어요 — `/smart:push`.
+> PR은 필요 없고 push만? **"푸시해"**.
 >
-> push도 필요 없고 commit만? 그것도 OK — `/smart:commit`.
+> commit만? **"커밋해"**.
 >
-> 커밋 전에 검사만 먼저 돌려보고 싶다고? 당연히 가능 — `/smart:check`.
+> 슬래시 명령어도 사용 가능: `/smart:pr`, `/smart:push`, `/smart:commit`, `/smart:check`.
 
-Claude Code용 플러그인입니다. 코드 작성이 끝나면 명령어 하나만 실행하세요 — 자동으로 검사, 커밋, 푸시하고 `main` 브랜치에 Pull Request를 생성합니다. 추가 작업은 필요 없습니다.
+Claude Code용 플러그인입니다. 코드 작성이 끝나면 한마디만 하세요 — 자동으로 검사, 커밋, 푸시하고 `main` 브랜치에 Pull Request를 생성합니다. 추가 작업은 필요 없습니다.
+
+---
+
+## 두 가지 사용 방법
+
+**💬 그냥 말하세요** — 채팅에서 자연스럽게 입력:
+
+- "commit" / "커밋해" → 스마트 그룹화로 커밋
+- "push" / "푸시해" → check + commit + push
+- "PR 만들어" / "create PR" → check + commit + push + PR
+
+**⌨️ 슬래시 명령어** — 명시적으로 지정하고 싶을 때:
+
+| 명령어 | 기능 |
+|---|---|
+| `/smart:pr [대상 브랜치]` | 전체 파이프라인: check → commit → push → PR (기본: `main`) |
+| `/smart:push` | check → commit → push (PR 생성 안 함) |
+| `/smart:commit` | 커밋만 수행 (스마트 그룹화, 자동 메시지 생성) |
+| `/smart:check` | CI 설정에서 추론된 로컬 검사만 실행 |
 
 ---
 
@@ -68,25 +87,6 @@ gh auth login
 ```
 
 어떤 단계든 실패하면 즉시 중단되며, 이후 단계는 실행되지 않습니다.
-
----
-
-## 두 가지 사용 방법
-
-**💬 그냥 말하세요** — 채팅에서 자연스럽게 입력:
-
-- "commit" / "커밋해" → 스마트 그룹화로 커밋
-- "push" / "푸시해" → check + commit + push
-- "PR 만들어" / "create PR" → check + commit + push + PR
-
-**⌨️ 슬래시 명령어** — 명시적으로 지정하고 싶을 때:
-
-| 명령어 | 기능 |
-|---|---|
-| `/smart:pr [대상 브랜치]` | 전체 파이프라인: check → commit → push → PR (기본: `main`) |
-| `/smart:push` | check → commit → push (PR 생성 안 함) |
-| `/smart:commit` | 커밋만 수행 (스마트 그룹화, 자동 메시지 생성) |
-| `/smart:check` | CI 설정에서 추론된 로컬 검사만 실행 |
 
 ---
 

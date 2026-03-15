@@ -6,15 +6,34 @@
 
 </div>
 
-> Done coding? Just run `/smart:pr` — it handles everything from there.
+> Done coding? Just say **"create PR"** — it handles check, commit, push, and PR for you.
 >
-> Don't want a PR, just a push? No problem — `/smart:push`.
+> Don't want a PR, just a push? Say **"push"**.
 >
-> Don't even want to push, just commit? Sure — `/smart:commit`.
+> Just commit? Say **"commit"**.
 >
-> Just want to run checks before you commit? You got it — `/smart:check`.
+> Or use slash commands: `/smart:pr`, `/smart:push`, `/smart:commit`, `/smart:check`.
 
-A Claude Code plugin that takes over the moment you finish writing code: runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps.
+A Claude Code plugin that takes over the moment you finish writing code. Just say what you want — it runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps.
+
+---
+
+## Two Ways to Use
+
+**💬 Just say it** — type naturally in chat:
+
+- "commit" / "提交" → stages & commits with smart grouping
+- "push" → check + commit + push
+- "create PR" / "发个PR" → check + commit + push + PR
+
+**⌨️ Slash commands** — for when you want to be explicit:
+
+| Command | What it does |
+|---|---|
+| `/smart:pr [base]` | Full pipeline: check → commit → push → PR (default base: `main`) |
+| `/smart:push` | check → commit → push (no PR) |
+| `/smart:commit` | Stage & commit only (smart grouping, auto message) |
+| `/smart:check` | Run local checks inferred from CI config only |
 
 ---
 
@@ -68,25 +87,6 @@ It will automatically: detect CI checks → run them locally → stage & commit 
 ```
 
 Any step that fails stops the pipeline immediately.
-
----
-
-## Two Ways to Use
-
-**💬 Just say it** — type naturally in chat:
-
-- "commit" / "提交" → stages & commits with smart grouping
-- "push" → check + commit + push
-- "create PR" / "发个PR" → check + commit + push + PR
-
-**⌨️ Slash commands** — for when you want to be explicit:
-
-| Command | What it does |
-|---|---|
-| `/smart:pr [base]` | Full pipeline: check → commit → push → PR (default base: `main`) |
-| `/smart:push` | check → commit → push (no PR) |
-| `/smart:commit` | Stage & commit only (smart grouping, auto message) |
-| `/smart:check` | Run local checks inferred from CI config only |
 
 ---
 
