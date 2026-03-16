@@ -35,8 +35,6 @@
 | `/smart:pr [目标分支]` | 完整流程：check → commit → push → PR（默认目标分支：`main`） |
 | `/smart:push` | check → commit → push（不创建 PR） |
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
-| `/smart:config` | 配置自动提交/推送行为 |
-
 ---
 
 ## 快速开始
@@ -89,37 +87,6 @@ gh auth login
 ```
 
 任意步骤失败均立即停止，不会执行后续操作。
-
----
-
-## Auto Hook（自动提交/推送）
-
-通过 Stop Hook 实现：CC 完成任务时自动触发 commit 或 push，无需手动操作。
-
-**配置方式**：运行 `/smart:config` 交互式切换（默认关闭）。
-
-**流程**：
-
-```
-CC 完成任务 → Stop 事件触发
-                ↓
-        auto-commit.sh 执行
-                ↓
-    读取 .claude/smart.local.md
-                ↓
-        auto_action 值？
-       /        |        \
-     off      commit     push
-      ↓         ↓          ↓
-   approve    检查 git    检查 git
-   (放行)     status      status
-              ↓    ↓      ↓    ↓
-           有改动  无改动  有改动  无改动
-              ↓     ↓      ↓     ↓
-           block  approve  block  approve
-     + systemMessage        + systemMessage
-  "调用 /smart:commit"   "调用 /smart:push"
-```
 
 ---
 

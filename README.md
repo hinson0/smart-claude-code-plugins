@@ -35,8 +35,6 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 | `/smart:pr [base]` | Full pipeline: check → commit → push → PR (default base: `main`) |
 | `/smart:push` | check → commit → push (no PR) |
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
-| `/smart:config` | Configure auto commit/push behavior |
-
 ---
 
 ## Quick Start
@@ -89,37 +87,6 @@ It will automatically: detect CI checks → run them locally → stage & commit 
 ```
 
 Any step that fails stops the pipeline immediately.
-
----
-
-## Auto Hook
-
-Automatically triggers commit or push when CC finishes a task via Stop Hook.
-
-**Configuration**: Run `/smart:config` to toggle (default: off).
-
-**Flow**:
-
-```
-CC finishes task → Stop event fires
-                    ↓
-            auto-commit.sh executes
-                    ↓
-        Read .claude/smart.local.md
-                    ↓
-            auto_action value?
-           /        |        \
-         off      commit     push
-          ↓         ↓          ↓
-       approve    check git  check git
-       (pass)     status     status
-                  ↓    ↓     ↓    ↓
-               dirty  clean  dirty  clean
-                  ↓     ↓      ↓     ↓
-               block  approve  block  approve
-         + systemMessage        + systemMessage
-      "invoke /smart:commit"  "invoke /smart:push"
-```
 
 ---
 
