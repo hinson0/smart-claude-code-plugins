@@ -14,9 +14,7 @@
 >
 > 也可以用斜線指令：`/smart:pr`、`/smart:push`、`/smart:commit`、`/smart:check`。
 
-一個為 Claude Code 設計的外掛。程式碼寫完之後，說一句話就行——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。
-
-一句 `push`，自動拆分多 feature、產生 commit message 並推送：
+一個為 Claude Code 設計的外掛。程式碼寫完之後，說一句話就行——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。一句 `push`，自動拆分多 feature、產生 commit message 並推送，效果如下：
 
 ![demo](./assets/tw.png)
 
