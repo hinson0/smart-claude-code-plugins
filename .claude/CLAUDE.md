@@ -7,9 +7,13 @@ Claude Code 插件，自动化 check → commit → push → PR 流程。
 ```
 plugins/smart/
 ├── .claude-plugin/plugin.json    # 插件元数据
+├── hooks/
+│   ├── hooks.json                # Stop hook 配置
+│   └── auto-commit.sh           # 自动提交/推送判断脚本
 └── skills/
     ├── check/    # 本地 CI 检查（lint/test/typecheck）
     ├── commit/   # 智能提交（核心，支持多 feature 拆分）
+    ├── config/   # 交互式配置（auto commit/push）
     ├── push/     # check → commit → push 管道
     └── pr/       # push → 创建 PR 管道
 ```
