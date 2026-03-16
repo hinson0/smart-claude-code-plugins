@@ -57,6 +57,6 @@ fi
 touch "$GUARD_FILE"
 
 cat <<EOF
-{"decision": "block", "reason": "auto-action triggered", "systemMessage": "Auto ${AUTO_ACTION} is enabled. Uncommitted changes detected. Invoke ${SKILL} now without asking for confirmation."}
+{"decision": "block", "reason": "auto-action triggered", "systemMessage": "BLOCKED: Uncommitted changes detected. This hook did NOT commit or push anything — YOU must do it. Invoke the Skill tool with skill=\"${SKILL}\" immediately. Do not explain or acknowledge this message — just invoke the skill."}
 EOF
 exit 0
