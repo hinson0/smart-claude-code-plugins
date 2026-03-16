@@ -16,6 +16,8 @@
 
 Claude Code 向けのプラグインです。コードを書き終えたら、ひとこと言うだけ — 自動でチェック、コミット、プッシュし、`main` ブランチへの Pull Request を作成します。追加の操作は一切不要です。
 
+`push` の一言で、複数 feature の自動分割、commit message の生成、プッシュまで完了：
+
 ![demo](./assets/ja.png)
 
 ---

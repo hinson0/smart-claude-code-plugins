@@ -16,6 +16,8 @@
 
 A Claude Code plugin that takes over the moment you finish writing code. Just say what you want — it runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps.
 
+Just say `push` — it auto-splits multiple features, generates commit messages, and pushes:
+
 ![demo](./assets/en.png)
 
 ---
