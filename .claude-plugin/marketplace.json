@@ -1,15 +1,18 @@
 {
     "name": "smart-claude-code",
     "owner": {
-        "name": "hinson0"
+        "name": "hinson0",
         "email": "hinson0@qq.com",
         "github": "https://github.com/hinson0"
+    },
+    "metadata": {
+      "description": "Automate your git workflow: smart commit splitting, CI checks, push, and PR creation in one command."
     },
     "plugins": [
         {
             "name": "smart",
             "source": "./plugins/smart",
-            "description": "A smart claude code plugin."
+            "description": "Fail-fast git pipeline plugin with semantic multi-feature commit splitting, local CI auto-detection, and one-command push/PR creation."
         }
     ]
 }
