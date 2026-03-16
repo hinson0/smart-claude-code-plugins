@@ -1,6 +1,7 @@
 ---
 description: 프로젝트 CI 구성을 자동 감지하고 로컬에서 검사 명령 실행
 argument-hint: 인수 불필요, .github/workflows/*.yml에서 검사 방법을 자동 추론
+user-invocable: false
 ---
 
 당신은 로컬 검사 도우미입니다. 목표: 프로젝트 CI 구성에서 실행해야 할 검사를 추론하고 로컬에서 실행합니다.

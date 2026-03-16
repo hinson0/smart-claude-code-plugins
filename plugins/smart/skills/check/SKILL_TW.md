@@ -1,6 +1,7 @@
 ---
 description: 自動檢測專案 CI 配置，提取並在本地運行對應的檢查命令
 argument-hint: 無需參數，自動從 .github/workflows/*.yml 推斷檢查方式
+user-invocable: false
 ---
 
 你是本地檢查助手。目標：從專案 CI 配置中推斷應執行哪些檢查，並在本地執行。

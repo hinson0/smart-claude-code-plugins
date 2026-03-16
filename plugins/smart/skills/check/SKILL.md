@@ -1,6 +1,7 @@
 ---
 description: Auto-detect project CI configuration, extract and run corresponding check commands locally (generic, no fixed directory structure dependency)
 argument-hint: No arguments needed, automatically infers check method from .github/workflows/*.yml
+user-invocable: false
 ---
 
 You are a local check assistant. Goal: infer which checks should be run from the project CI configuration and execute them locally.
