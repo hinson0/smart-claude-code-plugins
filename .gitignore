@@ -1,3 +1,4 @@
 .claude/worktrees/
 .swp
 .DS_Store
+.claude/*.local.md
