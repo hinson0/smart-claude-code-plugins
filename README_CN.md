@@ -12,7 +12,7 @@
 >
 > 只想 commit？说 **"提交"**。
 >
-> 也可以用斜杠命令：`/smart:pr`、`/smart:push`、`/smart:commit`、`/smart:check`。
+> 也可以用斜杠命令：`/smart:pr`、`/smart:push`、`/smart:commit`。
 
 一个为 Claude Code 设计的插件。代码写完之后，说一句话就行——它自动检查、提交、推送，并向 `main` 分支创建 Pull Request，无需任何额外操作。一句 `push`，自动拆分多 feature、生成 commit message 并推送，效果如下：
 
@@ -35,7 +35,6 @@
 | `/smart:pr [目标分支]` | 完整流程：check → commit → push → PR（默认目标分支：`main`） |
 | `/smart:push` | check → commit → push（不创建 PR） |
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
-| `/smart:check` | 仅运行 CI 配置推断出的本地检查 |
 
 ---
 

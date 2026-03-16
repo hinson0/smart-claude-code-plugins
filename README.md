@@ -12,7 +12,7 @@
 >
 > Just commit? Say **"commit"**.
 >
-> Or use slash commands: `/smart:pr`, `/smart:push`, `/smart:commit`, `/smart:check`.
+> Or use slash commands: `/smart:pr`, `/smart:push`, `/smart:commit`.
 
 A Claude Code plugin that takes over the moment you finish writing code. Just say what you want — it runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps. Just say `push` — it auto-splits multiple features, generates commit messages, and pushes:
 
@@ -35,7 +35,6 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 | `/smart:pr [base]` | Full pipeline: check → commit → push → PR (default base: `main`) |
 | `/smart:push` | check → commit → push (no PR) |
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
-| `/smart:check` | Run local checks inferred from CI config only |
 
 ---
 
