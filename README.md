@@ -20,23 +20,6 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 
 ---
 
-## Two Ways to Use
-
-**💬 Just say it** — type naturally in chat:
-
-- "commit" / "save my work" → stages & commits with smart grouping
-- "push" → check + commit + push
-- "create PR" / "open a PR" → check + commit + push + PR
-
-**⌨️ Slash commands** — for when you want to be explicit:
-
-| Command | What it does |
-|---|---|
-| `/smart:pr [base]` | Full pipeline: check → commit → push → PR (default base: `main`) |
-| `/smart:push` | check → commit → push (no PR) |
-| `/smart:commit` | Stage & commit only (smart grouping, auto message) |
----
-
 ## Quick Start
 
 **1. Install the plugin** _(recommended)_
@@ -66,6 +49,42 @@ gh auth login
 ```
 
 It will automatically: detect CI checks → run them locally → stage & commit → push → open a PR on GitHub.
+
+---
+
+## Two Ways to Use
+
+**💬 Just say it** — type naturally in chat:
+
+- "commit" / "save my work" → stages & commits with smart grouping
+- "push" → check + commit + push
+- "create PR" / "open a PR" → check + commit + push + PR
+
+**⌨️ Slash commands** — for when you want to be explicit:
+
+| Command | What it does |
+|---|---|
+| `/smart:pr [base]` | Full pipeline: check → commit → push → PR (default base: `main`) |
+| `/smart:push` | check → commit → push (no PR) |
+| `/smart:commit` | Stage & commit only (smart grouping, auto message) |
+| `/smart:config` | Configure auto-action (auto commit/push after each task) |
+
+---
+
+## Auto-Action
+
+Want Claude to automatically commit or push after every task? Configure it once:
+
+```
+/smart:config
+```
+
+Choose from:
+- **off** — disabled (default, manual only)
+- **commit** — auto-commit after each task (local only)
+- **push** — auto-commit + push after each task
+
+The setting is stored per-project in `.claude/smart.local.md` and takes effect on the next session.
 
 ---
 
