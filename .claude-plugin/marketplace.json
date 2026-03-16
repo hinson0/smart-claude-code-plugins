@@ -2,6 +2,8 @@
     "name": "smart-claude-code",
     "owner": {
         "name": "hinson0"
+        "email": "hinson0@qq.com",
+        "github": "https://github.com/hinson0"
     },
     "plugins": [
         {
