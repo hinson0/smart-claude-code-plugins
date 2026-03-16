@@ -20,23 +20,6 @@
 
 ---
 
-## 兩種使用方式
-
-**💬 直接說** — 在對話中自然表達：
-
-- "commit" / "提交" / "完成了" → 智慧提交
-- "push" / "推一下" → check + commit + push
-- "發個PR" / "create PR" → check + commit + push + PR
-
-**⌨️ 斜線指令** — 精確控制：
-
-| 指令 | 作用 |
-|---|---|
-| `/smart:pr [目標分支]` | 完整流程：check → commit → push → PR（預設目標分支：`main`） |
-| `/smart:push` | check → commit → push（不建立 PR） |
-| `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
----
-
 ## 快速開始
 
 **1. 安裝外掛**（強烈推薦）
@@ -66,6 +49,42 @@ gh auth login
 ```
 
 它會自動完成：偵測 CI 設定並在本機執行檢查 → 智慧提交 → 推送 → 在 GitHub 上建立 PR。
+
+---
+
+## 兩種使用方式
+
+**💬 直接說** — 在對話中自然表達：
+
+- "commit" / "提交" / "完成了" → 智慧提交
+- "push" / "推一下" → check + commit + push
+- "發個PR" / "create PR" → check + commit + push + PR
+
+**⌨️ 斜線指令** — 精確控制：
+
+| 指令 | 作用 |
+|---|---|
+| `/smart:pr [目標分支]` | 完整流程：check → commit → push → PR（預設目標分支：`main`） |
+| `/smart:push` | check → commit → push（不建立 PR） |
+| `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
+| `/smart:config` | 設定自動操作（每次任務後自動 commit/push） |
+
+---
+
+## 自動操作（Auto-Action）
+
+想讓 Claude 每次完成任務後自動提交或推送？設定一次即可：
+
+```
+/smart:config
+```
+
+可選項：
+- **off** — 關閉（預設，僅手動操作）
+- **commit** — 每次任務後自動 commit（僅本地）
+- **push** — 每次任務後自動 commit + push
+
+設定按專案儲存在 `.claude/smart.local.md` 中，下次會話生效。
 
 ---
 
