@@ -16,6 +16,8 @@
 
 一个为 Claude Code 设计的插件。代码写完之后，说一句话就行——它自动检查、提交、推送，并向 `main` 分支创建 Pull Request，无需任何额外操作。
 
+![demo](./assets/cn.png)
+
 ---
 
 ## 两种使用方式
