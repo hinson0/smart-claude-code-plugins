@@ -106,7 +106,7 @@ EOF
 ```
   - Only combine groups if files have circular dependencies that make separate commits impossible (e.g., file A in group 1 imports a new export from file B in group 2 that doesn't exist yet). You must list the specific dependency chain to justify combining.
 
-6) Output results (in English):
+6) Output results:
 - Display the actual commit message(s) used.
 - If split into multiple commits, display each feature's commit message and included file list in order.
 - Display the final `git status` output (confirm whether the working tree is clean).
