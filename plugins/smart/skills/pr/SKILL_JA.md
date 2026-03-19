@@ -22,7 +22,7 @@ argument-hint: 引数不要。自動 [check+add+commit+push+pr]
 7) 基本情報の収集（並列実行）：
 - `git branch --show-current`（現在のブランチ名、`HEAD_BRANCH` として記録）
 - `git log -1 --oneline`（最新のコミット 1 件、単一コミットシナリオの判定用）
-- プロジェクトルートの `CLAUDE.md` ファイル（存在する場合）を読み取り、強制出力言語の設定があるかセマンティックに検出します（例：「Always respond in ...」、「language:」などのディレクティブ）。強制言語が検出された場合、ステップ 11 の PR タイトル、Summary、Test Plan にその言語を使用します（ただし section headers は英語のまま、commit messages は原文のまま維持）。検出されない場合はデフォルトで英語を使用します。
+- PR タイトル、Summary、Test Plan の言語を決定：ユーザーのコミュニケーション言語に合わせる（例：ユーザーが日本語で書いていれば日本語、英語なら英語）。不明な場合はデフォルトで英語。プロジェクトの CLAUDE.md に明示的な言語ディレクティブがある場合はプロジェクトのルールに従う。Section headers（## Summary、## Commits、## Test Plan）は常に英語のまま、commit messages は翻訳しない。
 
 8) ターゲットブランチ（base branch）の決定：
 - ユーザーが $0 でターゲットブランチを明示的に指定した場合、そのブランチ名を base branch として使用します。
@@ -39,7 +39,7 @@ argument-hint: 引数不要。自動 [check+add+commit+push+pr]
 - すべてのコミット（hash + message）を記録し、PR 本文の生成に使用します。
 
 11) PR タイトルと本文の生成：
-- **言語**：ステップ 7 で検出された言語を使用します。強制言語が検出されない場合、デフォルトで英語を使用します。Section headers（## Summary, ## Commits, ## Test Plan）は常に英語のままにします。
+- **言語**：ステップ 7 で決定された言語を使用します。Section headers（## Summary, ## Commits, ## Test Plan）は常に英語のままにします。
 - **タイトル**：
   - このブランチにコミットが 1 つだけの場合、そのコミットメッセージをそのままタイトルとして使用します。
   - コミットが複数ある場合、ブランチ名とコミットリストに基づいて要約タイトルを 1 文（50 文字以内）で生成し、最近のコミットスタイルに合わせます。

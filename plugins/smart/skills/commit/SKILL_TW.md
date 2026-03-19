@@ -75,7 +75,7 @@ argument-hint: 無需參數。自動識別單個或多個 feature，按 feature 
   - `scope` 描述的是改動「在哪裡」，而非「為什麼」— 不得用 scope 來合併不相關的改動。拆分始終由目的和 type（第 3 步）決定，永遠不由 scope 決定。相同 scope + 不同目的/type = 多次提交。
   - 允許的 type：`feat`、`fix`、`refactor`、`docs`、`test`、`chore`、`perf`、`ci`
   - description 規則：首字母小寫、不以句號結尾、整行長度（含 type、scope、冒號及 description）不超過 72 字元
-  - 語言：預設英文
+  - 語言：跟隨使用者的交流語言（如使用者使用中文則用中文，使用英文則用英文）。不確定時預設英文。
   - 聚焦「為什麼改」，避免空泛描述
 - **專案覆蓋：** 若專案 CLAUDE.md 中定義了自訂 commit message 格式或語言要求，以專案規範為準，忽略上述預設規則。
 - 單 feature：

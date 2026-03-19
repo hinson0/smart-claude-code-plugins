@@ -75,7 +75,7 @@ Execution steps (must follow strictly in order):
   - `scope` describes WHERE the change is, not WHY — it must NOT be used to group unrelated changes. Splitting is ALWAYS determined by purpose and type (step 3), never by scope. Same scope + different purposes/types = multiple commits.
   - Allowed types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`
   - Description rules: start with lowercase letter, no trailing period, total line length (including type, scope, colon, and description) must not exceed 72 characters
-  - Language: English by default
+  - Language: match the language the user is communicating in (e.g., if user writes in Chinese, use Chinese; if in English, use English). Default to English if unclear.
   - Focus on "why the change was made", avoid vague descriptions
 - **Project override:** If the project's CLAUDE.md defines custom commit message format or language requirements, follow the project's rules and ignore the defaults above.
 - Single feature:
