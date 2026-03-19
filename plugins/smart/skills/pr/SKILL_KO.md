@@ -22,7 +22,7 @@ argument-hint: 인수 불필요. 자동 [check+add+commit+push+pr]
 7) 기본 정보 수집 (병렬 실행):
 - `git branch --show-current` (현재 브랜치 이름, `HEAD_BRANCH`로 기록)
 - `git log -1 --oneline` (최신 커밋 1건, 단일 커밋 시나리오 판단용)
-- 프로젝트 루트의 `CLAUDE.md` 파일(존재하는 경우)을 읽고 강제 출력 언어 설정이 있는지 의미적으로 감지합니다 (예: "Always respond in ...", "language:" 등의 지시). 강제 언어가 감지되면, 11단계에서 PR 제목, Summary, Test Plan에 해당 언어를 사용합니다 (단, section headers는 영어로 유지하고 commit messages는 원문 그대로 유지). 감지되지 않으면 기본값으로 영어를 사용합니다.
+- PR 제목, Summary, Test Plan의 언어 결정: 사용자의 소통 언어를 따릅니다 (예: 사용자가 한국어로 작성하면 한국어, 영어면 영어). 불확실한 경우 기본값은 영어. 프로젝트 CLAUDE.md에 명시적인 언어 지시가 정의되어 있으면 프로젝트 규칙을 따릅니다. Section headers (## Summary, ## Commits, ## Test Plan)는 항상 영어로 유지하며, commit messages는 번역하지 않습니다.
 
 8) 대상 브랜치(base branch) 결정:
 - 사용자가 $0을 통해 대상 브랜치를 명시적으로 지정한 경우, 해당 브랜치 이름을 base branch로 사용합니다.
@@ -39,7 +39,7 @@ argument-hint: 인수 불필요. 자동 [check+add+commit+push+pr]
 - 모든 커밋(hash + message)을 기록하여 PR 본문 생성에 사용합니다.
 
 11) PR 제목 및 본문 생성:
-- **언어**: 7단계에서 감지된 언어를 사용합니다. 강제 언어가 감지되지 않으면 기본값으로 영어를 사용합니다. Section headers (## Summary, ## Commits, ## Test Plan)는 항상 영어로 유지합니다.
+- **언어**: 7단계에서 결정된 언어를 사용합니다. Section headers (## Summary, ## Commits, ## Test Plan)는 항상 영어로 유지합니다.
 - **제목**:
   - 이 브랜치에 커밋이 1개뿐이면, 해당 커밋 메시지를 그대로 제목으로 사용합니다.
   - 커밋이 여러 개이면, 브랜치 이름과 커밋 목록을 기반으로 요약 제목 1문장(50자 이내)을 생성하며, 최근 커밋 스타일과 일치시킵니다.

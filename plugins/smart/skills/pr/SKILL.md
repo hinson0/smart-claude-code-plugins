@@ -22,7 +22,7 @@ Execution steps (must follow in strict order, no skipping):
 7) Gather basic information (run in parallel):
 - `git branch --show-current` (current branch name, referred to as `HEAD_BRANCH`)
 - `git log -1 --oneline` (latest commit, used to determine single-commit scenario)
-- Read the project's `CLAUDE.md` file (if it exists) and check for explicit language directives (semantic detection, e.g., "Always respond in ...", "language:" settings). If a forced output language is found, use that language for the PR title, summary, and test plan in step 11 (but keep section headers in English and commit messages as-is). Otherwise, default to English.
+- Determine the language for PR title, summary, and test plan: match the language the user is communicating in (e.g., if user writes in Chinese, use Chinese; if in English, use English). Default to English if unclear. If the project's CLAUDE.md defines an explicit language directive, follow the project's rules. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
 
 8) Determine the target branch (base branch):
 - If the user explicitly specified a target branch via $0, use that branch name as the base branch.
@@ -39,7 +39,7 @@ Execution steps (must follow in strict order, no skipping):
 - Record all commits (hash + message) for generating the PR body.
 
 11) Generate PR title and body:
-- **Language**: Use the language detected in step 7. If no forced language was found, default to English. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English.
+- **Language**: Use the language determined in step 7. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English.
 - **Title**:
   - If this branch has only 1 commit, use that commit message directly as the title.
   - If there are multiple commits, generate a one-sentence summary title (under 50 characters) based on the branch name and commit list, matching the style of recent commits.

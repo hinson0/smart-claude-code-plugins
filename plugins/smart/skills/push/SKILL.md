@@ -19,7 +19,11 @@ Execution steps (must follow in strict order, no skipping):
 
 ## Phase 2: Commit
 
+⚠️ The commit skill below contains a CRITICAL semantic analysis step (step 3). Execute it completely — output the file-purpose table and splitting decision before running any git commands.
+
 @../commit/SKILL.md
+
+⚠️ Verify: the commit(s) above must match the grouping from the semantic analysis. If you committed everything in one shot but the analysis showed multiple types/purposes, STOP and redo.
 
 - If there are no changes in the working tree, skip this phase and proceed directly to Phase 3.
 

@@ -22,7 +22,7 @@ argument-hint: 無需參數。自動 [check+add+commit+push+pr]
 7) 收集基礎資訊（並行執行）：
 - `git branch --show-current`（當前分支名，記為 `HEAD_BRANCH`）
 - `git log -1 --oneline`（最新一條 commit，用於判斷單 commit 場景）
-- 讀取專案根目錄的 `CLAUDE.md`（若存在），語義檢測是否包含強制輸出語言設定（如"Always respond in ..."、"language:" 等指令）。若檢測到強制語言，則步驟 11 中的 PR 標題、Summary 和 Test Plan 使用該語言（但 section headers 保持英文，commit messages 保持原文）；否則預設英文。
+- 確定 PR 標題、Summary 和 Test Plan 的語言：跟隨使用者的交流語言（如使用者使用中文則用中文，使用英文則用英文）。不確定時預設英文。若專案 CLAUDE.md 中定義了明確的語言指令，以專案規則為準。Section headers（## Summary、## Commits、## Test Plan）始終保持英文，commit messages 不翻譯。
 
 8) 確定目標分支（base branch）：
 - 如果使用者透過 $0 明確指定了目標分支，則使用該分支名稱作為 base branch。
@@ -39,7 +39,7 @@ argument-hint: 無需參數。自動 [check+add+commit+push+pr]
 - 記錄所有 commit（hash + message），用於產生 PR 正文。
 
 11) 產生 PR 標題和正文：
-- **語言**：使用步驟 7 中檢測到的語言。若未檢測到強制語言，預設英文。Section headers（## Summary, ## Commits, ## Test Plan）始終保持英文。
+- **語言**：使用步驟 7 中確定的語言。Section headers（## Summary, ## Commits, ## Test Plan）始終保持英文。
 - **標題**：
   - 若本分支只有 1 個 commit，直接使用該 commit message 作為標題。
   - 若有多個 commit，基於分支名和 commit 列表產生 1 句概括性標題（50 字以內），風格與最近提交一致。

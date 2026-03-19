@@ -26,9 +26,10 @@ plugins/smart/
 ## 注意事项
 
 - 修改任何 SKILL.md 内容后，必须同步更新全部 5 个语言版本（EN/CN/TW/JA/KO）
-- commit message 遵循 Conventional Commits：`<type>: <description>`
+- commit message 遵循 Conventional Commits：`<type>(<scope>): <description>`
   - type: feat, fix, refactor, docs, test, chore, perf, ci
-  - description: 首字母小写，无句号，不超过 72 字符
+  - scope: 可选，指明改动范围（如 mobile, api, auth）；省略时格式为 `<type>: <description>`
+  - description: 首字母小写，无句号，含 type/scope 在内总长不超过 72 字符
 - plugin.json 中的版本号需与实际发布版本一致
 
 ## 开发工作流
