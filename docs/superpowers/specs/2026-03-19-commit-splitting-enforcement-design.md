@@ -127,7 +127,7 @@ Negative example for scope misuse:
 
 #### 1. Commit Skill — Pipeline Awareness Declaration
 
-Add before step 1:
+Add between the preamble line ("You are a repository commit assistant...") and step 1:
 
 ```
 IMPORTANT: This skill may run standalone or as part of a pipeline
@@ -168,6 +168,8 @@ analysis showed multiple types, STOP and redo.
 10. `plugins/smart/skills/push/SKILL_KO.md` — Sync translation
 
 No changes needed for `pr/SKILL.md` — it inherits the push skill's commit anchoring transitively via `@../push/SKILL.md`.
+
+Note: The project's CLAUDE.md currently documents the format as `<type>: <description>`. The new `<type>(<scope>): <description>` format is backward-compatible — scope is optional, so `<type>: <description>` remains valid. Update CLAUDE.md to document the optional scope.
 
 ## Known Limitations
 
