@@ -29,6 +29,12 @@ Replace the current step 3 with a version that mandates terminal output:
 
 #### New Step 3
 
+**Primary grouping axis: Purpose. Type as mandatory split signal.**
+
+Purpose remains the primary axis — files with unrelated purposes are always split, even if they share the same type. Different types are an additional MANDATORY split signal (different types always force a split, but same type does not force a merge).
+
+Must account for all three git statuses: `M` (modified), `A` (staged new files), and `??` (untracked new files). Do not omit any files.
+
 ```
 3) Semantic analysis (CRITICAL — you MUST output the analysis, not just think it):
 
@@ -41,9 +47,13 @@ Replace the current step 3 with a version that mandates terminal output:
      | app.json | add expo plugins | chore |
      | .prettierrc | add prettier config | chore |
 
-  b. Count distinct values in the Type column:
-     - 1 type → single commit
-     - 2+ types → multiple commits (MANDATORY, no exceptions)
+  b. Group by independent purpose first, then validate with type:
+     - Files sharing the same purpose → one group
+     - Files with different purposes → different groups (even if same type)
+     - Different types across groups → confirms split is mandatory
+     - Different types WITHIN a group → the group must be further split
+     - 1 group total → single commit
+     - 2+ groups → multiple commits (MANDATORY, no exceptions)
 
   c. If multiple commits: output the grouping plan:
      Group 1 (refactor): src/sheet.tsx, src/layout.tsx
@@ -53,7 +63,9 @@ Replace the current step 3 with a version that mandates terminal output:
   d. Proceed to step 4 with this grouping.
 ```
 
-#### Escape Hatch Restriction
+#### Escape Hatch Restriction (in Step 5, execution phase)
+
+The current escape hatch in Step 5 (line 67 of SKILL.md) must be replaced.
 
 Replace:
 > "If grouping fails or there is strong coupling that prevents safe splitting, combine into a single commit and explain the reason."
@@ -83,7 +95,7 @@ Add to step 3:
 
 ### Commit Message Format Update (scope support)
 
-Update step 4 default format:
+Replace the existing format line in step 4 (`<type>: <description>`) with:
 
 ```
 Default format: <type>(<scope>): <description>
@@ -91,8 +103,11 @@ Default format: <type>(<scope>): <description>
   package, module, or area (e.g., mobile, api, auth, shared)
 - scope describes WHERE, not WHY — it must NOT be used to group
   unrelated changes
-- Splitting is ALWAYS determined by type (step 3), never by scope.
-  Same scope + different types = multiple commits.
+- Splitting is ALWAYS determined by purpose and type (step 3), never
+  by scope. Same scope + different purposes/types = multiple commits.
+- The 72-character limit applies to the full line including type,
+  scope, colon, and description (e.g., "refactor(mobile): ..." counts
+  from 'r' to the last character)
 ```
 
 Negative example for scope misuse:
@@ -141,7 +156,7 @@ analysis showed multiple types, STOP and redo.
 
 ## Files to Modify
 
-1. `plugins/smart/skills/commit/SKILL.md` — Step 3 rewrite, step 4 format update, pipeline awareness
+1. `plugins/smart/skills/commit/SKILL.md` — Step 3 rewrite, step 4 format update, step 5 escape hatch, pipeline awareness
 2. `plugins/smart/skills/commit/SKILL_CN.md` — Sync translation
 3. `plugins/smart/skills/commit/SKILL_TW.md` — Sync translation
 4. `plugins/smart/skills/commit/SKILL_JA.md` — Sync translation
@@ -152,9 +167,16 @@ analysis showed multiple types, STOP and redo.
 9. `plugins/smart/skills/push/SKILL_JA.md` — Sync translation
 10. `plugins/smart/skills/push/SKILL_KO.md` — Sync translation
 
+No changes needed for `pr/SKILL.md` — it inherits the push skill's commit anchoring transitively via `@../push/SKILL.md`.
+
+## Known Limitations
+
+The skill-as-prompt architecture has no programmatic enforcement — all instructions are advisory. The combination of A (forced structured output) + C (pipeline anchoring) creates multiple reinforcing pressure points rather than a hard guarantee. If Claude skips the table, the pipeline continues silently. This is an inherent limitation of prompt-based skills.
+
 ## Success Criteria
 
-- When changes span multiple conventional commit types, the skill always produces separate commits per type
+- When changes span multiple purposes or commit types, the skill produces separate commits per group
 - The file-purpose table is visible in terminal output, not hidden in internal reasoning
-- Scope (`<type>(scope):`) is supported but never overrides type-based splitting
+- Scope (`<type>(scope):`) is supported but never overrides purpose/type-based splitting
 - Pipeline execution (via `/push` or `/pr`) produces the same splitting quality as standalone `/commit`
+- Same-type but different-purpose changes (e.g., two unrelated fixes) are still split correctly
