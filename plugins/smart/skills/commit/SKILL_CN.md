@@ -5,6 +5,8 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
 
 你是仓库提交助手。目标：在当前仓库把"本次修改"完成一次标准提交（不含 push 和本地检查）。
 
+重要：本 skill 可能独立运行，也可能作为管道（push/pr）的一部分运行。无论在何种上下文中，每个步骤——尤其是第 3 步的语义分析——都**必须完整执行**。不要因为后续还有其他阶段就省略或跳过任何步骤。
+
 执行步骤（必须严格按顺序）：
 
 1) 并行运行并读取以下信息：
@@ -16,25 +18,63 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
 2) 判断是否有可提交变更：
 - 若没有任何变更，直接回复"当前无可提交改动"，并结束。
 
-3) 语义分析，判断提交策略（关键步骤 — 默认倾向拆分）：
+3) 语义分析，判断提交策略（关键步骤 — 必须将分析结果输出到终端，不能只在内部思考）：
 - 读取 `git diff` 与 `git diff --staged` 内容，执行**逐文件结构化分析**：
-  a. **逐文件列出目的** — 对 diff 中每个文件写一行：`<文件路径> → <目的>`（如 "修复认证 bug"、"新增 i18n 支持"、"更新文档"）。
-  b. **按独立目的分组** — 目的相同的文件归为一组，目的不同则分属不同组。
-  c. **判断策略**：
-    - 所有文件的目的完全一致 → **单次提交**。
-    - 文件分属 2 个及以上不同目的 → **多次提交**（每个目的一次提交）。这是**强制要求**，不可合并。
+  a. **输出文件-目的表格**（强制要求，不可跳过）— 在终端打印 markdown 表格：
+     | File | Purpose | Type |
+     |------|---------|------|
+     | src/sheet.tsx | replace gesture sheet with Modal | refactor |
+     | src/api/entry.ts | await insert for data consistency | fix |
+     | app.json | add expo plugins | chore |
+     | .prettierrc | add prettier config | chore |
+     每个文件的 Purpose 必须具体明确，禁止使用 "improvements" 或 "updates" 等模糊描述。
+  b. **先按独立目的分组，再用 type 验证**：
+     - 目的相同的文件 → 归为一组。
+     - 目的不同的文件 → 分属不同组（即使 type 相同也要拆分）。
+     - 不同组之间 type 不同 → 确认必须拆分。
+     - 同一组内部 type 不同 → 该组必须进一步拆分。
+     - 总计 1 组 → **单次提交**。
+     - 总计 2 组及以上 → **多次提交**（强制要求，无例外）。
+  c. **若为多次提交：在终端输出分组方案**：
+     Group 1 (refactor): src/sheet.tsx, src/layout.tsx
+     Group 2 (fix): src/api/entry.ts
+     Group 3 (chore): app.json, .prettierrc
+  d. 携带此分组方案进入第 4 步。
 - **拆分规则（严格执行）**：
-  - 禁止将不相关的改动笼统归类为 "更新项目" 或 "多项改进" 等空泛描述。
+  - 禁止将不相关的改动笼统归类为 "update project" 或 "various improvements" 等空泛描述。
   - 不同的 conventional commit 类型（feat + fix、feat + refactor、fix + docs 等）几乎总是意味着多个 feature — **必须拆分**。
+  - 同一 type 但目的不同（如两个互不相关的 fix）— **仍须拆分**。
   - 为 feature A 新增文件 + 为 feature B 修改已有文件 = 两次提交，而非一次。
   - 拿不准时，**宁可多拆**。拆分过细永远好过将不相关改动混在一起。
 - **必须同时计入** `M`（已修改）、`A`（已暂存新文件）、`??`（未追踪新文件）三类，不得遗漏任何文件。
+- **示例**：
+  ❌ 错误 — 将不相关改动笼统归入模糊 scope：
+    | File | Purpose | Type |
+    | src/sheet.tsx | mobile improvements | refactor |
+    | src/api/entry.ts | mobile improvements | refactor |
+    | .prettierrc | mobile improvements | refactor |
+    → 单次提交: "refactor(mobile): various improvements"
+  ✅ 正确 — 按实际目的拆分：
+    | File | Purpose | Type |
+    | src/sheet.tsx | replace gesture sheet with Modal | refactor |
+    | src/api/entry.ts | await insert for data consistency | fix |
+    | .prettierrc | add prettier config | chore |
+    → 3 次提交，每个目的/类型各一次
+  ❌ 错误 — scope 被当作合并借口：
+    refactor(mobile): replace sheet, fix data consistency, add plugins
+  ✅ 正确 — 相同 scope，按目的/类型拆分：
+    refactor(mobile): replace gesture-based sheet with native Modal
+    fix(mobile): await chat_messages insert for data consistency
+    chore(mobile): add expo-localization and expo-web-browser plugins
+    chore: add prettierrc configuration
 
 4) 生成 commit message：
 - **默认格式（当项目 CLAUDE.md 未定义自定义 commit 格式时使用）：**
-  - 格式：`<type>: <description>`
+  - 格式：`<type>(<scope>): <description>`
+  - `scope` 为可选项 — 当改动明确限定于某个 package、模块或区域时使用（如 `mobile`、`api`、`auth`、`shared`）。无适用 scope 时省略括号。
+  - `scope` 描述的是改动**在哪里**，而非**为什么** — 不得用 scope 来合并不相关的改动。拆分**始终**由目的和 type（第 3 步）决定，与 scope 无关。相同 scope + 不同目的/type = 多次提交。
   - 允许的 type：`feat`、`fix`、`refactor`、`docs`、`test`、`chore`、`perf`、`ci`
-  - description 规则：首字母小写、不以句号结尾、整行长度（含 type 前缀）不超过 72 字符
+  - description 规则：首字母小写、不以句号结尾、整行长度（含 type、scope、冒号和 description）不超过 72 字符
   - 语言：默认英文
   - 聚焦"为什么改"，避免空泛描述
 - **项目覆盖：** 如果项目 CLAUDE.md 中定义了自定义 commit message 格式或语言要求，以项目规范为准，忽略上述默认规则。
@@ -64,7 +104,7 @@ git commit -m "$(cat <<'EOF'
 EOF
 )"
 ```
-  - 若分组失败或存在强耦合无法安全拆分，合并为一次提交并说明原因。
+  - 仅当文件存在循环依赖导致无法分别提交时才允许合并分组（例如：组 1 的文件 A 导入了组 2 的文件 B 中尚不存在的新 export）。必须列出具体的依赖链来证明合并的合理性。
 
 6) 输出结果（中文）：
 - 展示实际使用的 commit message。
