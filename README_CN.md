@@ -20,6 +20,16 @@
 
 ---
 
+## 特性
+
+- **两阶段智能提交分组** — 第一阶段按 type 硬分割（feat vs fix vs refactor），第二阶段按目的对同类 type 进行语义分割。杜绝无关改动混入同一次提交。
+- **Fail-Fast 管道** — 任意步骤失败立即停止，不会出现残缺推送或错误 PR。
+- **自动 CI 检测** — 读取 `.github/workflows/*.yml`，在本地运行对应检查（ruff、pytest、eslint、tsc、jest、go test、turbo 等）。
+- **自动创建 GitHub 仓库** — 未配置 remote？自动为你创建。
+- **Conventional Commits** — 所有 commit message 自动遵循 `<type>(<scope>): <description>` 格式。
+
+---
+
 ## 两种使用方式
 
 **💬 直接说** — 在对话中自然表达：
@@ -35,6 +45,8 @@
 | `/smart:pr [目标分支]` | 完整流程：check → commit → push → PR（默认目标分支：`main`） |
 | `/smart:push` | check → commit → push（不创建 PR） |
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
+| `/smart:check` | 仅运行本地 CI 检查（自动检测 workflow 配置） |
+
 ---
 
 ## 快速开始
@@ -77,8 +89,10 @@ gh auth login
     ├── 1. check   — 读取 .github/workflows/*.yml，运行对应本地检查
     │                （ruff/pytest、eslint/tsc、go test，无 CI 配置则跳过）
     │
-    ├── 2. commit  — 语义分析改动，自动生成 commit message
-    │                （多个独立 feature 时自动拆分为多次提交）
+    ├── 2. commit  — 两阶段语义分析：
+    │                第一阶段：按 type 硬分割（feat/fix/refactor/...）
+    │                第二阶段：同类 type 按目的再分割
+    │                （自动生成 Conventional Commit message）
     │
     ├── 3. push    — 推送到 origin
     │                （未配置 remote 时自动在 GitHub 创建仓库并关联）

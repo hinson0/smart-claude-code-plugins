@@ -20,6 +20,16 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 
 ---
 
+## Features
+
+- **Two-Phase Smart Commit Grouping** — Phase 1 hard-splits by type (feat vs fix vs refactor), Phase 2 semantically splits within the same type by purpose. No unrelated changes sneak into a single commit.
+- **Fail-Fast Pipeline** — Any step fails, everything stops immediately. No partial pushes or broken PRs.
+- **Auto CI Detection** — Reads `.github/workflows/*.yml` and runs matching checks locally (ruff, pytest, eslint, tsc, jest, go test, turbo, and more).
+- **Auto GitHub Repo Creation** — No remote configured? It creates one for you.
+- **Conventional Commits** — All commit messages follow `<type>(<scope>): <description>` format automatically.
+
+---
+
 ## Two Ways to Use
 
 **💬 Just say it** — type naturally in chat:
@@ -35,6 +45,8 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 | `/smart:pr [base]` | Full pipeline: check → commit → push → PR (default base: `main`) |
 | `/smart:push` | check → commit → push (no PR) |
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
+| `/smart:check` | Run local CI checks only (auto-detects from workflow config) |
+
 ---
 
 ## Quick Start
@@ -77,8 +89,10 @@ It will automatically: detect CI checks → run them locally → stage & commit 
     ├── 1. check   — reads .github/workflows/*.yml, runs matching local checks
     │                (ruff/pytest, eslint/tsc, go test — skips if no CI config)
     │
-    ├── 2. commit  — semantic diff analysis, auto-generates commit messages
-    │                (splits into multiple commits if independent features detected)
+    ├── 2. commit  — two-phase semantic analysis:
+    │                Phase 1: hard-split by type (feat/fix/refactor/...)
+    │                Phase 2: split same-type changes by purpose
+    │                (auto-generates Conventional Commit messages)
     │
     ├── 3. push    — pushes to origin
     │                (auto-creates GitHub repo if origin is not configured)

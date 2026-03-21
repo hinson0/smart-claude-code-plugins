@@ -20,6 +20,16 @@
 
 ---
 
+## 特性
+
+- **兩階段智慧提交分組** — 第一階段按 type 硬分割（feat vs fix vs refactor），第二階段按目的對同類 type 進行語義分割。杜絕無關變更混入同一次提交。
+- **Fail-Fast 管線** — 任意步驟失敗立即停止，不會出現殘缺推送或錯誤 PR。
+- **自動 CI 偵測** — 讀取 `.github/workflows/*.yml`，在本機執行對應檢查（ruff、pytest、eslint、tsc、jest、go test、turbo 等）。
+- **自動建立 GitHub 倉庫** — 未設定 remote？自動為你建立。
+- **Conventional Commits** — 所有 commit message 自動遵循 `<type>(<scope>): <description>` 格式。
+
+---
+
 ## 兩種使用方式
 
 **💬 直接說** — 在對話中自然表達：
@@ -35,6 +45,8 @@
 | `/smart:pr [目標分支]` | 完整流程：check → commit → push → PR（預設目標分支：`main`） |
 | `/smart:push` | check → commit → push（不建立 PR） |
 | `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
+| `/smart:check` | 僅執行本機 CI 檢查（自動偵測 workflow 設定） |
+
 ---
 
 ## 快速開始
@@ -77,8 +89,10 @@ gh auth login
     ├── 1. check   — 讀取 .github/workflows/*.yml，執行對應本機檢查
     │                （ruff/pytest、eslint/tsc、go test，無 CI 設定則跳過）
     │
-    ├── 2. commit  — 語義分析變更，自動產生 commit message
-    │                （多個獨立 feature 時自動拆分為多次提交）
+    ├── 2. commit  — 兩階段語義分析：
+    │                第一階段：按 type 硬分割（feat/fix/refactor/...）
+    │                第二階段：同類 type 按目的再分割
+    │                （自動產生 Conventional Commit message）
     │
     ├── 3. push    — 推送到 origin
     │                （未設定 remote 時自動在 GitHub 建立倉庫並關聯）
