@@ -28,18 +28,21 @@ argument-hint: 無需參數。自動識別單個或多個 feature，按 feature 
      | app.json | add expo plugins | chore |
      | .prettierrc | add prettier config | chore |
      每個檔案的 Purpose 必須具體明確。禁止使用「improvements」或「updates」等空泛描述。
-  b. **先按獨立目的分組，再用 type 驗證**：
-     - 目的相同的檔案 → 歸為一組。
-     - 目的不同的檔案 → 分屬不同組（即使 type 相同）。
-     - 不同組之間 type 不同 → 確認必須拆分。
-     - 同一組內部 type 不同 → 該組必須進一步拆分。
+  b. **階段一 — 按 type 硬分組**（機械操作，無需語義判斷）：
+     - 嚴格按 `Type` 欄分組。不同 type 的檔案**不可能**出現在同一組中。此規則不可商量，無需語義判斷。
+     - 範例：若表格中包含 `refactor`、`fix`、`chore` 三種 type → 至少 3 組，每種 type 各一組。
+  c. **階段二 — 在同 type 組內按目的細分**（語義分析）：
+     - 在階段一的每個 type 組內部，判斷檔案是否服務於不同的獨立目的。
+     - 目的相同 → 保持為一組。
+     - 目的不同 → 拆分為多組（例如：兩個不相關的 `fix` 改動變為兩組）。
+  d. **統計最終分組數量**：
      - 總共 1 組 → **單次提交**。
      - 2 組及以上 → **多次提交**（強制要求，無例外）。
-  c. **若為多次提交：將分組計畫輸出到終端**：
+  e. **若為多次提交：將分組計畫輸出到終端**：
      Group 1 (refactor): src/sheet.tsx, src/layout.tsx
      Group 2 (fix): src/api/entry.ts
      Group 3 (chore): app.json, .prettierrc
-  d. 按此分組進入第 4 步。
+  f. 按此分組進入第 4 步。
 - **拆分規則（嚴格執行）**：
   - 禁止將不相關的改動籠統歸類為「update project」或「various improvements」等空泛描述。
   - 不同的 conventional commit 類型（feat + fix、feat + refactor、fix + docs 等）幾乎總是意味著多個 feature — **必須拆分**。
@@ -75,9 +78,9 @@ argument-hint: 無需參數。自動識別單個或多個 feature，按 feature 
   - `scope` 描述的是改動「在哪裡」，而非「為什麼」— 不得用 scope 來合併不相關的改動。拆分始終由目的和 type（第 3 步）決定，永遠不由 scope 決定。相同 scope + 不同目的/type = 多次提交。
   - 允許的 type：`feat`、`fix`、`refactor`、`docs`、`test`、`chore`、`perf`、`ci`
   - description 規則：首字母小寫、不以句號結尾、整行長度（含 type、scope、冒號及 description）不超過 72 字元
-  - 語言：跟隨使用者的交流語言（如使用者使用中文則用中文，使用英文則用英文）。不確定時預設英文。
+  - 語言：預設使用英文。僅當專案的 `CLAUDE.md` 或 `CLAUDE.local.md` 明確指定了 commit message 語言時，才使用指定語言。
   - 聚焦「為什麼改」，避免空泛描述
-- **專案覆蓋：** 若專案 CLAUDE.md 中定義了自訂 commit message 格式或語言要求，以專案規範為準，忽略上述預設規則。
+- **專案覆蓋：** 若專案 `CLAUDE.md` 或 `CLAUDE.local.md` 中定義了自訂 commit message 格式或語言要求，以專案規範為準，忽略上述預設規則。
 - 單 feature：
   - 按上述規則生成 1 條 commit message。
 - 多 feature：

@@ -28,18 +28,21 @@ Execution steps (must follow strictly in order):
      | app.json | add expo plugins | chore |
      | .prettierrc | add prettier config | chore |
      Each file's Purpose must be specific and concrete. Do NOT use vague descriptions like "improvements" or "updates".
-  b. **Group by independent purpose first, then validate with type**:
-     - Files sharing the same purpose → one group.
-     - Files with different purposes → different groups (even if same type).
-     - Different types across groups → confirms split is mandatory.
-     - Different types WITHIN a group → the group must be further split.
+  b. **Phase 1 — Hard split by type** (mechanical, no judgment needed):
+     - Group files strictly by their `Type` column. Files with different types CANNOT appear in the same group. This is non-negotiable and requires no semantic judgment.
+     - Example: if the table contains `refactor`, `fix`, and `chore` types → at least 3 groups, one per type.
+  c. **Phase 2 — Split by purpose within each type group** (semantic analysis):
+     - Within each type group from Phase 1, check whether files serve different independent purposes.
+     - Same purpose → keep as one group.
+     - Different purposes → split into separate groups (e.g., two unrelated `fix` changes become two groups).
+  d. **Count the final groups**:
      - 1 group total → **single commit**.
      - 2+ groups → **multiple commits** (MANDATORY, no exceptions).
-  c. **If multiple commits: output the grouping plan** to the terminal:
+  e. **If multiple commits: output the grouping plan** to the terminal:
      Group 1 (refactor): src/sheet.tsx, src/layout.tsx
      Group 2 (fix): src/api/entry.ts
      Group 3 (chore): app.json, .prettierrc
-  d. Proceed to step 4 with this grouping.
+  f. Proceed to step 4 with this grouping.
 - **Splitting rules (strictly enforced)**:
   - Do NOT bundle unrelated changes under a vague umbrella like "update project" or "various improvements".
   - Different conventional commit types (feat + fix, feat + refactor, fix + docs, etc.) almost always indicate multiple features — **split them**.
@@ -75,9 +78,9 @@ Execution steps (must follow strictly in order):
   - `scope` describes WHERE the change is, not WHY — it must NOT be used to group unrelated changes. Splitting is ALWAYS determined by purpose and type (step 3), never by scope. Same scope + different purposes/types = multiple commits.
   - Allowed types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`
   - Description rules: start with lowercase letter, no trailing period, total line length (including type, scope, colon, and description) must not exceed 72 characters
-  - Language: match the language the user is communicating in (e.g., if user writes in Chinese, use Chinese; if in English, use English). Default to English if unclear.
+  - Language: default to English. Only use another language if the project's `CLAUDE.md` or `CLAUDE.local.md` explicitly specifies a commit message language.
   - Focus on "why the change was made", avoid vague descriptions
-- **Project override:** If the project's CLAUDE.md defines custom commit message format or language requirements, follow the project's rules and ignore the defaults above.
+- **Project override:** If the project's `CLAUDE.md` or `CLAUDE.local.md` defines custom commit message format or language requirements, follow the project's rules and ignore the defaults above.
 - Single feature:
   - Generate 1 commit message following the rules above.
 - Multiple features:

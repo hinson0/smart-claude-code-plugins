@@ -22,7 +22,7 @@ argument-hint: 인수 불필요. 자동 [check+add+commit+push+pr]
 7) 기본 정보 수집 (병렬 실행):
 - `git branch --show-current` (현재 브랜치 이름, `HEAD_BRANCH`로 기록)
 - `git log -1 --oneline` (최신 커밋 1건, 단일 커밋 시나리오 판단용)
-- PR 제목, Summary, Test Plan의 언어 결정: 사용자의 소통 언어를 따릅니다 (예: 사용자가 한국어로 작성하면 한국어, 영어면 영어). 불확실한 경우 기본값은 영어. 프로젝트 CLAUDE.md에 명시적인 언어 지시가 정의되어 있으면 프로젝트 규칙을 따릅니다. Section headers (## Summary, ## Commits, ## Test Plan)는 항상 영어로 유지하며, commit messages는 번역하지 않습니다.
+- PR 제목, Summary, Test Plan의 언어 결정: 기본값은 영어입니다. 프로젝트의 `CLAUDE.md` 또는 `CLAUDE.local.md`에서 PR/commit 콘텐츠 언어를 명시적으로 지정한 경우에만 해당 언어를 사용합니다. Section headers (## Summary, ## Commits, ## Test Plan)는 항상 영어로 유지하며, commit messages는 번역하지 않습니다.
 
 8) 대상 브랜치(base branch) 결정:
 - 사용자가 $0을 통해 대상 브랜치를 명시적으로 지정한 경우, 해당 브랜치 이름을 base branch로 사용합니다.

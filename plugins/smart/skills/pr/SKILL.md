@@ -22,7 +22,7 @@ Execution steps (must follow in strict order, no skipping):
 7) Gather basic information (run in parallel):
 - `git branch --show-current` (current branch name, referred to as `HEAD_BRANCH`)
 - `git log -1 --oneline` (latest commit, used to determine single-commit scenario)
-- Determine the language for PR title, summary, and test plan: match the language the user is communicating in (e.g., if user writes in Chinese, use Chinese; if in English, use English). Default to English if unclear. If the project's CLAUDE.md defines an explicit language directive, follow the project's rules. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
+- Determine the language for PR title, summary, and test plan: default to English. Only use another language if the project's `CLAUDE.md` or `CLAUDE.local.md` explicitly specifies a PR/commit content language. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
 
 8) Determine the target branch (base branch):
 - If the user explicitly specified a target branch via $0, use that branch name as the base branch.

@@ -22,7 +22,7 @@ argument-hint: 引数不要。自動 [check+add+commit+push+pr]
 7) 基本情報の収集（並列実行）：
 - `git branch --show-current`（現在のブランチ名、`HEAD_BRANCH` として記録）
 - `git log -1 --oneline`（最新のコミット 1 件、単一コミットシナリオの判定用）
-- PR タイトル、Summary、Test Plan の言語を決定：ユーザーのコミュニケーション言語に合わせる（例：ユーザーが日本語で書いていれば日本語、英語なら英語）。不明な場合はデフォルトで英語。プロジェクトの CLAUDE.md に明示的な言語ディレクティブがある場合はプロジェクトのルールに従う。Section headers（## Summary、## Commits、## Test Plan）は常に英語のまま、commit messages は翻訳しない。
+- PR タイトル、Summary、Test Plan の言語を決定：デフォルトは英語。プロジェクトの `CLAUDE.md` または `CLAUDE.local.md` で PR/commit コンテンツの言語が明示的に指定されている場合のみ、指定された言語を使用します。Section headers（## Summary、## Commits、## Test Plan）は常に英語のまま、commit messages は翻訳しない。
 
 8) ターゲットブランチ（base branch）の決定：
 - ユーザーが $0 でターゲットブランチを明示的に指定した場合、そのブランチ名を base branch として使用します。
