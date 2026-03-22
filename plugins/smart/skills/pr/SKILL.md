@@ -1,5 +1,5 @@
 ---
-description: Use when the user wants to create a pull request (e.g. "create PR", "发个PR", "open a pull request", "提个PR"), or wants the full check+commit+push+PR pipeline. Includes push — no need to push first.
+description: Use when the user wants to create a pull request (e.g. "pr", "PR", "create PR", "发个PR", "open a pull request", "提个PR", "merge request"), or wants the full check+commit+push+PR pipeline. Includes push — no need to push first.
 argument-hint: No arguments needed. Auto [check+add+commit+push+pr]
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: 當使用者想要建立 Pull Request（如「create PR」、「發個PR」、「提個PR」、「建立合併請求」），或需要完整的 check+commit+push+PR 管線時使用。已包含 push — 無需先手動推送。
+description: 當使用者想要建立 Pull Request（如「pr」、「PR」、「create PR」、「發個PR」、「提個PR」、「建立合併請求」），或需要完整的 check+commit+push+PR 管線時使用。已包含 push — 無需先手動推送。
 argument-hint: 無需參數。自動 [check+add+commit+push+pr]
 ---
 
