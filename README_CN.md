@@ -1,4 +1,4 @@
-# smart-claude-code-plugin
+# smart-claude-code-plugins
 
 <div align="center">
 
@@ -56,13 +56,13 @@
 先在 Claude Code 中注册插件市场：
 
 ```
-/plugin marketplace add hinson0/smart-claude-code-plugin
+/plugin marketplace add hinson0/smart-claude-code-plugins
 ```
 
 然后从该市场安装插件：
 
 ```
-/plugin install smart@smart-claude-code-plugin
+/plugin install smart@smart-claude-code-plugins
 ```
 
 **2. 登录 GitHub CLI** _（仅需一次）_

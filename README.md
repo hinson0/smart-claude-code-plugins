@@ -1,4 +1,4 @@
-# smart-claude-code-plugin
+# smart-claude-code-plugins
 
 <div align="center">
 
@@ -56,13 +56,13 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 In Claude Code, register the marketplace first:
 
 ```
-/plugin marketplace add hinson0/smart-claude-code-plugin
+/plugin marketplace add hinson0/smart-claude-code-plugins
 ```
 
 Then install the plugin from this marketplace:
 
 ```
-/plugin install smart@smart-claude-code-plugin
+/plugin install smart@smart-claude-code-plugins
 ```
 
 **2. Authenticate GitHub CLI** _(one-time setup)_
