@@ -1,5 +1,5 @@
 ---
-description: ユーザーがPull Requestを作成したい時（例：「create PR」「PRを作って」「プルリクを出して」）、またはcheck+commit+push+PRの完全パイプラインが必要な時に使用。push込み — 先にpushする必要なし。
+description: ユーザーがPull Requestを作成したい時（例：「pr」「PR」「create PR」「PRを作って」「プルリクを出して」）、またはcheck+commit+push+PRの完全パイプラインが必要な時に使用。push込み — 先にpushする必要なし。
 argument-hint: 引数不要。自動 [check+add+commit+push+pr]
 ---
 
