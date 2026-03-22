@@ -1,5 +1,5 @@
 ---
-description: Use when the user wants to push code to remote (e.g. "push", "推一下", "push to origin"), or wants the full check+commit+push pipeline. Not for creating PRs — use smart:pr instead.
+description: Use when the user wants to push code to remote (e.g. "push", "push to origin"), or wants the full check+commit+push pipeline. Not for creating PRs — use smart:pr instead.
 argument-hint: No arguments needed. Auto [check+add+commit+push]
 ---
 

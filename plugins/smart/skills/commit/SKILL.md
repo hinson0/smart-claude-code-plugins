@@ -1,5 +1,5 @@
 ---
-description: Use when the user wants to commit changes (e.g. "commit", "提交", "save my work"), confirms a task is done and needs committing (e.g. "完成了", "done", "搞定"), or as part of push/PR pipelines.
+description: Use when the user wants to commit changes (e.g. "commit", "save my work"), confirms a task is done and needs committing (e.g. "done"), or as part of push/PR pipelines.
 argument-hint: No arguments needed. Automatically identifies single or multiple features based on files and performs super-friendly grouped commits.
 ---
 
