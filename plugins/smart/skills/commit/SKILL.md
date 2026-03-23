@@ -51,25 +51,34 @@ Execution steps (must follow strictly in order):
   - When in doubt, **split**. Too many small commits is always better than one bloated commit mixing unrelated changes.
 - **Must account for all three statuses**: `M` (modified), `A` (staged new files), and `??` (untracked new files). Do not omit any files.
 - **Examples**:
+
   ❌ WRONG — bundling unrelated changes under a vague scope:
-    | File | Purpose | Type |
-    | src/sheet.tsx | mobile improvements | refactor |
-    | src/api/entry.ts | mobile improvements | refactor |
-    | .prettierrc | mobile improvements | refactor |
-    → single commit: "refactor(mobile): various improvements"
+  ```
+  | File | Purpose | Type |
+  | src/sheet.tsx | mobile improvements | refactor |
+  | src/api/entry.ts | mobile improvements | refactor |
+  | .prettierrc | mobile improvements | refactor |
+  → single commit: "refactor(mobile): various improvements"
+  ```
   ✅ CORRECT — splitting by actual purpose:
-    | File | Purpose | Type |
-    | src/sheet.tsx | replace gesture sheet with Modal | refactor |
-    | src/api/entry.ts | await insert for data consistency | fix |
-    | .prettierrc | add prettier config | chore |
-    → 3 commits, one per purpose/type
+  ```
+  | File | Purpose | Type |
+  | src/sheet.tsx | replace gesture sheet with Modal | refactor |
+  | src/api/entry.ts | await insert for data consistency | fix |
+  | .prettierrc | add prettier config | chore |
+  → 3 commits, one per purpose/type
+  ```
   ❌ WRONG — scope used as grouping umbrella:
-    refactor(mobile): replace sheet, fix data consistency, add plugins
+  ```
+  refactor(mobile): replace sheet, fix data consistency, add plugins
+  ```
   ✅ CORRECT — same scope, split by purpose/type:
-    refactor(mobile): replace gesture-based sheet with native Modal
-    fix(mobile): await chat_messages insert for data consistency
-    chore(mobile): add expo-localization and expo-web-browser plugins
-    chore: add prettierrc configuration
+  ```
+  refactor(mobile): replace gesture-based sheet with native Modal
+  fix(mobile): await chat_messages insert for data consistency
+  chore(mobile): add expo-localization and expo-web-browser plugins
+  chore: add prettierrc configuration
+  ```
 
 4) Generate commit message:
 - **Default format (used when project CLAUDE.md does not define a custom commit format):**

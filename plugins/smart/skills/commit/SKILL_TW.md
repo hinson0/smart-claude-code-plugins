@@ -51,25 +51,34 @@ argument-hint: 無需參數。自動識別單個或多個 feature，按 feature 
   - 拿不準時，**寧可多拆**。拆分過細永遠好過將不相關改動混在一起。
 - **必須同時計入** `M`（已修改）、`A`（已暫存新檔案）、`??`（未追蹤新檔案）三類，不得遺漏任何檔案。
 - **範例**：
+
   ❌ 錯誤 — 將不相關改動歸入空泛的 scope：
-    | File | Purpose | Type |
-    | src/sheet.tsx | mobile improvements | refactor |
-    | src/api/entry.ts | mobile improvements | refactor |
-    | .prettierrc | mobile improvements | refactor |
-    → 單次提交："refactor(mobile): various improvements"
+  ```
+  | File | Purpose | Type |
+  | src/sheet.tsx | mobile improvements | refactor |
+  | src/api/entry.ts | mobile improvements | refactor |
+  | .prettierrc | mobile improvements | refactor |
+  → 單次提交："refactor(mobile): various improvements"
+  ```
   ✅ 正確 — 按實際目的拆分：
-    | File | Purpose | Type |
-    | src/sheet.tsx | replace gesture sheet with Modal | refactor |
-    | src/api/entry.ts | await insert for data consistency | fix |
-    | .prettierrc | add prettier config | chore |
-    → 3 次提交，每個目的/類型各一次
+  ```
+  | File | Purpose | Type |
+  | src/sheet.tsx | replace gesture sheet with Modal | refactor |
+  | src/api/entry.ts | await insert for data consistency | fix |
+  | .prettierrc | add prettier config | chore |
+  → 3 次提交，每個目的/類型各一次
+  ```
   ❌ 錯誤 — scope 被當作合併的藉口：
-    refactor(mobile): replace sheet, fix data consistency, add plugins
+  ```
+  refactor(mobile): replace sheet, fix data consistency, add plugins
+  ```
   ✅ 正確 — 相同 scope，按目的/類型拆分：
-    refactor(mobile): replace gesture-based sheet with native Modal
-    fix(mobile): await chat_messages insert for data consistency
-    chore(mobile): add expo-localization and expo-web-browser plugins
-    chore: add prettierrc configuration
+  ```
+  refactor(mobile): replace gesture-based sheet with native Modal
+  fix(mobile): await chat_messages insert for data consistency
+  chore(mobile): add expo-localization and expo-web-browser plugins
+  chore: add prettierrc configuration
+  ```
 
 4) 生成 commit message：
 - **預設格式（當專案 CLAUDE.md 未定義自訂 commit 格式時使用）：**
