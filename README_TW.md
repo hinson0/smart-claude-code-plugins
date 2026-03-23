@@ -27,6 +27,7 @@
 - **自動 CI 偵測** — 讀取 `.github/workflows/*.yml`，在本機執行對應檢查（ruff、pytest、eslint、tsc、jest、go test、turbo 等）。
 - **自動建立 GitHub 倉庫** — 未設定 remote？自動為你建立。
 - **Conventional Commits** — 所有 commit message 自動遵循 `<type>(<scope>): <description>` 格式。
+- **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `CLAUDE.md` 覆蓋。
 
 ---
 
@@ -98,6 +99,7 @@ gh auth login
     │                （未設定 remote 時自動在 GitHub 建立倉庫並關聯）
     │
     └── 4. pr      — 自動產生標題和內文，建立 Pull Request
+                     （語言跟隨步驟 2 的 commit message）
 ```
 
 任意步驟失敗均立即停止，不會執行後續操作。

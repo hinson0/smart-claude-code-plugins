@@ -27,6 +27,7 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 - **Auto CI Detection** — Reads `.github/workflows/*.yml` and runs matching checks locally (ruff, pytest, eslint, tsc, jest, go test, turbo, and more).
 - **Auto GitHub Repo Creation** — No remote configured? It creates one for you.
 - **Conventional Commits** — All commit messages follow `<type>(<scope>): <description>` format automatically.
+- **Consistent Language** — PR title, summary, and test plan automatically use the same language as the commit messages. Defaults to English; overridable via project `CLAUDE.md`.
 
 ---
 
@@ -98,6 +99,7 @@ It will automatically: detect CI checks → run them locally → stage & commit 
     │                (auto-creates GitHub repo if origin is not configured)
     │
     └── 4. pr      — opens a Pull Request with auto-generated title & body
+                     (language follows commit messages from step 2)
 ```
 
 Any step that fails stops the pipeline immediately.
