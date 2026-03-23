@@ -22,7 +22,7 @@ Execution steps (must follow in strict order, no skipping):
 7) Gather basic information (run in parallel):
 - `git branch --show-current` (current branch name, referred to as `HEAD_BRANCH`)
 - `git log -1 --oneline` (latest commit, used to determine single-commit scenario)
-- Determine the language for PR title, summary, and test plan: default to English. Only use another language if the project's `CLAUDE.md` or `CLAUDE.local.md` explicitly specifies a PR/commit content language. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
+- Determine the language for PR title, summary, and test plan: use the same language as the commit messages generated in Phase 1 (the commit skill's step 4 language rules are the single source of truth). If Phase 1 was skipped (no changes), infer the language from existing commit messages in `git log` (use the language that the majority of recent commits are written in). Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
 
 8) Determine the target branch (base branch):
 - If the user explicitly specified a target branch via $0, use that branch name as the base branch.
