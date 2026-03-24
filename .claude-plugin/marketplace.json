@@ -12,7 +12,6 @@
     {
       "name": "smart",
       "source": "./plugins/smart",
-      "version": "2.2.3",
       "description": "Fail-fast git pipeline plugin with semantic multi-feature commit splitting, local CI auto-detection, and one-command push/PR creation."
     }
   ]
