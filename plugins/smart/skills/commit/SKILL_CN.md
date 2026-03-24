@@ -21,12 +21,14 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
 3) 语义分析，判断提交策略（关键步骤 — 必须将分析结果输出到终端，不能只在内部思考）：
 - 读取 `git diff` 与 `git diff --staged` 内容，执行**逐文件结构化分析**：
   a. **输出文件-目的表格**（强制要求，不可跳过）— 在终端打印 markdown 表格：
+
      | File | Purpose | Type |
      |------|---------|------|
      | src/sheet.tsx | replace gesture sheet with Modal | refactor |
      | src/api/entry.ts | await insert for data consistency | fix |
      | app.json | add expo plugins | chore |
      | .prettierrc | add prettier config | chore |
+
      每个文件的 Purpose 必须具体明确，禁止使用 "improvements" 或 "updates" 等模糊描述。
   b. **阶段一 — 按 type 硬分组**（机械操作，无需语义判断）：
      - 严格按 `Type` 列分组。不同 type 的文件**不可能**出现在同一组中。此规则不可商量，无需语义判断。
@@ -39,9 +41,11 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
      - 总计 1 组 → **单次提交**。
      - 总计 2 组及以上 → **多次提交**（强制要求，无例外）。
   e. **若为多次提交：在终端输出分组方案**：
+     ```
      Group 1 (refactor): src/sheet.tsx, src/layout.tsx
      Group 2 (fix): src/api/entry.ts
      Group 3 (chore): app.json, .prettierrc
+     ```
   f. 携带此分组方案进入第 4 步。
 - **拆分规则（严格执行）**：
   - 禁止将不相关的改动笼统归类为 "update project" 或 "various improvements" 等空泛描述。

@@ -21,12 +21,14 @@ Execution steps (must follow strictly in order):
 3) Semantic analysis to determine commit strategy (CRITICAL — you MUST output the analysis to the terminal, not just think it):
 - Read the content of `git diff` and `git diff --staged`, then perform a **structured file-level analysis**:
   a. **Output a file-purpose table** (mandatory, cannot be skipped) — print a markdown table to the terminal:
+
      | File | Purpose | Type |
      |------|---------|------|
      | src/sheet.tsx | replace gesture sheet with Modal | refactor |
      | src/api/entry.ts | await insert for data consistency | fix |
      | app.json | add expo plugins | chore |
      | .prettierrc | add prettier config | chore |
+
      Each file's Purpose must be specific and concrete. Do NOT use vague descriptions like "improvements" or "updates".
   b. **Phase 1 — Hard split by type** (mechanical, no judgment needed):
      - Group files strictly by their `Type` column. Files with different types CANNOT appear in the same group. This is non-negotiable and requires no semantic judgment.
@@ -39,9 +41,11 @@ Execution steps (must follow strictly in order):
      - 1 group total → **single commit**.
      - 2+ groups → **multiple commits** (MANDATORY, no exceptions).
   e. **If multiple commits: output the grouping plan** to the terminal:
+     ```
      Group 1 (refactor): src/sheet.tsx, src/layout.tsx
      Group 2 (fix): src/api/entry.ts
      Group 3 (chore): app.json, .prettierrc
+     ```
   f. Proceed to step 4 with this grouping.
 - **Splitting rules (strictly enforced)**:
   - Do NOT bundle unrelated changes under a vague umbrella like "update project" or "various improvements".
