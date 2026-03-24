@@ -9,45 +9,52 @@ argument-hint: 無需參數。自動識別單個或多個 feature，按 feature 
 
 執行步驟（必須嚴格按順序）：
 
-1) 並行運行並讀取以下資訊：
+## 1) 並行運行並讀取以下資訊：
 - `git status --short`
 - `git diff --staged`
 - `git diff`
 - `git log -5 --oneline`
 
-2) 判斷是否有可提交變更：
+## 2) 判斷是否有可提交變更：
 - 若沒有任何變更，直接回覆「當前無可提交改動」，並結束。
 
-3) 語義分析，判斷提交策略（關鍵步驟 — 你必須將分析結果輸出到終端，而不僅僅是在思考中完成）：
+## 3) 語義分析，判斷提交策略
+>（關鍵步驟 — 必須將分析結果輸出到終端，不能只在內部思考）：
 - 讀取 `git diff` 與 `git diff --staged` 內容，執行**逐檔案結構化分析**：
   a. **輸出檔案用途表**（強制要求，不可跳過）— 在終端輸出一個 markdown 表格：
 
-     | File | Purpose | Type |
-     |------|---------|------|
-     | src/sheet.tsx | replace gesture sheet with Modal | refactor |
-     | src/api/entry.ts | await insert for data consistency | fix |
-     | app.json | add expo plugins | chore |
-     | .prettierrc | add prettier config | chore |
+     | File             | Purpose                           | Type     |
+     | ---------------- | --------------------------------- | -------- |
+     | src/sheet.tsx    | replace gesture sheet with Modal  | refactor |
+     | src/api/entry.ts | await insert for data consistency | fix      |
+     | app.json         | add expo plugins                  | chore    |
+     | .prettierrc      | add prettier config               | chore    |
 
-     每個檔案的 Purpose 必須具體明確。禁止使用「improvements」或「updates」等空泛描述。
+     每個檔案的 Purpose 必須具體明確，禁止使用「improvements」或「updates」等空泛描述。
+
   b. **階段一 — 按 type 硬分組**（機械操作，無需語義判斷）：
      - 嚴格按 `Type` 欄分組。不同 type 的檔案**不可能**出現在同一組中。此規則不可商量，無需語義判斷。
      - 範例：若表格中包含 `refactor`、`fix`、`chore` 三種 type → 至少 3 組，每種 type 各一組。
+
   c. **階段二 — 在同 type 組內按目的細分**（語義分析）：
      - 在階段一的每個 type 組內部，判斷檔案是否服務於不同的獨立目的。
      - 目的相同 → 保持為一組。
      - 目的不同 → 拆分為多組（例如：兩個不相關的 `fix` 改動變為兩組）。
+
   d. **統計最終分組數量**：
      - 總共 1 組 → **單次提交**。
      - 2 組及以上 → **多次提交**（強制要求，無例外）。
+
   e. **若為多次提交：將分組計畫輸出到終端**：
      ```
      Group 1 (refactor): src/sheet.tsx, src/layout.tsx
      Group 2 (fix): src/api/entry.ts
      Group 3 (chore): app.json, .prettierrc
      ```
-  f. 按此分組進入第 4 步。
-- **拆分規則（嚴格執行）**：
+
+    f. **攜帶此分組方案進入第 4 步**。
+
+## 4) **拆分規則（嚴格執行）**：
   - 禁止將不相關的改動籠統歸類為「update project」或「various improvements」等空泛描述。
   - 不同的 conventional commit 類型（feat + fix、feat + refactor、fix + docs 等）幾乎總是意味著多個 feature — **必須拆分**。
   - 相同類型但目的不同（例如兩個不相關的 fix）— **仍須拆分**。
@@ -84,23 +91,23 @@ argument-hint: 無需參數。自動識別單個或多個 feature，按 feature 
   chore: add prettierrc configuration
   ```
 
-4) 生成 commit message：
+## 5) 生成 commit message：
 - **預設格式（當專案 CLAUDE.md 未定義自訂 commit 格式時使用）：**
   - 格式：`<type>(<scope>): <description>`
   - `scope` 為可選項 — 當改動限於特定 package、模組或區域時使用（例如 `mobile`、`api`、`auth`、`shared`）。無適用 scope 時省略括號。
   - `scope` 描述的是改動「在哪裡」，而非「為什麼」— 不得用 scope 來合併不相關的改動。拆分始終由目的和 type（第 3 步）決定，永遠不由 scope 決定。相同 scope + 不同目的/type = 多次提交。
   - 允許的 type：`feat`、`fix`、`refactor`、`docs`、`test`、`chore`、`perf`、`ci`
   - description 規則：首字母小寫、不以句號結尾、整行長度（含 type、scope、冒號及 description）不超過 72 字元
-  - 語言：預設使用英文。僅當專案的 `CLAUDE.md` 或 `CLAUDE.local.md` 明確指定了 commit message 語言時，才使用指定語言。
+  - 語言：預設使用英文。僅當專案的 `CLAUDE.md` 或 `CLAUDE.local.md` 明確指定了 git commit message 語言時，才使用指定語言。
   - 聚焦「為什麼改」，避免空泛描述
-- **專案覆蓋：** 若專案 `CLAUDE.md` 或 `CLAUDE.local.md` 中定義了自訂 commit message 格式或語言要求，以專案規範為準，忽略上述預設規則。
+- **專案覆蓋：** 若專案 `CLAUDE.md` 或 `CLAUDE.local.md` 中定義了自訂 git commit message 格式或語言要求，以專案規範為準，忽略上述預設規則。
 - 單 feature：
   - 按上述規則生成 1 條 commit message。
 - 多 feature：
   - 按 feature 將改動分組（優先按目錄/模組邊界分組）。
   - 每個 feature 按上述規則生成 1 條 commit message。
 
-5) 執行提交：
+## 6) 執行提交：
 - 單 feature（僅當第 3 步確認所有檔案屬於同一目的時）：
   - `git add -A`
   - 使用 HEREDOC 執行提交：
@@ -122,7 +129,7 @@ EOF
 ```
   - 僅在檔案存在循環依賴導致無法分開提交時（例如組 1 的檔案 A 引入了組 2 檔案 B 中尚不存在的新 export），才可合併分組。你必須列出具體的依賴鏈來證明合併的合理性。
 
-6) 輸出結果：
+## 7) 輸出結果：
 - 展示實際使用的 commit message。
 - 若為拆分提交，按順序展示每個 feature 的 commit message 與包含的檔案列表。
 - 展示 `git status` 的最終狀態（確認工作區是否乾淨）。

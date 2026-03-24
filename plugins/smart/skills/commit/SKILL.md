@@ -9,25 +9,26 @@ IMPORTANT: This skill may run standalone or as part of a pipeline (push/pr). Reg
 
 Execution steps (must follow strictly in order):
 
-1) Run and read the following information in parallel:
+## 1) Run and read the following information in parallel:
 - `git status --short`
 - `git diff --staged`
 - `git diff`
 - `git log -5 --oneline`
 
-2) Determine if there are committable changes:
+## 2) Determine if there are committable changes:
 - If there are no changes at all, reply "No committable changes found" and stop.
 
-3) Semantic analysis to determine commit strategy (CRITICAL — you MUST output the analysis to the terminal, not just think it):
+## 3) Semantic analysis to determine commit strategy
+>(CRITICAL — you MUST output the analysis to the terminal, not just think it):
 - Read the content of `git diff` and `git diff --staged`, then perform a **structured file-level analysis**:
   a. **Output a file-purpose table** (mandatory, cannot be skipped) — print a markdown table to the terminal:
 
-     | File | Purpose | Type |
-     |------|---------|------|
-     | src/sheet.tsx | replace gesture sheet with Modal | refactor |
-     | src/api/entry.ts | await insert for data consistency | fix |
-     | app.json | add expo plugins | chore |
-     | .prettierrc | add prettier config | chore |
+     | File             | Purpose                           | Type     |
+     | ---------------- | --------------------------------- | -------- |
+     | src/sheet.tsx    | replace gesture sheet with Modal  | refactor |
+     | src/api/entry.ts | await insert for data consistency | fix      |
+     | app.json         | add expo plugins                  | chore    |
+     | .prettierrc      | add prettier config               | chore    |
 
      Each file's Purpose must be specific and concrete. Do NOT use vague descriptions like "improvements" or "updates".
   b. **Phase 1 — Hard split by type** (mechanical, no judgment needed):
@@ -46,8 +47,9 @@ Execution steps (must follow strictly in order):
      Group 2 (fix): src/api/entry.ts
      Group 3 (chore): app.json, .prettierrc
      ```
-  f. Proceed to step 4 with this grouping.
-- **Splitting rules (strictly enforced)**:
+  f. **Proceed to step 4 with this grouping**.
+
+## 4) **Splitting rules (strictly enforced)**:
   - Do NOT bundle unrelated changes under a vague umbrella like "update project" or "various improvements".
   - Different conventional commit types (feat + fix, feat + refactor, fix + docs, etc.) almost always indicate multiple features — **split them**.
   - Same type but different purposes (e.g., two unrelated fixes) — **still split them**.
@@ -84,23 +86,23 @@ Execution steps (must follow strictly in order):
   chore: add prettierrc configuration
   ```
 
-4) Generate commit message:
+## 5) Generate commit message:
 - **Default format (used when project CLAUDE.md does not define a custom commit format):**
   - Format: `<type>(<scope>): <description>`
   - `scope` is OPTIONAL — use it when changes are scoped to a specific package, module, or area (e.g., `mobile`, `api`, `auth`, `shared`). Omit parentheses when no scope applies.
   - `scope` describes WHERE the change is, not WHY — it must NOT be used to group unrelated changes. Splitting is ALWAYS determined by purpose and type (step 3), never by scope. Same scope + different purposes/types = multiple commits.
   - Allowed types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`
   - Description rules: start with lowercase letter, no trailing period, total line length (including type, scope, colon, and description) must not exceed 72 characters
-  - Language: default to English. Only use another language if the project's `CLAUDE.md` or `CLAUDE.local.md` explicitly specifies a commit message language.
+  - Language: default to English. Only use another language if the project's `CLAUDE.md` or `CLAUDE.local.md` explicitly specifies a git commit message language.
   - Focus on "why the change was made", avoid vague descriptions
-- **Project override:** If the project's `CLAUDE.md` or `CLAUDE.local.md` defines custom commit message format or language requirements, follow the project's rules and ignore the defaults above.
+- **Project override:** If the project's `CLAUDE.md` or `CLAUDE.local.md` defines custom git commit message format or language requirements, follow the project's rules and ignore the defaults above.
 - Single feature:
   - Generate 1 commit message following the rules above.
 - Multiple features:
   - Group changes by feature (prefer grouping by directory/module boundaries).
   - Generate 1 commit message per feature following the rules above.
 
-5) Execute the commit:
+## 6) Execute the commit:
 - Single feature (ONLY when step 3 confirms all files share one purpose):
   - `git add -A`
   - Use HEREDOC to execute the commit:
@@ -122,7 +124,7 @@ EOF
 ```
   - Only combine groups if files have circular dependencies that make separate commits impossible (e.g., file A in group 1 imports a new export from file B in group 2 that doesn't exist yet). You must list the specific dependency chain to justify combining.
 
-6) Output results:
+## 7) Output results:
 - Display the actual commit message(s) used.
 - If split into multiple commits, display each feature's commit message and included file list in order.
 - Display the final `git status` output (confirm whether the working tree is clean).
