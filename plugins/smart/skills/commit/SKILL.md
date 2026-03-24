@@ -87,15 +87,18 @@ Execution steps (must follow strictly in order):
   ```
 
 ## 5) Generate commit message:
-- **Default format (used when project CLAUDE.md does not define a custom commit format):**
+- **Format priority (highest to lowest)**:
+  1. Explicit format defined in the project's `CLAUDE.md` / `CLAUDE.local.md`
+  2. Format inferred from recent `git log` commits (if the project consistently uses a style, follow it)
+  3. Default format below (Conventional Commits)
+- **Default format (used when neither 1 nor 2 above apply):**
   - Format: `<type>(<scope>): <description>`
   - `scope` is OPTIONAL — use it when changes are scoped to a specific package, module, or area (e.g., `mobile`, `api`, `auth`, `shared`). Omit parentheses when no scope applies.
   - `scope` describes WHERE the change is, not WHY — it must NOT be used to group unrelated changes. Splitting is ALWAYS determined by purpose and type (step 3), never by scope. Same scope + different purposes/types = multiple commits.
   - Allowed types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`
   - Description rules: start with lowercase letter, no trailing period, total line length (including type, scope, colon, and description) must not exceed 72 characters
-  - Language: default to English. Only use another language if the project's `CLAUDE.md` or `CLAUDE.local.md` explicitly specifies a git commit message language.
+  - Language: infer from recent `git log` commit messages and stay consistent; default to English if the repo has no history. Explicit language settings in the project's `CLAUDE.md` or `CLAUDE.local.md` take highest priority.
   - Focus on "why the change was made", avoid vague descriptions
-- **Project override:** If the project's `CLAUDE.md` or `CLAUDE.local.md` defines custom git commit message format or language requirements, follow the project's rules and ignore the defaults above.
 - Single feature:
   - Generate 1 commit message following the rules above.
 - Multiple features:

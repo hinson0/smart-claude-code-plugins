@@ -93,15 +93,18 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
   ```
 
 ## 5) 生成 commit message：
-- **默认格式（当项目 CLAUDE.md 未定义自定义 commit 格式时使用）：**
+- **格式优先级（从高到低）**：
+  1. 项目 `CLAUDE.md` / `CLAUDE.local.md` 中的显式格式定义
+  2. 从 `git log` 近期 commit 推断的格式（如项目一直使用某种风格则延续）
+  3. 下述默认格式（Conventional Commits）
+- **默认格式（当上述 1、2 均不适用时使用）：**
   - 格式：`<type>(<scope>): <description>`
   - `scope` 为可选项 — 当改动明确限定于某个 package、模块或区域时使用（如 `mobile`、`api`、`auth`、`shared`）。无适用 scope 时省略括号。
   - `scope` 描述的是改动**在哪里**，而非**为什么** — 不得用 scope 来合并不相关的改动。拆分**始终**由目的和 type（第 3 步）决定，与 scope 无关。相同 scope + 不同目的/type = 多次提交。
   - 允许的 type：`feat`、`fix`、`refactor`、`docs`、`test`、`chore`、`perf`、`ci`
   - description 规则：首字母小写、不以句号结尾、整行长度（含 type、scope、冒号和 description）不超过 72 字符
-  - 语言：默认使用英文。仅当项目的 `CLAUDE.md` 或 `CLAUDE.local.md` 明确指定了 git commit message 语言时，才使用指定语言。
+  - 语言：从 `git log` 近期 commit message 推断语言并保持一致；若仓库无历史记录则默认英文。项目 `CLAUDE.md` 或 `CLAUDE.local.md` 中的显式语言设定优先级最高。
   - 聚焦"为什么改"，避免空泛描述
-- **项目覆盖：** 如果项目 `CLAUDE.md` 或 `CLAUDE.local.md` 中定义了自定义 git commit message 格式或语言要求，以项目规范为准，忽略上述默认规则。
 - 单 feature：
   - 按上述规则生成 1 条 commit message。
 - 多 feature：
