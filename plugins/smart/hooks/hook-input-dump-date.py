@@ -11,7 +11,9 @@ raw = sys.stdin.read()
 try:
     data = json.loads(raw)
 except json.JSONDecodeError:
-    sys.exit(0)
+    # JSON解析失败，打印错误并退出
+    print(f"JSON解析失败: {raw}", file=sys.stderr)
+    sys.exit(1)
 
 # 获取当前项目的目录
 project_dir = Path(os.environ.get("CLAUDE_PROJECT_DIR", "."))
