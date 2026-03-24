@@ -1,17 +1,15 @@
 {
-  "hooks": [
-    {
-      "PreToolUse": [
-        {
-          "matcher": "*",
-          "hooks": [
-            {
-              "type": "command",
-              "command": "${CLAUDE_PLUGIN_ROOT}/hooks/hook-input-dump-date.py"
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/hook-input-dump-date.py"
+          }
+        ]
+      }
+    ]
+  }
 }
