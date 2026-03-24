@@ -25,7 +25,7 @@ log_dir = Path(project_dir, ".claude", "hook-logs", date.today().isoformat())
 log_dir.mkdir(exist_ok=True, parents=True)
 
 # 写日志
-log_file = log_dir / f'{data.session_id}.json'
+log_file = log_dir / f'{data["session_id"]}.json'
 with open(log_file, 'a', encoding='utf-8') as f:
     f.write(json.dumps(data, ensure_ascii=False, indent=2))
     f.write("\n\n")
