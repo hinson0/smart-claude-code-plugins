@@ -96,13 +96,17 @@ argument-hint: 無需參數。自動識別單個或多個 feature，按 feature 
   1. 專案 `CLAUDE.md` / `CLAUDE.local.md` 中的顯式格式定義
   2. 從 `git log` 近期 commit 推斷的格式（如專案一直使用某種風格則延續）
   3. 下述預設格式（Conventional Commits）
-- **預設格式（當上述 1、2 均不適用時使用）：**
+- **語言優先級（從高到低）**：
+  1. 專案 `CLAUDE.md` / `CLAUDE.local.md` 中**明確針對 git commit message 語言**的設定（如「commit message 用中文」）
+  2. 從 `git log` 近期 commit message 推斷的語言（保持一致）
+  3. 預設英文（倉庫無歷史紀錄時）
+  > ⚠️ 通用的對話語言偏好（如「用中文回覆」）**不影響** commit message 語言。
+- **預設格式（當格式優先級 1、2 均不適用時使用）：**
   - 格式：`<type>(<scope>): <description>`
   - `scope` 為可選項 — 當改動限於特定 package、模組或區域時使用（例如 `mobile`、`api`、`auth`、`shared`）。無適用 scope 時省略括號。
   - `scope` 描述的是改動「在哪裡」，而非「為什麼」— 不得用 scope 來合併不相關的改動。拆分始終由目的和 type（第 3 步）決定，永遠不由 scope 決定。相同 scope + 不同目的/type = 多次提交。
   - 允許的 type：`feat`、`fix`、`refactor`、`docs`、`test`、`chore`、`perf`、`ci`
   - description 規則：首字母小寫、不以句號結尾、整行長度（含 type、scope、冒號及 description）不超過 72 字元
-  - 語言：從 `git log` 近期 commit message 推斷語言並保持一致；若倉庫無歷史紀錄則預設英文。專案 `CLAUDE.md` 或 `CLAUDE.local.md` 中的顯式語言設定優先級最高。
   - 聚焦「為什麼改」，避免空泛描述
 - 單 feature：
   - 按上述規則生成 1 條 commit message。
