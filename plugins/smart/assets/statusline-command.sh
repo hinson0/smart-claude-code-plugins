@@ -15,6 +15,8 @@ input=$(cat)
 model=$(echo "$input"          | jq -r '.model.display_name // ""')
 cwd=$(echo "$input"            | jq -r '.workspace.current_dir // .cwd // ""')
 used=$(echo "$input"           | jq -r '.context_window.used_percentage // empty')
+remaining=$(echo "$input"      | jq -r '.context_window.remaining_percentage // empty')
+ctx_size=$(echo "$input"       | jq -r '.context_window.context_window_size // empty')
 in_tok=$(echo "$input"         | jq -r '.context_window.current_usage.input_tokens // empty')
 out_tok=$(echo "$input"        | jq -r '.context_window.current_usage.output_tokens // empty')
 cache_read=$(echo "$input"     | jq -r '.context_window.current_usage.cache_read_input_tokens // empty')
@@ -315,7 +317,17 @@ if [ -n "$used" ]; then
   used_int=$(printf '%.0f' "$used")
   bar=$(build_bar "$used_int" 12)
   bar_color=$(pct_color "$used_int")
+  # 显示已用% 和 剩余%
   ctx_str="$(printf "ctx ${bar_color}%s${RESET} ${bar_color}%d%%${RESET}" "$bar" "$used_int")"
+  if [ -n "$remaining" ]; then
+    rem_int=$(printf '%.0f' "$remaining")
+    ctx_str="${ctx_str}$(printf "${DIM}/%d%%${RESET}" "$rem_int")"
+  fi
+  # 显示 context 窗口大小（单位 K）
+  if [ -n "$ctx_size" ] && [ "$ctx_size" != "empty" ] && [ "$ctx_size" -gt 0 ] 2>/dev/null; then
+    ctx_size_k=$(awk -v s="$ctx_size" 'BEGIN { printf "%gK", s/1000 }')
+    ctx_str="${ctx_str}$(printf " ${DIM}[%s]${RESET}" "$ctx_size_k")"
+  fi
   if [ -n "$in_tok" ] && [ "$in_tok" != "null" ] && [ "$in_tok" != "empty" ]; then
     in_fmt=$(fmt_tok "$in_tok")
     out_fmt=$(fmt_tok "$out_tok")
