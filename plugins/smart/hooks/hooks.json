@@ -13,7 +13,10 @@
       {
         "matcher": "Edit|Write",
         "hooks": [
-          { "type": "command", "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/protect-files.py" }
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/protect-files.py"
+          }
         ]
       }
     ],
