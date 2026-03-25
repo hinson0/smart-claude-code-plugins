@@ -1,6 +1,8 @@
-.claude/worktrees/
-.swp
+*.swp
 .DS_Store
 .claude/*local*
+.claude/hook-logs/
+.claude/worktrees/
 docs/
 .env
+.remember/
