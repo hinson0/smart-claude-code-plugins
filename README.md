@@ -31,6 +31,7 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 - **File Protection Hook** — Prevent Claude from editing sensitive files (`.env`, lock files, etc.). Configure per-project via `.claude/protect_files.jsonc` — supports exact filename matching and glob patterns (`*`, `**`).
 - **Session Hooks** — Greet on session start, goodbye on session end.
 - **Context Analyzer Agent** — Analyze which plugins consume the most context window. Shows a ranked table with sizes and percentages.
+- **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / rewind.
 
 ---
 
@@ -50,6 +51,9 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 | `/smart:push` | check → commit → push (no PR) |
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
 | `/smart:check` | Run local CI checks only (auto-detects from workflow config) |
+| `/smart:hud` | Install smart statusline (model, git, context, rate limits, system stats) |
+| `/smart:hud rm` | Remove the statusline |
+| `/smart:hud rewind` | Restore your previous statusline from backup |
 
 ---
 
@@ -130,6 +134,35 @@ Prevent Claude from editing sensitive files by creating `.claude/protect_files.j
 - No wildcards → exact filename match (`.env` blocks `.env` but allows `.env.example`)
 - `*` → glob match within a single directory level (`*.lock` matches `pnpm-lock.yaml`)
 - `**` → recursive match across directories (`config/production/**` matches `config/production/db/secret.json`)
+
+---
+
+## HUD (Statusline)
+
+Install a feature-rich statusline with one command:
+
+```
+/smart:hud
+```
+
+![hud](./assets/hud.png)
+
+**What it shows (4 lines):**
+
+| Line | Content |
+|------|---------|
+| 1 | Model@version, git branch (dirty/ahead/behind), directory, last commit time |
+| 2 | Context progress bar + tokens + cache, rate limits (5h/7d) with reset countdown, session duration |
+| 3 | CPU, memory, disk, uptime, runtime versions (Node/Python/Go/Rust/Ruby), local IP |
+| 4 | Session ID, tool call stats (Bash/Skill/Agent/Edit) |
+
+**Commands:**
+
+| Command | Action |
+|---------|--------|
+| `/smart:hud` | Install (backs up existing statusline automatically) |
+| `/smart:hud rm` | Remove statusline |
+| `/smart:hud rewind` | Restore your previous statusline from backup |
 
 ---
 

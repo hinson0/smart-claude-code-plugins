@@ -31,6 +31,7 @@
 - **文件保护 Hook** — 阻止 Claude 编辑敏感文件（`.env`、lock 文件等）。通过项目级 `.claude/protect_files.jsonc` 配置，支持精确文件名匹配和 glob 模式（`*`、`**`）。
 - **会话 Hook** — 会话开始时问候，结束时告别。
 - **上下文分析 Agent** — 分析哪些插件占用了最多的上下文窗口，按大小排名展示表格和百分比。
+- **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。支持安装 / 删除 / 回退。
 
 ---
 
@@ -50,6 +51,9 @@
 | `/smart:push` | check → commit → push（不创建 PR） |
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
 | `/smart:check` | 仅运行本地 CI 检查（自动检测 workflow 配置） |
+| `/smart:hud` | 安装 smart 状态栏（模型、Git、上下文、速率限制、系统资源） |
+| `/smart:hud rm` | 删除状态栏 |
+| `/smart:hud rewind` | 从备份恢复之前的状态栏 |
 
 ---
 
@@ -130,6 +134,35 @@ gh auth login
 - 无通配符 → 精确文件名匹配（`.env` 会拦截 `.env` 但不影响 `.env.example`）
 - `*` → 单层目录 glob 匹配（`*.lock` 匹配 `pnpm-lock.yaml`）
 - `**` → 跨目录递归匹配（`config/production/**` 匹配 `config/production/db/secret.json`）
+
+---
+
+## HUD（状态栏）
+
+一条命令安装功能丰富的状态栏：
+
+```
+/smart:hud
+```
+
+![hud](./assets/hud.png)
+
+**显示内容（4 行）：**
+
+| 行 | 内容 |
+|----|------|
+| 1 | 模型@版本、Git 分支（dirty/ahead/behind）、目录、最近 commit 时间 |
+| 2 | 上下文进度条 + tokens + cache、速率限制（5h/7d）含重置倒计时、会话时长 |
+| 3 | CPU、内存、磁盘、运行时间、Runtime 版本（Node/Python/Go/Rust/Ruby）、本机 IP |
+| 4 | 会话 ID、工具调用统计（Bash/Skill/Agent/Edit） |
+
+**命令：**
+
+| 命令 | 操作 |
+|------|------|
+| `/smart:hud` | 安装（自动备份已有状态栏） |
+| `/smart:hud rm` | 删除状态栏 |
+| `/smart:hud rewind` | 从备份恢复之前的状态栏 |
 
 ---
 
