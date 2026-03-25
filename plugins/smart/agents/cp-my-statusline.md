@@ -4,6 +4,7 @@ description: |
   Triggered by the /smart:hud skill. Do NOT trigger directly from user queries.
 model: sonnet
 tools: [Read, Edit, Write, Bash]
+color: yellow
 ---
 
 You are a statusline installer agent for the smart plugin.
