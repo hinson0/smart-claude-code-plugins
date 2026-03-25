@@ -28,6 +28,9 @@
 - **自動建立 GitHub 倉庫** — 未設定 remote？自動為你建立。
 - **Conventional Commits** — 所有 commit message 自動遵循 `<type>(<scope>): <description>` 格式。
 - **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `CLAUDE.md` 覆蓋。
+- **檔案保護 Hook** — 阻止 Claude 編輯敏感檔案（`.env`、lock 檔案等）。透過專案級 `.claude/protect_files.jsonc` 設定，支援精確檔名配對和 glob 模式（`*`、`**`）。
+- **會話 Hook** — 會話開始時問候，結束時告別。
+- **上下文分析 Agent** — 分析哪些外掛占用了最多的上下文視窗，按大小排名展示表格和百分比。
 
 ---
 
@@ -103,6 +106,30 @@ gh auth login
 ```
 
 任意步驟失敗均立即停止，不會執行後續操作。
+
+---
+
+## 檔案保護
+
+在專案根目錄建立 `.claude/protect_files.jsonc`，阻止 Claude 編輯敏感檔案：
+
+```jsonc
+// 受保護的檔案清單 — Claude Code 不可編輯
+// 不含萬用字元的為精確檔名配對，含 * 或 ** 的走 glob 模式
+[
+  ".env",
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "yarn.lock",
+  "*.secret",
+  "config/production/**"
+]
+```
+
+**配對規則：**
+- 無萬用字元 → 精確檔名配對（`.env` 會攔截 `.env` 但不影響 `.env.example`）
+- `*` → 單層目錄 glob 配對（`*.lock` 配對 `pnpm-lock.yaml`）
+- `**` → 跨目錄遞迴配對（`config/production/**` 配對 `config/production/db/secret.json`）
 
 ---
 

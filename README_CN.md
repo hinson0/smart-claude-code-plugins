@@ -28,6 +28,9 @@
 - **自动创建 GitHub 仓库** — 未配置 remote？自动为你创建。
 - **Conventional Commits** — 所有 commit message 自动遵循 `<type>(<scope>): <description>` 格式。
 - **语言一致性** — PR 标题、摘要和测试计划自动与 commit message 使用相同语言。默认英文，可通过项目 `CLAUDE.md` 覆盖。
+- **文件保护 Hook** — 阻止 Claude 编辑敏感文件（`.env`、lock 文件等）。通过项目级 `.claude/protect_files.jsonc` 配置，支持精确文件名匹配和 glob 模式（`*`、`**`）。
+- **会话 Hook** — 会话开始时问候，结束时告别。
+- **上下文分析 Agent** — 分析哪些插件占用了最多的上下文窗口，按大小排名展示表格和百分比。
 
 ---
 
@@ -103,6 +106,30 @@ gh auth login
 ```
 
 任意步骤失败均立即停止，不会执行后续操作。
+
+---
+
+## 文件保护
+
+在项目根目录创建 `.claude/protect_files.jsonc`，阻止 Claude 编辑敏感文件：
+
+```jsonc
+// 受保护的文件列表 — Claude Code 不可编辑
+// 不含通配符的为精确文件名匹配，含 * 或 ** 的走 glob 模式
+[
+  ".env",
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "yarn.lock",
+  "*.secret",
+  "config/production/**"
+]
+```
+
+**匹配规则：**
+- 无通配符 → 精确文件名匹配（`.env` 会拦截 `.env` 但不影响 `.env.example`）
+- `*` → 单层目录 glob 匹配（`*.lock` 匹配 `pnpm-lock.yaml`）
+- `**` → 跨目录递归匹配（`config/production/**` 匹配 `config/production/db/secret.json`）
 
 ---
 
