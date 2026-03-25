@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Stop hook: every 2 user interactions, block stopping and ask Claude to tell a joke.
+Stop hook: every 7 user interactions, block stopping and ask Claude to tell a joke.
 Uses a counter file + lock file to prevent re-trigger loops.
 """
 
@@ -32,8 +32,8 @@ if counter_file.exists():
 count += 1
 counter_file.write_text(str(count))
 
-# Every 2 interactions, tell a joke
-if count % 2 == 0:
+# Every 7 interactions, tell a joke
+if count % 7 == 0:
     lock_file.write_text("1")  # Prevent re-trigger
     result = {
         "decision": "block",
