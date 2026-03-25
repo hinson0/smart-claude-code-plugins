@@ -1,0 +1,8 @@
+// 受保护的文件，Claude Code 不可编辑
+// 精确路径直接匹配，含 * 或 ** 走 glob 模式
+[
+  ".env",
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "yarn.lock"
+]

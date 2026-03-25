@@ -1,6 +1,6 @@
 .claude/worktrees/
 .swp
 .DS_Store
-.claude/*.local.md
-.claude/
+.claude/*local*
 docs/
+.env
