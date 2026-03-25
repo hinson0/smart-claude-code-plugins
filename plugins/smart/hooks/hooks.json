@@ -1,12 +1,23 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/greet.sh"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/hook-input-dump-date.py"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-logs.py"
           }
         ]
       },
@@ -16,17 +27,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/protect-files.py"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/greet.sh"
           }
         ]
       }
