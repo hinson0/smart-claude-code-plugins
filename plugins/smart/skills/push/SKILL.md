@@ -27,6 +27,8 @@ Execution steps (must follow in strict order, no skipping):
 
 - If there are no changes in the working tree, skip this phase and proceed directly to Phase 3.
 
+**After all commits, run `git status --short` to check for remaining changes.** If there are still modified or untracked files, automatically run the commit phase again for those files — do not pause or ask the user. Repeat until the working tree is clean. The user's intent when running push is to push everything.
+
 ---
 
 ## Phase 3: Push
