@@ -32,6 +32,7 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 - **Session Hooks** — Greet on session start, goodbye on session end.
 - **Context Analyzer Agent** — Analyze which plugins consume the most context window. Shows a ranked table with sizes and percentages.
 - **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / rewind.
+- **Joke Teller Agent** — Automatically tells a joke at the right moment to lighten the mood during work.
 
 ---
 
