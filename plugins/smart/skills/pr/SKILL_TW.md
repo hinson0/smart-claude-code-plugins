@@ -22,7 +22,7 @@ argument-hint: 無需參數。自動 [check+add+commit+push+pr]
 7) 收集基礎資訊（並行執行）：
 - `git branch --show-current`（當前分支名，記為 `HEAD_BRANCH`）
 - `git log -1 --oneline`（最新一條 commit，用於判斷單 commit 場景）
-- 確定 PR 標題、Summary 和 Test Plan 的語言：與階段一中 commit skill 產生的 commit message 使用相同語言（commit skill 步驟 4 的語言規則為唯一語言決策源）。若階段一被跳過（無變更），從 `git log` 中已有的 commit message 推斷語言（使用近期 commit 中多數所用的語言）。Section headers（## Summary、## Commits、## Test Plan）始終保持英文，commit messages 不翻譯。
+- 確定 PR 標題、Summary 和 Test Plan 的語言：與階段一中 commit skill 產生的 commit message 使用相同語言（commit skill 的語言規則為唯一語言決策源）。若階段一被跳過（無變更），沿用相同規則：預設英文，除非 CLAUDE.md / CLAUDE.local.md 明確規定了 git commit message 語言。Section headers（## Summary、## Commits、## Test Plan）始終保持英文，commit messages 不翻譯。
 
 8) 確定目標分支（base branch）：
 - 如果使用者透過 $0 明確指定了目標分支，則使用該分支名稱作為 base branch。
