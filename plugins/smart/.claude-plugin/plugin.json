@@ -3,7 +3,7 @@
   "description": "My name is `smart`.A smart cluade code plugin for you.It has some smart tools(skills,hooks,subagents,etc..).Please enjoy it!!!",
   "author": {
     "name": "Hinson",
-    "version": "2.3.0",
+    "version": "2.3.1",
     "github": "https://github.com/hinson0"
   }
 }
