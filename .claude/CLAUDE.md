@@ -11,16 +11,20 @@ Claude Code 插件，自动化 check → commit → push → PR 流程。
 plugins/smart/
 ├── .claude-plugin/plugin.json    # 插件元数据
 ├── agents/
-│   ├── context-analyzer.md       # 上下文占用分析 agent
-│   ├── cp-my-statusline.md       # statusline 安装/卸载 agent
-│   └── joke-teller.md            # 讲笑话 agent
+│   ├── context-analyzer.md       # 上下文占用分析 agent (EN)
+│   ├── context-analyzer_cn.md    # 上下文占用分析 agent (CN)
+│   ├── cp-my-statusline.md       # statusline 安装/卸载 agent (EN)
+│   ├── cp-my-statusline_cn.md    # statusline 安装/卸载 agent (CN)
+│   ├── joke-teller.md            # 讲笑话 agent (EN)
+│   └── joke-teller_cn.md         # 讲笑话 agent (CN)
 ├── assets/
 │   └── statusline-command.sh     # 打包的 statusline 脚本
 ├── hooks/
 │   ├── hooks.json                # hook 配置
 │   ├── greet.sh / goodbye.sh     # 会话开始/结束 hook
 │   ├── protect-files.py          # 文件保护 hook（PreToolUse）
-│   └── hook-input-dump-date.py   # hook 输入日志
+│   ├── session-logs.py           # hook 输入日志（PreToolUse）
+│   └── joke-stop.py              # 定期讲笑话 hook（Stop）
 └── skills/
     ├── check/    # 本地 CI 检查（lint/test/typecheck）
     ├── commit/   # 智能提交（核心，支持多 feature 拆分）
@@ -30,6 +34,7 @@ plugins/smart/
 ```
 
 每个 skill 目录包含 2 个语言版本：SKILL.md (EN)、SKILL_CN.md (CN)
+agent 同理：agent.md (EN)、agent_cn.md (CN)
 
 ## 架构原则
 
@@ -42,6 +47,9 @@ plugins/smart/
 ## 注意事项
 
 - 修改任何 SKILL.md 内容后，必须同步更新 EN 和 CN 两个语言版本
+- 修改 agent 文件同理，EN 和 CN 版本需同步更新
+- agent EN 版：frontmatter + body 全英文（被 Claude Code 实际加载）
+- agent CN 版：frontmatter（description/example）和 body 均为中文（仅供阅读参考，不被加载）
 - commit message 遵循 Conventional Commits：`<type>(<scope>): <description>`
   - type: feat, fix, refactor, docs, test, chore, perf, ci
   - scope: 可选，指明改动范围（如 mobile, api, auth）；省略时格式为 `<type>: <description>`
