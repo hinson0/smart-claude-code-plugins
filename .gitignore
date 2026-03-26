@@ -3,6 +3,7 @@
 .claude/*local*
 .claude/hook-logs/
 .claude/worktrees/
+.claude/session-logs/
 docs/
 .env
 .remember/
