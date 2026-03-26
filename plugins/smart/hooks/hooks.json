@@ -31,13 +31,13 @@
         ]
       }
     ],
-    "Stop": [
+    "UserPromptSubmit": [
       {
         "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/joke-stop.py"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/say-a-joke.py"
           }
         ]
       }
