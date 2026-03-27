@@ -37,8 +37,13 @@ worktree_branch=$(echo "$input"| jq -r '.worktree.branch // ""')
 # Short model name: "Claude Sonnet 4.6" → "Sonnet 4.6"
 model_short=$(echo "$model" | sed 's/^Claude //')
 
-# Directory: shorten home to ~, keep last 2 segments if >40 chars
-short_cwd=$(echo "$cwd" | sed "s|^$HOME|~|")
+# Directory: if in a worktree, show original repo root instead of worktree path
+if [ -n "$worktree_name" ]; then
+  display_cwd=$(echo "$cwd" | sed 's|/\.claude/worktrees/[^/]*$||')
+else
+  display_cwd="$cwd"
+fi
+short_cwd=$(echo "$display_cwd" | sed "s|^$HOME|~|")
 short_cwd_len=$(echo -n "$short_cwd" | wc -c | tr -d ' ')
 if [ "$short_cwd_len" -gt 40 ] 2>/dev/null; then
   short_cwd="…/$(echo "$short_cwd" | awk -F/ '{print $(NF-1)"/"$NF}')"
@@ -292,10 +297,6 @@ fi
 
 if [ -n "$worktree_name" ]; then
   wt_str="$(printf "${ORANGE}wt:${BOLD}%s${RESET}" "$worktree_name")"
-  # only show branch in parens when it differs from worktree name
-  if [ -n "$worktree_branch" ] && [ "$worktree_branch" != "$worktree_name" ]; then
-    wt_str="${wt_str}$(printf "${DIM}(%s)${RESET}" "$worktree_branch")"
-  fi
   if [ -n "$git_line" ]; then
     git_line="${git_line}${SEP}${VSEP}${SEP}${wt_str}"
   else

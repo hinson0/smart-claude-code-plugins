@@ -36,8 +36,13 @@ worktree_branch=$(echo "$input"| jq -r '.worktree.branch // ""')
 # ── 模型简称："Claude Sonnet 4.6" → "Sonnet 4.6"
 model_short=$(echo "$model" | sed 's/^Claude //')
 
-# ── 目录（缩短 home 为 ~，超过 40 字符时只保留最后 2 段）
-short_cwd=$(echo "$cwd" | sed "s|^$HOME|~|")
+# ── 目录（若在 worktree 中，显示原始仓库路径而非 worktree 内部路径）
+if [ -n "$worktree_name" ]; then
+  display_cwd=$(echo "$cwd" | sed 's|/\.claude/worktrees/[^/]*$||')
+else
+  display_cwd="$cwd"
+fi
+short_cwd=$(echo "$display_cwd" | sed "s|^$HOME|~|")
 short_cwd_len=$(echo -n "$short_cwd" | wc -c | tr -d ' ')
 if [ "$short_cwd_len" -gt 40 ] 2>/dev/null; then
   short_cwd="…/$(echo "$short_cwd" | awk -F/ '{print $(NF-1)"/"$NF}')"
@@ -291,10 +296,6 @@ fi
 
 if [ -n "$worktree_name" ]; then
   wt_str="$(printf "${ORANGE}wt:${BOLD}%s${RESET}" "$worktree_name")"
-  # 仅当 branch 与 name 不同时才显示括号内容，避免重复
-  if [ -n "$worktree_branch" ] && [ "$worktree_branch" != "$worktree_name" ]; then
-    wt_str="${wt_str}$(printf "${DIM}(%s)${RESET}" "$worktree_branch")"
-  fi
   if [ -n "$git_line" ]; then
     git_line="${git_line}${SEP}${VSEP}${SEP}${wt_str}"
   else
