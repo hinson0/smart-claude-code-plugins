@@ -9,7 +9,7 @@
     "pyright-lsp@claude-plugins-official": false,
     "supabase@claude-plugins-official": false,
     "typescript-lsp@claude-plugins-official": false,
-    "feature-dev@claude-plugins-official": false,
+    "feature-dev@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": false,
     "superpowers@claude-plugins-official": false
   }
