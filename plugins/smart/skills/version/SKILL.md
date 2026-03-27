@@ -1,5 +1,5 @@
 ---
-description: Use when the user wants to bump the plugin version (e.g. "version", "bump version", "update version"), or automatically as part of the PR pipeline. Analyzes commit messages to determine semantic version bump (major/minor/patch).
+description: Use when preparing a release, creating a PR, finishing a feature branch, or when the user says "bump version", "update version", "release", "new version". Also use proactively before pushing or opening a PR if commits exist on the branch that haven't been versioned yet. Analyzes commit messages since the base branch to determine the correct semantic version bump (major/minor/patch) and updates plugin.json accordingly.
 argument-hint: "[base-branch] — defaults to main"
 ---
 

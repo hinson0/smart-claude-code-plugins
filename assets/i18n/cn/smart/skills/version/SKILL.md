@@ -1,5 +1,5 @@
 ---
-description: 当用户想要更新插件版本时使用（如"更新版本"、"升级版本号"、"version"），也可作为 PR 流程的自动步骤。根据 commit 信息自动确定语义化版本升级类型（major/minor/patch）。
+description: 当准备发布、创建 PR、完成 feature 分支时使用，或当用户提到"升级版本"、"更新版本号"、"发布"、"新版本"时触发。也应在 push 或开 PR 之前主动使用——如果分支上存在尚未计入版本号的 commit。根据基准分支以来的 commit 信息自动确定语义化版本升级类型（major/minor/patch）并更新 plugin.json。
 argument-hint: "[目标分支] — 默认为 main"
 ---
 
