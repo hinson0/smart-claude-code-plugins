@@ -1,11 +1,13 @@
 #!/bin/bash
 # Claude Code statusLine command — 超级增强版
 #
-# 布局（4 行）：
-#   行 1：[模型@版本]  ⎇ 分支[dirty][↑↓ ahead/behind][≡stash]  ~/目录  时间  电池
-#   行 2：ctx进度条+tokens+cache  |  rate-limits(含重置倒计时)  |  会话时长  |  agent/worktree
-#   行 3：CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  本机IP
-#   行 4：会话标识  |  输出风格  |  vim模式  |  最后commit时间  |  工具调用统计
+# 布局：
+#   行 1：@ 会话标识  |  模型@版本
+#   行 2：~/目录  |  ⎇ 分支[dirty][↑↓ ahead/behind][≡stash]  |  commit时间  |  wt:worktree  |  电池
+#   行 3：ctx进度条+tokens+cache  |  rate-limits(含重置倒计时)  |  会话时长  |  agent
+#   行 4：CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  本机IP
+#   行 5：工具调用统计
+#   行 6：输出风格  |  vim模式（可选）
 
 input=$(cat)
 
@@ -274,54 +276,63 @@ fmt_tok() {
 }
 
 # ══════════════════════════════════════════════════════════
-# 行 1：模型  |  目录  |  时间  |  电池
-# 行 Git：⎇ 分支  |  Worktree（仅在 git 仓库中显示）
+# 行 1：@ 会话标识  |  模型@版本
+# 行 2：~/目录  |  ⎇ 分支  |  commit时间  |  Worktree  |  电池
 # ══════════════════════════════════════════════════════════
 
-if [ -n "$version" ]; then
-  line1="$(printf "${BOLD}${LCYAN}%s${RESET}${DIM}@%s${RESET}" "$model_short" "$version")"
+# 行 1：@ 会话标识 | 模型@版本
+if [ -n "$session_name" ]; then
+  line1="$(printf "${DIM}@ %s${RESET}" "$session_name")"
+elif [ -n "$session_id" ]; then
+  line1="$(printf "${DIM}@ %s${RESET}" "$session_id")"
 else
-  line1="$(printf "${BOLD}${LCYAN}%s${RESET}" "$model_short")"
+  line1=""
 fi
 
-# Git 独立行
-git_line=""
+if [ -n "$version" ]; then
+  model_str="$(printf "${BOLD}${LCYAN}%s${RESET}${DIM}@%s${RESET}" "$model_short" "$version")"
+else
+  model_str="$(printf "${BOLD}${LCYAN}%s${RESET}" "$model_short")"
+fi
+
+if [ -n "$line1" ]; then
+  line1="${line1}${SEP}${VSEP}${SEP}${model_str}"
+else
+  line1="$model_str"
+fi
+
+# 行 2：~/目录 | ⎇ 分支 | commit时间 | wt:worktree | 电池
+line2="$(printf "${LBLUE}%s${RESET}" "$short_cwd")"
+
 if [ -n "$branch" ]; then
   git_str="$(printf "⎇ ${LYELLOW}%s${RESET}" "$branch")"
   [ -n "$dirty" ]        && git_str="${git_str}$(printf "${LRED}%s${RESET}" "$dirty")"
   [ -n "$ahead_behind" ] && git_str="${git_str}$(printf " ${LMAGENTA}%s${RESET}" "$ahead_behind")"
   [ -n "$stash_count" ]  && git_str="${git_str}$(printf " ${DIM}%s${RESET}" "$stash_count")"
-  git_line="$git_str"
+  line2="${line2}${SEP}${VSEP}${SEP}${git_str}"
+fi
+
+if [ -n "$last_commit_rel" ]; then
+  line2="${line2}${SEP}${VSEP}${SEP}$(printf "${DIM}commit: %s${RESET}" "$last_commit_rel")"
 fi
 
 if [ -n "$worktree_name" ]; then
-  wt_str="$(printf "${ORANGE}wt:${BOLD}%s${RESET}" "$worktree_name")"
-  if [ -n "$git_line" ]; then
-    git_line="${git_line}${SEP}${VSEP}${SEP}${wt_str}"
-  else
-    git_line="$wt_str"
-  fi
-fi
-
-line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LBLUE}%s${RESET}" "$short_cwd")"
-
-if [ -n "$last_commit_rel" ]; then
-  line1="${line1}${SEP}${VSEP}${SEP}$(printf "${DIM}commit: %s${RESET}" "$last_commit_rel")"
+  line2="${line2}${SEP}${VSEP}${SEP}$(printf "${ORANGE}wt:${BOLD}%s${RESET}" "$worktree_name")"
 fi
 
 if [ -n "$battery_str" ]; then
   batt_num=$(echo "$battery_str" | grep -oE '[0-9]+')
   if [ -n "$batt_num" ] && [ "$batt_num" -le 20 ] 2>/dev/null; then
-    line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LRED}%s${RESET}" "$battery_str")"
+    line2="${line2}${SEP}${VSEP}${SEP}$(printf "${LRED}%s${RESET}" "$battery_str")"
   elif [ -n "$batt_num" ] && [ "$batt_num" -le 50 ] 2>/dev/null; then
-    line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LYELLOW}%s${RESET}" "$battery_str")"
+    line2="${line2}${SEP}${VSEP}${SEP}$(printf "${LYELLOW}%s${RESET}" "$battery_str")"
   else
-    line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LGREEN}%s${RESET}" "$battery_str")"
+    line2="${line2}${SEP}${VSEP}${SEP}$(printf "${LGREEN}%s${RESET}" "$battery_str")"
   fi
 fi
 
 # ══════════════════════════════════════════════════════════
-# 行 2：Context  |  Rate limits  |  会话时长  |  Agent
+# 行 3：Context  |  Rate limits  |  会话时长  |  Agent
 # ══════════════════════════════════════════════════════════
 
 if [ -n "$used" ]; then
@@ -352,7 +363,7 @@ if [ -n "$used" ]; then
 else
   ctx_str="$(printf "ctx ${DIM}%s${RESET} --%%" "░░░░░░░░░░░░")"
 fi
-line2="$ctx_str"
+line3="$ctx_str"
 
 rl_str=""
 if [ -n "$five_pct" ]; then
@@ -377,18 +388,18 @@ if [ -n "$week_pct" ]; then
   w_color=$(pct_color "$w_int")
   rl_str="${rl_str}$(printf " 7d:${w_color}%d%%${RESET}" "$w_int")"
 fi
-[ -n "$rl_str" ] && line2="${line2}${SEP}${VSEP}${rl_str}"
+[ -n "$rl_str" ] && line3="${line3}${SEP}${VSEP}${rl_str}"
 
 if [ -n "$session_duration" ]; then
-  line2="${line2}${SEP}${VSEP}${SEP}$(printf "~${DIM}%s${RESET}" "$session_duration")"
+  line3="${line3}${SEP}${VSEP}${SEP}$(printf "~${DIM}%s${RESET}" "$session_duration")"
 fi
 
 if [ -n "$agent_name" ]; then
-  line2="${line2}${SEP}${VSEP}${SEP}$(printf "${ORANGE}agent:${BOLD}%s${RESET}" "$agent_name")"
+  line3="${line3}${SEP}${VSEP}${SEP}$(printf "${ORANGE}agent:${BOLD}%s${RESET}" "$agent_name")"
 fi
 
 # ══════════════════════════════════════════════════════════
-# 行 3：系统资源  |  Runtime  |  IP
+# 行 4：系统资源  |  Runtime  |  IP
 # ══════════════════════════════════════════════════════════
 cpu_color=$(pct_color "$cpu_pct")
 mem_color=$(pct_color "$mem_pct")
@@ -403,51 +414,22 @@ sys_str="${sys_str}$(printf " Mem:${mem_color}%s/%sG${RESET}" "$mem_used_gb" "$m
 sys_str="${sys_str}$(printf " Disk:${disk_color}%s%%${RESET}" "$disk_pct")"
 [ -n "$uptime_str" ] && sys_str="${sys_str}$(printf " ${DIM}up %s${RESET}" "$uptime_str")"
 
-line3="$sys_str"
+line4="$sys_str"
 
 if [ -n "$runtime_info" ]; then
-  line3="${line3}${SEP}${VSEP}$(printf "${DIM}%s${RESET}" "$runtime_info")"
+  line4="${line4}${SEP}${VSEP}$(printf "${DIM}%s${RESET}" "$runtime_info")"
 fi
 
 if [ -n "$local_ip" ]; then
-  line3="${line3}${SEP}${VSEP}${SEP}$(printf "${DIM}%s${RESET}" "$local_ip")"
+  line4="${line4}${SEP}${VSEP}${SEP}$(printf "${DIM}%s${RESET}" "$local_ip")"
 fi
 
 # ══════════════════════════════════════════════════════════
-# 行 4：会话标识（单独一行）
-# 行 5：输出风格  |  Vim 模式
-# 行 6：工具调用统计（单独一行）
+# 行 5：工具调用统计
+# 行 6：输出风格  |  Vim 模式（可选）
 # ══════════════════════════════════════════════════════════
 
-# 行 4：session ID
-if [ -n "$session_name" ]; then
-  line4="$(printf "${DIM}@ %s${RESET}" "$session_name")"
-elif [ -n "$session_id" ]; then
-  line4="$(printf "${DIM}@ %s${RESET}" "$session_id")"
-else
-  line4=""
-fi
-
-# 行 5：输出风格 | Vim 模式
-line5=""
-
-if [ -n "$style" ] && [ "$style" != "default" ] && [ "$style" != "Default" ]; then
-  style_str="$(printf "${LMAGENTA}style:%s${RESET}" "$style")"
-  if [ -n "$line5" ]; then line5="${line5}${SEP}${VSEP}${SEP}${style_str}"
-  else line5="$style_str"; fi
-fi
-
-if [ -n "$vim_mode" ]; then
-  if [ "$vim_mode" = "NORMAL" ]; then
-    vim_str="$(printf "${LGREEN}N${RESET}")"
-  else
-    vim_str="$(printf "${LYELLOW}I${RESET}")"
-  fi
-  if [ -n "$line5" ]; then line5="${line5}${SEP}${VSEP}${SEP}${vim_str}"
-  else line5="$vim_str"; fi
-fi
-
-# 行 6：工具调用统计（从 transcript 解析，始终显示）
+# 行 5：工具调用统计（从 transcript 解析，始终显示）
 bash_count=0
 skill_count=0
 agent_count=0
@@ -458,15 +440,33 @@ if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
   agent_count=$(grep -c '"name":"Agent"' "$transcript_path" 2>/dev/null) || true
   edit_count=$(grep -c '"name":"Edit"' "$transcript_path" 2>/dev/null) || true
 fi
-line6="Bash:${bash_count} Skill:${skill_count} Agent:${agent_count} Edit:${edit_count}"
+line5="Bash:${bash_count} Skill:${skill_count} Agent:${agent_count} Edit:${edit_count}"
+
+# 行 6：输出风格 | Vim 模式
+line6=""
+
+if [ -n "$style" ] && [ "$style" != "default" ] && [ "$style" != "Default" ]; then
+  style_str="$(printf "${LMAGENTA}style:%s${RESET}" "$style")"
+  if [ -n "$line6" ]; then line6="${line6}${SEP}${VSEP}${SEP}${style_str}"
+  else line6="$style_str"; fi
+fi
+
+if [ -n "$vim_mode" ]; then
+  if [ "$vim_mode" = "NORMAL" ]; then
+    vim_str="$(printf "${LGREEN}N${RESET}")"
+  else
+    vim_str="$(printf "${LYELLOW}I${RESET}")"
+  fi
+  if [ -n "$line6" ]; then line6="${line6}${SEP}${VSEP}${SEP}${vim_str}"
+  else line6="$vim_str"; fi
+fi
 
 # ══════════════════════════════════════════════════════════
 # 输出
 # ══════════════════════════════════════════════════════════
-printf "%s\n" "$line1"
-[ -n "$git_line" ] && printf "%s\n" "$git_line"
-printf "%s\n%s\n" "$line2" "$line3"
-[ -n "$line4" ] && printf "%s\n" "$line4"
-printf "%s\n" "$line6"
-[ -n "$line5" ] && printf "%s\n" "$line5"
+[ -n "$line1" ] && printf "%s\n" "$line1"
+printf "%s\n" "$line2"
+printf "%s\n%s\n" "$line3" "$line4"
+printf "%s\n" "$line5"
+[ -n "$line6" ] && printf "%s\n" "$line6"
 exit 0
