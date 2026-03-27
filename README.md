@@ -28,7 +28,7 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 - **Auto GitHub Repo Creation** — No remote configured? It creates one for you.
 - **Conventional Commits** — All commit messages follow `<type>(<scope>): <description>` format automatically.
 - **Consistent Language** — PR title, summary, and test plan automatically use the same language as the commit messages. Defaults to English; overridable via project `CLAUDE.md`.
-- **File Protection Hook** — Prevent Claude from editing sensitive files (`.env`, lock files, etc.). Configure per-project via `.claude/protect_files.jsonc` — supports exact filename matching and glob patterns (`*`, `**`).
+- **File Protection Hook** — Prevent Claude from editing sensitive files (`.env`, lock files, etc.). Configure per-project via `.claude/.protect_files.jsonc` — supports exact filename matching and glob patterns (`*`, `**`).
 - **Session Hooks** — Greet on session start, goodbye on session end.
 - **Context Analyzer Agent** — Analyze which plugins consume the most context window. Shows a ranked table with sizes and percentages.
 - **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / rewind.
@@ -116,7 +116,7 @@ Any step that fails stops the pipeline immediately.
 
 ## File Protection
 
-Prevent Claude from editing sensitive files by creating `.claude/protect_files.jsonc` in your project root:
+Prevent Claude from editing sensitive files by creating `.claude/.protect_files.jsonc` in your project root:
 
 ```jsonc
 // Protected files — Claude Code cannot edit these

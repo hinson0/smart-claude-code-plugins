@@ -28,7 +28,7 @@
 - **自动创建 GitHub 仓库** — 未配置 remote？自动为你创建。
 - **Conventional Commits** — 所有 commit message 自动遵循 `<type>(<scope>): <description>` 格式。
 - **语言一致性** — PR 标题、摘要和测试计划自动与 commit message 使用相同语言。默认英文，可通过项目 `CLAUDE.md` 覆盖。
-- **文件保护 Hook** — 阻止 Claude 编辑敏感文件（`.env`、lock 文件等）。通过项目级 `.claude/protect_files.jsonc` 配置，支持精确文件名匹配和 glob 模式（`*`、`**`）。
+- **文件保护 Hook** — 阻止 Claude 编辑敏感文件（`.env`、lock 文件等）。通过项目级 `.claude/.protect_files.jsonc` 配置，支持精确文件名匹配和 glob 模式（`*`、`**`）。
 - **会话 Hook** — 会话开始时问候，结束时告别。
 - **上下文分析 Agent** — 分析哪些插件占用了最多的上下文窗口，按大小排名展示表格和百分比。
 - **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。支持安装 / 删除 / 回退。
@@ -116,7 +116,7 @@ gh auth login
 
 ## 文件保护
 
-在项目根目录创建 `.claude/protect_files.jsonc`，阻止 Claude 编辑敏感文件：
+在项目根目录创建 `.claude/.protect_files.jsonc`，阻止 Claude 编辑敏感文件：
 
 ```jsonc
 // 受保护的文件列表 — Claude Code 不可编辑
