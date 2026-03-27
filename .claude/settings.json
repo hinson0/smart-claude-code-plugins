@@ -1,6 +1,6 @@
 {
   "enabledPlugins": {
-    "smart@smart": false,
+    "smart@smart": true,
     "code-review@claude-plugins-official": false,
     "code-simplifier@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
