@@ -8,33 +8,46 @@ Claude Code 插件，自动化 check → commit → push → PR 流程。
 ## 项目结构
 
 ```
-plugins/smart/
+cn/smart/                         # CN 镜像目录（仅供阅读，结构与 plugins/smart/ 对称）
+├── agents/                       # CN agents（中文版，仅供参考）
+│   ├── context-analyzer.md
+│   ├── cp-my-statusline.md
+│   └── joke-teller.md
+├── assets/
+│   └── statusline-command.sh
+├── hooks/
+│   ├── hooks.json
+│   ├── protect-files.py
+│   └── session-logs.py
+└── skills/                       # CN skills（中文版，仅供参考）
+    ├── check/SKILL.md
+    ├── commit/SKILL.md
+    ├── hud/SKILL.md
+    ├── pr/SKILL.md
+    └── push/SKILL.md
+
+plugins/smart/                    # EN 主插件目录（被 Claude Code 实际加载）
 ├── .claude-plugin/plugin.json    # 插件元数据
-├── agents/
-│   ├── context-analyzer.md       # 上下文占用分析 agent (EN)
-│   ├── context-analyzer_cn.md    # 上下文占用分析 agent (CN)
-│   ├── cp-my-statusline.md       # statusline 安装/卸载 agent (EN)
-│   ├── cp-my-statusline_cn.md    # statusline 安装/卸载 agent (CN)
-│   ├── joke-teller.md            # 讲笑话 agent (EN)
-│   └── joke-teller_cn.md         # 讲笑话 agent (CN)
+├── agents/                       # EN agents
+│   ├── context-analyzer.md
+│   ├── cp-my-statusline.md
+│   └── joke-teller.md
 ├── assets/
 │   └── statusline-command.sh     # 打包的 statusline 脚本
 ├── hooks/
 │   ├── hooks.json                # hook 配置
 │   ├── greet.sh / goodbye.sh     # 会话开始/结束 hook
 │   ├── protect-files.py          # 文件保护 hook（PreToolUse）
-│   ├── session-logs.py           # hook 输入日志（PreToolUse）
-│   └── joke-stop.py              # 定期讲笑话 hook（Stop）
-└── skills/
-    ├── check/    # 本地 CI 检查（lint/test/typecheck）
-    ├── commit/   # 智能提交（核心，支持多 feature 拆分）
-    ├── push/     # check → commit → push 管道
-    ├── pr/       # push → 创建 PR 管道
-    └── hud/      # statusline 安装/卸载/回退
+│   └── session-logs.py           # hook 输入日志（PreToolUse）
+└── skills/                       # EN skills
+    ├── check/SKILL.md
+    ├── commit/SKILL.md
+    ├── push/SKILL.md
+    ├── pr/SKILL.md
+    └── hud/SKILL.md
 ```
 
-每个 skill 目录包含 2 个语言版本：SKILL.md (EN)、SKILL_CN.md (CN)
-agent 同理：agent.md (EN)、agent_cn.md (CN)
+语言版本组织：EN 文件在 `plugins/smart/`（被加载），CN 文件在顶层 `cn/smart/`（仅供阅读参考），文件名完全相同。
 
 ## 架构原则
 
@@ -46,10 +59,10 @@ agent 同理：agent.md (EN)、agent_cn.md (CN)
 
 ## 注意事项
 
-- 修改任何 SKILL.md 内容后，必须同步更新 EN 和 CN 两个语言版本
-- 修改 agent 文件同理，EN 和 CN 版本需同步更新
-- agent EN 版：frontmatter + body 全英文（被 Claude Code 实际加载）
-- agent CN 版：frontmatter（description/example）和 body 均为中文（仅供阅读参考，不被加载）
+- 修改任何 SKILL.md 内容后，必须同步更新 `cn/smart/` 目录中的对应文件
+- 修改 agent 文件同理，`agents/` 和 `cn/smart/agents/` 需同步更新
+- agent EN 版（`plugins/smart/agents/`）：frontmatter + body 全英文（被 Claude Code 实际加载）
+- agent CN 版（`cn/smart/agents/`）：frontmatter（description/example）和 body 均为中文（仅供阅读参考，不被加载）
 - commit message 遵循 Conventional Commits：`<type>(<scope>): <description>`
   - type: feat, fix, refactor, docs, test, chore, perf, ci
   - scope: 可选，指明改动范围（如 mobile, api, auth）；省略时格式为 `<type>: <description>`
@@ -59,11 +72,17 @@ agent 同理：agent.md (EN)、agent_cn.md (CN)
 ## 常用命令
 
 ```bash
-# 验证所有 skill 引用路径是否存在
+# 验证 EN skills 引用路径
 grep -r '@\.\./' plugins/smart/skills/ --include='*.md' -h | sort -u
 
+# 验证 CN skills 引用路径
+grep -r '@\.\./' cn/smart/skills/ --include='*.md' -h | sort -u
+
 # 检查 EN/CN 两个语言版本是否齐全
-for d in plugins/smart/skills/*/; do echo "=== $d ===" && ls "$d"SKILL.md "$d"SKILL_CN.md; done
+for d in plugins/smart/skills/*/; do
+  name=$(basename "$d")
+  echo "=== $name ===" && ls "$d"SKILL.md "cn/smart/skills/$name/SKILL.md"
+done
 
 # 测试完整管道
 /smart:check → /smart:commit → /smart:push → /smart:pr
@@ -71,7 +90,7 @@ for d in plugins/smart/skills/*/; do echo "=== $d ===" && ls "$d"SKILL.md "$d"SK
 
 ## 开发工作流
 
-1. 修改 SKILL.md（英文版为主）
-2. 同步更新 SKILL_CN.md
+1. 修改 `skills/<name>/SKILL.md`（英文版为主）
+2. 同步更新 `cn/smart/skills/<name>/SKILL.md`
 3. 验证 skill 引用路径正确（`@../` 前缀）
 4. 测试完整管道：check → commit → push → pr
