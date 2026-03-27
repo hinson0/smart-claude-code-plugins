@@ -36,7 +36,7 @@ def _load_protected_patterns(project_root: str) -> list[str]:
     Returns:
         受保护文件模式字符串列表。如果配置文件不存在或解析失败，返回空列表。
     """
-    config_path = Path(project_root, ".claude", "protect_files.jsonc")
+    config_path = Path(project_root, ".claude", ".protect_files.jsonc")
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             content = _strip_jsonc_comments(f.read())
