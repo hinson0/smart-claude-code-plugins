@@ -27,6 +27,7 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 - **Auto CI Detection** — Reads `.github/workflows/*.yml` and runs matching checks locally (ruff, pytest, eslint, tsc, jest, go test, turbo, and more).
 - **Auto GitHub Repo Creation** — No remote configured? It creates one for you.
 - **Conventional Commits** — All commit messages follow `<type>(<scope>): <description>` format automatically.
+- **Auto Version Bump** — Automatically detects your version file (`plugin.json`, `package.json`, or `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
 - **Consistent Language** — PR title, summary, and test plan automatically use the same language as the commit messages. Defaults to English; overridable via project `CLAUDE.md`.
 - **File Protection Hook** — Prevent Claude from editing sensitive files (`.env`, lock files, etc.). Configure per-project via `.claude/.protect_files.jsonc` — supports exact filename matching and glob patterns (`*`, `**`).
 - **Session Hooks** — Greet on session start, goodbye on session end.
@@ -41,17 +42,18 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 **💬 Just say it** — type naturally in chat:
 
 - "commit" / "save my work" → stages & commits with smart grouping
-- "push" → check + commit + push
-- "create PR" / "open a PR" → check + commit + push + PR
+- "push" → check + commit + version bump + push
+- "create PR" / "open a PR" → check + commit + version bump + push + PR
 
 **⌨️ Slash commands** — for when you want to be explicit:
 
 | Command | What it does |
 |---|---|
-| `/smart:pr [base]` | Full pipeline: check → commit → push → PR (default base: `main`) |
-| `/smart:push` | check → commit → push (no PR) |
+| `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
+| `/smart:push` | check → commit → version → push (no PR) |
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
 | `/smart:check` | Run local CI checks only (auto-detects from workflow config) |
+| `/smart:version [base]` | Analyze commits and bump version (auto-detects plugin.json / package.json / pyproject.toml) |
 | `/smart:hud` | Install smart statusline (model, git, context, rate limits, system stats) |
 | `/smart:hud rm` | Remove the statusline |
 | `/smart:hud rewind` | Restore your previous statusline from backup |
@@ -86,7 +88,7 @@ gh auth login
 /smart:pr
 ```
 
-It will automatically: detect CI checks → run them locally → stage & commit → push → open a PR on GitHub.
+It will automatically: detect CI checks → run them locally → stage & commit → bump version → push → open a PR on GitHub.
 
 ---
 
@@ -103,10 +105,14 @@ It will automatically: detect CI checks → run them locally → stage & commit 
     │                Phase 2: split same-type changes by purpose
     │                (auto-generates Conventional Commit messages)
     │
-    ├── 3. push    — pushes to origin
+    ├── 3. version — detects version file (plugin.json / package.json / pyproject.toml)
+    │                analyzes commit types → bumps semver (major/minor/patch)
+    │                (monorepo: maps files to packages, bumps each independently)
+    │
+    ├── 4. push    — pushes to origin
     │                (auto-creates GitHub repo if origin is not configured)
     │
-    └── 4. pr      — opens a Pull Request with auto-generated title & body
+    └── 5. pr      — opens a Pull Request with auto-generated title & body
                      (language follows commit messages from step 2)
 ```
 
@@ -148,14 +154,16 @@ Install a feature-rich statusline with one command:
 
 ![hud](./assets/imgs/hud.png)
 
-**What it shows (4 lines):**
+**What it shows (6 lines):**
 
 | Line | Content |
 |------|---------|
-| 1 | Model@version, git branch (dirty/ahead/behind), directory, last commit time |
-| 2 | Context progress bar + tokens + cache, rate limits (5h/7d) with reset countdown, session duration |
-| 3 | CPU, memory, disk, uptime, runtime versions (Node/Python/Go/Rust/Ruby), local IP |
-| 4 | Session ID, tool call stats (Bash/Skill/Agent/Edit) |
+| 1 | Session ID, model@version |
+| 2 | Directory, git branch (dirty/ahead/behind), last commit time, worktree, battery |
+| 3 | Context progress bar + tokens + cache, rate limits (5h/7d) with reset countdown, session duration, agent |
+| 4 | CPU, memory, disk, uptime, runtime versions (Node/Python/Go/Rust/Ruby), local IP |
+| 5 | Tool call stats (Bash/Skill/Agent/Edit) |
+| 6 | Output style, vim mode (optional) |
 
 **Commands:**
 

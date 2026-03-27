@@ -27,6 +27,7 @@
 - **自动 CI 检测** — 读取 `.github/workflows/*.yml`，在本地运行对应检查（ruff、pytest、eslint、tsc、jest、go test、turbo 等）。
 - **自动创建 GitHub 仓库** — 未配置 remote？自动为你创建。
 - **Conventional Commits** — 所有 commit message 自动遵循 `<type>(<scope>): <description>` 格式。
+- **自动版本升级** — 自动检测版本文件（`plugin.json`、`package.json` 或 `pyproject.toml`），分析 commit 类型，在推送前自动 bump 语义化版本号。Monorepo 中按文件归属映射到对应 package，各自独立升级。
 - **语言一致性** — PR 标题、摘要和测试计划自动与 commit message 使用相同语言。默认英文，可通过项目 `CLAUDE.md` 覆盖。
 - **文件保护 Hook** — 阻止 Claude 编辑敏感文件（`.env`、lock 文件等）。通过项目级 `.claude/.protect_files.jsonc` 配置，支持精确文件名匹配和 glob 模式（`*`、`**`）。
 - **会话 Hook** — 会话开始时问候，结束时告别。
@@ -41,17 +42,18 @@
 **💬 直接说** — 在对话中自然表达：
 
 - "commit" / "提交" / "完成了" → 智能提交
-- "push" / "推一下" → check + commit + push
-- "发个PR" / "create PR" → check + commit + push + PR
+- "push" / "推一下" → check + commit + version + push
+- "发个PR" / "create PR" → check + commit + version + push + PR
 
 **⌨️ 斜杠命令** — 精确控制：
 
 | 命令 | 作用 |
 |---|---|
-| `/smart:pr [目标分支]` | 完整流程：check → commit → push → PR（默认目标分支：`main`） |
-| `/smart:push` | check → commit → push（不创建 PR） |
+| `/smart:pr [目标分支]` | 完整流程：check → commit → version → push → PR（默认目标分支：`main`） |
+| `/smart:push` | check → commit → version → push（不创建 PR） |
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
 | `/smart:check` | 仅运行本地 CI 检查（自动检测 workflow 配置） |
+| `/smart:version [基准分支]` | 分析 commit 并升级版本号（自动检测 plugin.json / package.json / pyproject.toml） |
 | `/smart:hud` | 安装 smart 状态栏（模型、Git、上下文、速率限制、系统资源） |
 | `/smart:hud rm` | 删除状态栏 |
 | `/smart:hud rewind` | 从备份恢复之前的状态栏 |
@@ -86,7 +88,7 @@ gh auth login
 /smart:pr
 ```
 
-它会自动完成：检测 CI 配置并在本地运行检查 → 智能提交 → 推送 → 在 GitHub 上创建 PR。
+它会自动完成：检测 CI 配置并在本地运行检查 → 智能提交 → 版本升级 → 推送 → 在 GitHub 上创建 PR。
 
 ---
 
@@ -103,10 +105,14 @@ gh auth login
     │                第二阶段：同类 type 按目的再分割
     │                （自动生成 Conventional Commit message）
     │
-    ├── 3. push    — 推送到 origin
+    ├── 3. version — 检测版本文件（plugin.json / package.json / pyproject.toml）
+    │                分析 commit 类型 → 自动 bump 语义化版本（major/minor/patch）
+    │                （monorepo：按文件归属映射到对应 package，各自独立升级）
+    │
+    ├── 4. push    — 推送到 origin
     │                （未配置 remote 时自动在 GitHub 创建仓库并关联）
     │
-    └── 4. pr      — 自动生成标题和正文，创建 Pull Request
+    └── 5. pr      — 自动生成标题和正文，创建 Pull Request
                      （语言跟随步骤 2 的 commit message）
 ```
 
@@ -148,14 +154,16 @@ gh auth login
 
 ![hud](./assets/imgs/hud.png)
 
-**显示内容（4 行）：**
+**显示内容（6 行）：**
 
 | 行 | 内容 |
 |----|------|
-| 1 | 模型@版本、Git 分支（dirty/ahead/behind）、目录、最近 commit 时间 |
-| 2 | 上下文进度条 + tokens + cache、速率限制（5h/7d）含重置倒计时、会话时长 |
-| 3 | CPU、内存、磁盘、运行时间、Runtime 版本（Node/Python/Go/Rust/Ruby）、本机 IP |
-| 4 | 会话 ID、工具调用统计（Bash/Skill/Agent/Edit） |
+| 1 | 会话 ID、模型@版本 |
+| 2 | 目录、Git 分支（dirty/ahead/behind）、最近 commit 时间、worktree、电池 |
+| 3 | 上下文进度条 + tokens + cache、速率限制（5h/7d）含重置倒计时、会话时长、agent |
+| 4 | CPU、内存、磁盘、运行时间、Runtime 版本（Node/Python/Go/Rust/Ruby）、本机 IP |
+| 5 | 工具调用统计（Bash/Skill/Agent/Edit） |
+| 6 | 输出风格、vim 模式（可选） |
 
 **命令：**
 

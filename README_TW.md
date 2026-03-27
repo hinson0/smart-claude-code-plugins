@@ -27,6 +27,7 @@
 - **自動 CI 偵測** — 讀取 `.github/workflows/*.yml`，在本機執行對應檢查（ruff、pytest、eslint、tsc、jest、go test、turbo 等）。
 - **自動建立 GitHub 倉庫** — 未設定 remote？自動為你建立。
 - **Conventional Commits** — 所有 commit message 自動遵循 `<type>(<scope>): <description>` 格式。
+- **自動版本升級** — 自動偵測版本檔案（`plugin.json`、`package.json` 或 `pyproject.toml`），分析 commit 類型，在推送前自動 bump 語義化版本號。Monorepo 中按檔案歸屬對映到對應 package，各自獨立升級。
 - **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `CLAUDE.md` 覆蓋。
 - **檔案保護 Hook** — 阻止 Claude 編輯敏感檔案（`.env`、lock 檔案等）。透過專案級 `.claude/.protect_files.jsonc` 設定，支援精確檔名配對和 glob 模式（`*`、`**`）。
 - **會話 Hook** — 會話開始時問候，結束時告別。
@@ -39,17 +40,18 @@
 **💬 直接說** — 在對話中自然表達：
 
 - "commit" / "提交" / "完成了" → 智慧提交
-- "push" / "推一下" → check + commit + push
-- "發個PR" / "create PR" → check + commit + push + PR
+- "push" / "推一下" → check + commit + version + push
+- "發個PR" / "create PR" → check + commit + version + push + PR
 
 **⌨️ 斜線指令** — 精確控制：
 
 | 指令 | 作用 |
 |---|---|
-| `/smart:pr [目標分支]` | 完整流程：check → commit → push → PR（預設目標分支：`main`） |
-| `/smart:push` | check → commit → push（不建立 PR） |
+| `/smart:pr [目標分支]` | 完整流程：check → commit → version → push → PR（預設目標分支：`main`） |
+| `/smart:push` | check → commit → version → push（不建立 PR） |
 | `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
 | `/smart:check` | 僅執行本機 CI 檢查（自動偵測 workflow 設定） |
+| `/smart:version [基準分支]` | 分析 commit 並升級版本號（自動偵測 plugin.json / package.json / pyproject.toml） |
 
 ---
 
@@ -81,7 +83,7 @@ gh auth login
 /smart:pr
 ```
 
-它會自動完成：偵測 CI 設定並在本機執行檢查 → 智慧提交 → 推送 → 在 GitHub 上建立 PR。
+它會自動完成：偵測 CI 設定並在本機執行檢查 → 智慧提交 → 版本升級 → 推送 → 在 GitHub 上建立 PR。
 
 ---
 
@@ -98,10 +100,14 @@ gh auth login
     │                第二階段：同類 type 按目的再分割
     │                （自動產生 Conventional Commit message）
     │
-    ├── 3. push    — 推送到 origin
+    ├── 3. version — 偵測版本檔案（plugin.json / package.json / pyproject.toml）
+    │                分析 commit 類型 → 自動 bump 語義化版本（major/minor/patch）
+    │                （monorepo：按檔案歸屬對映到對應 package，各自獨立升級）
+    │
+    ├── 4. push    — 推送到 origin
     │                （未設定 remote 時自動在 GitHub 建立倉庫並關聯）
     │
-    └── 4. pr      — 自動產生標題和內文，建立 Pull Request
+    └── 5. pr      — 自動產生標題和內文，建立 Pull Request
                      （語言跟隨步驟 2 的 commit message）
 ```
 
