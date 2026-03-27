@@ -1,16 +1,17 @@
 #!/bin/bash
-# Claude Code statusLine command — 超级增强版
+# Claude Code statusLine command — enhanced
 #
-# 布局（4 行）：
-#   行 1：[模型@版本]  ⎇ 分支[dirty][↑↓ ahead/behind][≡stash]  ~/目录  时间  电池
-#   行 2：ctx进度条+tokens+cache  |  rate-limits(含重置倒计时)  |  会话时长  |  agent/worktree
-#   行 3：CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  本机IP
-#   行 4：会话标识  |  输出风格  |  vim模式  |  最后commit时间  |  工具调用统计
+# Layout:
+#   line 1: [model@version]  ~/cwd  commit-time  battery
+#   line G: ⎇ branch[dirty][↑↓ ahead/behind][≡stash]  wt:worktree  (git repos only)
+#   line 2: ctx-bar+tokens+cache  |  rate-limits(reset countdown)  |  session-duration  |  agent
+#   line 3: CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  local-IP
+#   line 4: session-id  |  output-style  |  vim-mode  |  tool-call-stats
 
 input=$(cat)
 
 # ══════════════════════════════════════════════════════════
-# 1. 从 JSON 提取 Claude 数据
+# 1. Extract Claude data from JSON
 # ══════════════════════════════════════════════════════════
 model=$(echo "$input"          | jq -r '.model.display_name // ""')
 cwd=$(echo "$input"            | jq -r '.workspace.current_dir // .cwd // ""')
@@ -33,10 +34,10 @@ agent_name=$(echo "$input"     | jq -r '.agent.name // ""')
 worktree_name=$(echo "$input"  | jq -r '.worktree.name // ""')
 worktree_branch=$(echo "$input"| jq -r '.worktree.branch // ""')
 
-# ── 模型简称："Claude Sonnet 4.6" → "Sonnet 4.6"
+# Short model name: "Claude Sonnet 4.6" → "Sonnet 4.6"
 model_short=$(echo "$model" | sed 's/^Claude //')
 
-# ── 目录（缩短 home 为 ~，超过 40 字符时只保留最后 2 段）
+# Directory: shorten home to ~, keep last 2 segments if >40 chars
 short_cwd=$(echo "$cwd" | sed "s|^$HOME|~|")
 short_cwd_len=$(echo -n "$short_cwd" | wc -c | tr -d ' ')
 if [ "$short_cwd_len" -gt 40 ] 2>/dev/null; then
@@ -44,7 +45,7 @@ if [ "$short_cwd_len" -gt 40 ] 2>/dev/null; then
 fi
 
 # ══════════════════════════════════════════════════════════
-# 2. Git 信息（跳过可选锁，避免阻塞）
+# 2. Git info (skip optional locks to avoid blocking)
 # ══════════════════════════════════════════════════════════
 branch=""
 dirty=""
@@ -57,13 +58,13 @@ if [ -n "$cwd" ] && GIT_OPTIONAL_LOCKS=0 git -C "$cwd" rev-parse --git-dir >/dev
            || GIT_OPTIONAL_LOCKS=0 git -C "$cwd" rev-parse --short HEAD 2>/dev/null \
            || echo "?")
 
-  # dirty 检测（未提交或暂存的改动）
+  # dirty check (unstaged or staged changes)
   if ! GIT_OPTIONAL_LOCKS=0 git -C "$cwd" diff --quiet 2>/dev/null \
     || ! GIT_OPTIONAL_LOCKS=0 git -C "$cwd" diff --cached --quiet 2>/dev/null; then
     dirty="*"
   fi
 
-  # untracked 文件
+  # untracked files
   if [ -n "$(GIT_OPTIONAL_LOCKS=0 git -C "$cwd" ls-files --others --exclude-standard 2>/dev/null | head -1)" ]; then
     dirty="${dirty}?"
   fi
@@ -79,11 +80,11 @@ if [ -n "$cwd" ] && GIT_OPTIONAL_LOCKS=0 git -C "$cwd" rev-parse --git-dir >/dev
     [ -n "$ab" ] && ahead_behind="$ab"
   fi
 
-  # stash 数量
+  # stash count
   sc=$(GIT_OPTIONAL_LOCKS=0 git -C "$cwd" stash list 2>/dev/null | wc -l | tr -d ' ')
   [ "$sc" -gt 0 ] 2>/dev/null && stash_count="≡${sc}"
 
-  # 最后一次 commit 相对时间（精简格式）
+  # last commit relative time (compact format)
   last_commit_rel=$(GIT_OPTIONAL_LOCKS=0 git -C "$cwd" log -1 --format="%cr" 2>/dev/null \
     | sed 's/ ago//' \
     | sed 's/ seconds\?/s/' \
@@ -96,16 +97,16 @@ if [ -n "$cwd" ] && GIT_OPTIONAL_LOCKS=0 git -C "$cwd" rev-parse --git-dir >/dev
 fi
 
 # ══════════════════════════════════════════════════════════
-# 3. 系统信息（macOS）
+# 3. System info (macOS)
 # ══════════════════════════════════════════════════════════
 
-# -- CPU（1 分钟负载 / 核心数）→ 百分比近似值
+# -- CPU (1-min load / cores) → approximate percentage
 cpu_cores=$(sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
 load1=$(sysctl -n vm.loadavg 2>/dev/null | awk '{print $2}')
 cpu_pct=$(awk -v l="$load1" -v c="$cpu_cores" \
   'BEGIN { v = l/c*100; if(v>100) v=100; printf "%.0f", v }' 2>/dev/null || echo "?")
 
-# -- 内存（used / total，GB）
+# -- Memory (used / total, GB)
 mem_info=$(vm_stat 2>/dev/null)
 page_size=$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)
 mem_total_bytes=$(sysctl -n hw.memsize 2>/dev/null || echo 0)
@@ -122,7 +123,7 @@ mem_used_gb=$(awk -v t="$mem_total_gb" -v a="$mem_avail_gb" \
 mem_pct=$(awk -v t="$mem_total_bytes" -v a="$mem_avail_gb" \
   'BEGIN { if(t>0) printf "%.0f", (1-a*1073741824/t)*100; else print "?" }' 2>/dev/null || echo "?")
 
-# -- 磁盘（当前 cwd 所在卷，已用 %）
+# -- Disk (volume containing cwd, used %)
 if [ -n "$cwd" ]; then
   disk_info=$(df -h "$cwd" 2>/dev/null | tail -1)
   disk_used=$(echo "$disk_info" | awk '{print $3}')
@@ -132,11 +133,11 @@ else
   disk_used="?"; disk_total="?"; disk_pct="?"
 fi
 
-# -- Uptime（精简）
+# -- Uptime (compact)
 uptime_str=$(uptime 2>/dev/null | awk -F'up ' '{print $2}' | awk -F',' '{print $1}' \
   | sed 's/^ *//' | sed 's/  */ /g')
 
-# -- 电池（macOS pmset）
+# -- Battery (macOS pmset)
 battery_str=""
 batt_raw=$(pmset -g batt 2>/dev/null | grep -E '[0-9]+%')
 if [ -n "$batt_raw" ]; then
@@ -151,20 +152,20 @@ if [ -n "$batt_raw" ]; then
   fi
 fi
 
-# -- 本机 IP（第一个非 loopback IPv4）
+# -- Local IP (first non-loopback IPv4)
 local_ip=$(ipconfig getifaddr en0 2>/dev/null \
   || ipconfig getifaddr en1 2>/dev/null \
   || echo "")
 
 # ══════════════════════════════════════════════════════════
-# 4. 会话时长（通过 transcript 文件创建时间计算）
+# 4. Session duration (calculated from transcript file birth time)
 # ══════════════════════════════════════════════════════════
 session_duration=""
 if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
-  # macOS: stat -f %B 获取文件创建时间（birth time），单位秒
+  # macOS: stat -f %B gets file birth time in seconds
   birth_ts=$(stat -f %B "$transcript_path" 2>/dev/null || echo "")
   if [ -z "$birth_ts" ] || [ "$birth_ts" = "0" ]; then
-    # 回退：使用文件最后修改时间
+    # fallback: use file modification time
     birth_ts=$(stat -f %m "$transcript_path" 2>/dev/null || echo "")
   fi
   if [ -n "$birth_ts" ]; then
@@ -185,7 +186,7 @@ if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
 fi
 
 # ══════════════════════════════════════════════════════════
-# 5. Runtime 版本（仅在对应项目中显示）
+# 5. Runtime versions (shown only when project file detected)
 # ══════════════════════════════════════════════════════════
 runtime_info=""
 
@@ -215,9 +216,9 @@ if [ -f "${cwd}/Gemfile" ] 2>/dev/null; then
 fi
 
 # ══════════════════════════════════════════════════════════
-# 6. 颜色定义
+# 6. Color definitions
 # ══════════════════════════════════════════════════════════
-# 使用深色系，兼容浅色/白色终端主题
+# Dark palette, compatible with light/white terminal themes
 CYAN=$'\033[38;5;30m'
 LCYAN=$'\033[38;5;31m'
 YELLOW=$'\033[38;5;136m'
@@ -248,7 +249,7 @@ SEP="  "
 VSEP="${DIM}│${RESET}"
 
 # ══════════════════════════════════════════════════════════
-# 7. 工具函数
+# 7. Utilities
 # ══════════════════════════════════════════════════════════
 build_bar() {
   pct=$1; width=${2:-12}
@@ -269,7 +270,8 @@ fmt_tok() {
 }
 
 # ══════════════════════════════════════════════════════════
-# 行 1：模型  |  Git  |  Worktree  |  目录  |  时间  |  电池
+# line 1: model  |  cwd  |  commit-time  |  battery
+# line G: ⎇ branch  |  worktree  (git repos only)
 # ══════════════════════════════════════════════════════════
 
 if [ -n "$version" ]; then
@@ -278,18 +280,27 @@ else
   line1="$(printf "${BOLD}${LCYAN}%s${RESET}" "$model_short")"
 fi
 
+# Git dedicated line
+git_line=""
 if [ -n "$branch" ]; then
   git_str="$(printf "⎇ ${LYELLOW}%s${RESET}" "$branch")"
   [ -n "$dirty" ]        && git_str="${git_str}$(printf "${LRED}%s${RESET}" "$dirty")"
   [ -n "$ahead_behind" ] && git_str="${git_str}$(printf " ${LMAGENTA}%s${RESET}" "$ahead_behind")"
   [ -n "$stash_count" ]  && git_str="${git_str}$(printf " ${DIM}%s${RESET}" "$stash_count")"
-  line1="${line1}${SEP}${VSEP}${SEP}${git_str}"
+  git_line="$git_str"
 fi
 
 if [ -n "$worktree_name" ]; then
   wt_str="$(printf "${ORANGE}wt:${BOLD}%s${RESET}" "$worktree_name")"
-  [ -n "$worktree_branch" ] && wt_str="${wt_str}$(printf "${DIM}(%s)${RESET}" "$worktree_branch")"
-  line1="${line1}${SEP}${VSEP}${SEP}${wt_str}"
+  # only show branch in parens when it differs from worktree name
+  if [ -n "$worktree_branch" ] && [ "$worktree_branch" != "$worktree_name" ]; then
+    wt_str="${wt_str}$(printf "${DIM}(%s)${RESET}" "$worktree_branch")"
+  fi
+  if [ -n "$git_line" ]; then
+    git_line="${git_line}${SEP}${VSEP}${SEP}${wt_str}"
+  else
+    git_line="$wt_str"
+  fi
 fi
 
 line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LBLUE}%s${RESET}" "$short_cwd")"
@@ -310,20 +321,20 @@ if [ -n "$battery_str" ]; then
 fi
 
 # ══════════════════════════════════════════════════════════
-# 行 2：Context  |  Rate limits  |  会话时长  |  Agent
+# line 2: Context  |  Rate limits  |  session duration  |  Agent
 # ══════════════════════════════════════════════════════════
 
 if [ -n "$used" ]; then
   used_int=$(printf '%.0f' "$used")
   bar=$(build_bar "$used_int" 12)
   bar_color=$(pct_color "$used_int")
-  # 显示已用% 和 剩余%
+  # show used% and remaining%
   ctx_str="$(printf "ctx ${bar_color}%s${RESET} ${bar_color}%d%%${RESET}" "$bar" "$used_int")"
   if [ -n "$remaining" ]; then
     rem_int=$(printf '%.0f' "$remaining")
     ctx_str="${ctx_str}$(printf "${DIM}/%d%%${RESET}" "$rem_int")"
   fi
-  # 显示 context 窗口大小（单位 K）
+  # show context window size in K
   if [ -n "$ctx_size" ] && [ "$ctx_size" != "empty" ] && [ "$ctx_size" -gt 0 ] 2>/dev/null; then
     ctx_size_k=$(awk -v s="$ctx_size" 'BEGIN { printf "%gK", s/1000 }')
     ctx_str="${ctx_str}$(printf " ${DIM}[%s]${RESET}" "$ctx_size_k")"
@@ -377,7 +388,7 @@ if [ -n "$agent_name" ]; then
 fi
 
 # ══════════════════════════════════════════════════════════
-# 行 3：系统资源  |  Runtime  |  IP
+# line 3: System resources  |  Runtime  |  IP
 # ══════════════════════════════════════════════════════════
 cpu_color=$(pct_color "$cpu_pct")
 mem_color=$(pct_color "$mem_pct")
@@ -403,12 +414,12 @@ if [ -n "$local_ip" ]; then
 fi
 
 # ══════════════════════════════════════════════════════════
-# 行 4：会话标识（单独一行）
-# 行 5：输出风格  |  Vim 模式
-# 行 6：工具调用统计（单独一行）
+# line 4: session ID
+# line 5: output style  |  vim mode
+# line 6: tool call stats
 # ══════════════════════════════════════════════════════════
 
-# 行 4：session ID
+# line 4: session ID
 if [ -n "$session_name" ]; then
   line4="$(printf "${DIM}@ %s${RESET}" "$session_name")"
 elif [ -n "$session_id" ]; then
@@ -417,7 +428,7 @@ else
   line4=""
 fi
 
-# 行 5：输出风格 | Vim 模式
+# line 5: output style | vim mode
 line5=""
 
 if [ -n "$style" ] && [ "$style" != "default" ] && [ "$style" != "Default" ]; then
@@ -436,7 +447,7 @@ if [ -n "$vim_mode" ]; then
   else line5="$vim_str"; fi
 fi
 
-# 行 6：工具调用统计（从 transcript 解析，始终显示）
+# line 6: tool call stats (parsed from transcript, always shown)
 bash_count=0
 skill_count=0
 agent_count=0
@@ -450,9 +461,11 @@ fi
 line6="Bash:${bash_count} Skill:${skill_count} Agent:${agent_count} Edit:${edit_count}"
 
 # ══════════════════════════════════════════════════════════
-# 输出
+# Output
 # ══════════════════════════════════════════════════════════
-printf "%s\n%s\n%s\n" "$line1" "$line2" "$line3"
+printf "%s\n" "$line1"
+[ -n "$git_line" ] && printf "%s\n" "$git_line"
+printf "%s\n%s\n" "$line2" "$line3"
 [ -n "$line4" ] && printf "%s\n" "$line4"
 printf "%s\n" "$line6"
 [ -n "$line5" ] && printf "%s\n" "$line5"

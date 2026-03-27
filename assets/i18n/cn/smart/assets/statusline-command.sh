@@ -269,7 +269,8 @@ fmt_tok() {
 }
 
 # ══════════════════════════════════════════════════════════
-# 行 1：模型  |  Git  |  Worktree  |  目录  |  时间  |  电池
+# 行 1：模型  |  目录  |  时间  |  电池
+# 行 Git：⎇ 分支  |  Worktree（仅在 git 仓库中显示）
 # ══════════════════════════════════════════════════════════
 
 if [ -n "$version" ]; then
@@ -278,18 +279,27 @@ else
   line1="$(printf "${BOLD}${LCYAN}%s${RESET}" "$model_short")"
 fi
 
+# Git 独立行
+git_line=""
 if [ -n "$branch" ]; then
   git_str="$(printf "⎇ ${LYELLOW}%s${RESET}" "$branch")"
   [ -n "$dirty" ]        && git_str="${git_str}$(printf "${LRED}%s${RESET}" "$dirty")"
   [ -n "$ahead_behind" ] && git_str="${git_str}$(printf " ${LMAGENTA}%s${RESET}" "$ahead_behind")"
   [ -n "$stash_count" ]  && git_str="${git_str}$(printf " ${DIM}%s${RESET}" "$stash_count")"
-  line1="${line1}${SEP}${VSEP}${SEP}${git_str}"
+  git_line="$git_str"
 fi
 
 if [ -n "$worktree_name" ]; then
   wt_str="$(printf "${ORANGE}wt:${BOLD}%s${RESET}" "$worktree_name")"
-  [ -n "$worktree_branch" ] && wt_str="${wt_str}$(printf "${DIM}(%s)${RESET}" "$worktree_branch")"
-  line1="${line1}${SEP}${VSEP}${SEP}${wt_str}"
+  # 仅当 branch 与 name 不同时才显示括号内容，避免重复
+  if [ -n "$worktree_branch" ] && [ "$worktree_branch" != "$worktree_name" ]; then
+    wt_str="${wt_str}$(printf "${DIM}(%s)${RESET}" "$worktree_branch")"
+  fi
+  if [ -n "$git_line" ]; then
+    git_line="${git_line}${SEP}${VSEP}${SEP}${wt_str}"
+  else
+    git_line="$wt_str"
+  fi
 fi
 
 line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LBLUE}%s${RESET}" "$short_cwd")"
@@ -452,7 +462,9 @@ line6="Bash:${bash_count} Skill:${skill_count} Agent:${agent_count} Edit:${edit_
 # ══════════════════════════════════════════════════════════
 # 输出
 # ══════════════════════════════════════════════════════════
-printf "%s\n%s\n%s\n" "$line1" "$line2" "$line3"
+printf "%s\n" "$line1"
+[ -n "$git_line" ] && printf "%s\n" "$git_line"
+printf "%s\n%s\n" "$line2" "$line3"
 [ -n "$line4" ] && printf "%s\n" "$line4"
 printf "%s\n" "$line6"
 [ -n "$line5" ] && printf "%s\n" "$line5"
