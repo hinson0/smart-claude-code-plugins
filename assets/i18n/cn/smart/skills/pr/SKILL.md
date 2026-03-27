@@ -13,11 +13,21 @@ argument-hint: 无需参数。自动 [check+add+commit+push+pr]
 
 @../push/SKILL.md
 
-- 若工作区干净（无任何变更），跳过阶段一，直接进入阶段二。
+- 若工作区干净（无任何变更），跳过阶段一，直接进入阶段二（版本升级）。
 
 ---
 
-## 阶段二：创建 Pull Request
+## 阶段二：版本升级
+
+@../version/SKILL.md
+
+- 执行 version skill，分析 commit 信息并自动升级 `plugin.json` 版本号。
+- 版本升级 commit 创建后，推送至远程：`git push`
+- 若 version skill 报告"无新 commit"或版本无变化，跳过此阶段继续。
+
+---
+
+## 阶段三：创建 Pull Request
 
 7) 收集基础信息（并行运行）：
 - `git branch --show-current`（当前分支名，记为 `HEAD_BRANCH`）

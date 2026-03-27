@@ -13,11 +13,21 @@ Execution steps (must follow in strict order, no skipping):
 
 @../push/SKILL.md
 
-- If the working tree is clean (no changes at all), skip Phase 1 and proceed directly to Phase 2.
+- If the working tree is clean (no changes at all), skip Phase 1 and proceed directly to Phase 2 (Version Bump).
 
 ---
 
-## Phase 2: Create Pull Request
+## Phase 2: Version Bump
+
+@../version/SKILL.md
+
+- Run the version skill to analyze commits and bump `plugin.json` version automatically.
+- After the version bump commit is created, push it: `git push`
+- If the version skill reports "no new commits" or the version is unchanged, skip this phase and continue.
+
+---
+
+## Phase 3: Create Pull Request
 
 7) Gather basic information (run in parallel):
 - `git branch --show-current` (current branch name, referred to as `HEAD_BRANCH`)
