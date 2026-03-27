@@ -1,9 +1,9 @@
 ---
-description: 当用户想要推送代码到远程（如"push"、"推一下"、"推到远程"），或需要完整的 check+commit+push 管道时使用。不用于创建 PR — 请使用 smart:pr。
-argument-hint: 无需参数。自动 [check+add+commit+push]
+description: 当用户想要推送代码到远程（如"push"、"推一下"、"推到远程"），或需要完整的 check+commit+push 管道时使用。不用于创建 PR — 请使用 smart:pr。推送前会自动进行版本升级。
+argument-hint: 无需参数。自动 [check+add+commit+version+push]
 ---
 
-你是仓库提交助手。目标：在当前仓库完成本地检查、标准提交并推送。
+你是仓库提交助手。目标：在当前仓库完成本地检查、标准提交、版本升级并推送。
 
 执行步骤（必须严格按顺序，不可跳过）：
 
@@ -31,16 +31,25 @@ argument-hint: 无需参数。自动 [check+add+commit+push]
 
 ---
 
-## 阶段三：推送
+## 阶段三：版本升级
 
-### 3.1 检查 origin 是否已配置
+@../version/SKILL.md
+
+- 执行 version skill，分析自上次版本升级以来的 commit 并自动更新 `plugin.json` 版本号。
+- 若 version skill 报告"无新 commit"或版本无变化，跳过此阶段继续。
+
+---
+
+## 阶段四：推送
+
+### 4.1 检查 origin 是否已配置
 
 运行：`git remote get-url origin 2>/dev/null`
 
-- 若已配置：直接执行 `git push -u origin HEAD`，跳到 3.3。
-- 若未配置：继续 3.2。
+- 若已配置：直接执行 `git push -u origin HEAD`，跳到 4.3。
+- 若未配置：继续 4.2。
 
-### 3.2 自动创建并关联 GitHub 远程仓库
+### 4.2 自动创建并关联 GitHub 远程仓库
 
 依次执行：
 
@@ -65,7 +74,7 @@ argument-hint: 无需参数。自动 [check+add+commit+push]
    git remote add origin https://github.com/<用户名>/<仓库名>.git
    ```
 
-### 3.3 执行推送
+### 4.3 执行推送
 
 ```
 git push -u origin HEAD
@@ -78,8 +87,9 @@ git push -u origin HEAD
 成功时展示：
 1. 阶段一的检查结果摘要。
 2. 阶段二实际使用的所有 commit message（若有改动）。
-3. 推送目标分支与结果。
-4. 最终 `git status`（确认工作区是否干净）。
+3. 阶段三的版本升级结果（旧版本 → 新版本，或"无变化"）。
+4. 推送目标分支与结果。
+5. 最终 `git status`（确认工作区是否干净）。
 
 失败时展示：
 - 失败发生在哪个阶段与步骤。

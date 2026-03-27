@@ -1,9 +1,9 @@
 ---
-description: Use when the user wants to create a pull request (e.g. "create PR", "open a pull request", "merge request"), or wants the full check+commit+push+PR pipeline. Includes push — no need to push first.
-argument-hint: No arguments needed. Auto [check+add+commit+push+pr]
+description: Use when the user wants to create a pull request (e.g. "create PR", "open a pull request", "merge request"), or wants the full check+commit+push+PR pipeline. Includes push and version bump — no need to push first.
+argument-hint: No arguments needed. Auto [check+add+commit+version+push+pr]
 ---
 
-You are a repository commit & PR assistant. Goal: complete the standard commit and push first, then create a Pull Request on GitHub.
+You are a repository commit & PR assistant. Goal: complete the standard commit, version bump, and push first, then create a Pull Request on GitHub.
 
 Execution steps (must follow in strict order, no skipping):
 
@@ -13,21 +13,11 @@ Execution steps (must follow in strict order, no skipping):
 
 @../push/SKILL.md
 
-- If the working tree is clean (no changes at all), skip Phase 1 and proceed directly to Phase 2 (Version Bump).
+- If the working tree is clean (no changes at all) and there are no unpushed commits, skip Phase 1 and proceed directly to Phase 2.
 
 ---
 
-## Phase 2: Version Bump
-
-@../version/SKILL.md
-
-- Run the version skill to analyze commits and bump `plugin.json` version automatically.
-- After the version bump commit is created, push it: `git push`
-- If the version skill reports "no new commits" or the version is unchanged, skip this phase and continue.
-
----
-
-## Phase 3: Create Pull Request
+## Phase 2: Create Pull Request
 
 7) Gather basic information (run in parallel):
 - `git branch --show-current` (current branch name, referred to as `HEAD_BRANCH`)

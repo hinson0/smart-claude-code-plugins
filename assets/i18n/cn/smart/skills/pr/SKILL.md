@@ -1,9 +1,9 @@
 ---
-description: 当用户想要创建 Pull Request（如"pr"、"PR"、"create PR"、"发个PR"、"提个PR"、"创建合并请求"），或需要完整的 check+commit+push+PR 管道时使用。已包含 push — 无需先手动推送。
-argument-hint: 无需参数。自动 [check+add+commit+push+pr]
+description: 当用户想要创建 Pull Request（如"pr"、"PR"、"create PR"、"发个PR"、"提个PR"、"创建合并请求"），或需要完整的 check+commit+push+PR 管道时使用。已包含 push 和版本升级 — 无需先手动推送。
+argument-hint: 无需参数。自动 [check+add+commit+version+push+pr]
 ---
 
-你是仓库提交与 PR 助手。目标：先完成标准提交推送，再在 GitHub 上创建 Pull Request。
+你是仓库提交与 PR 助手。目标：先完成标准提交、版本升级并推送，再在 GitHub 上创建 Pull Request。
 
 执行步骤（必须严格按顺序，不可跳过）：
 
@@ -13,21 +13,11 @@ argument-hint: 无需参数。自动 [check+add+commit+push+pr]
 
 @../push/SKILL.md
 
-- 若工作区干净（无任何变更），跳过阶段一，直接进入阶段二（版本升级）。
+- 若工作区干净（无任何变更）且无未推送的 commit，跳过阶段一，直接进入阶段二。
 
 ---
 
-## 阶段二：版本升级
-
-@../version/SKILL.md
-
-- 执行 version skill，分析 commit 信息并自动升级 `plugin.json` 版本号。
-- 版本升级 commit 创建后，推送至远程：`git push`
-- 若 version skill 报告"无新 commit"或版本无变化，跳过此阶段继续。
-
----
-
-## 阶段三：创建 Pull Request
+## 阶段二：创建 Pull Request
 
 7) 收集基础信息（并行运行）：
 - `git branch --show-current`（当前分支名，记为 `HEAD_BRANCH`）

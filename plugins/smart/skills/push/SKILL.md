@@ -1,9 +1,9 @@
 ---
-description: Use when the user wants to push code to remote (e.g. "push", "push to origin"), or wants the full check+commit+push pipeline. Not for creating PRs — use smart:pr instead.
-argument-hint: No arguments needed. Auto [check+add+commit+push]
+description: Use when the user wants to push code to remote (e.g. "push", "push to origin"), or wants the full check+commit+push pipeline. Not for creating PRs — use smart:pr instead. Includes automatic version bump before push.
+argument-hint: No arguments needed. Auto [check+add+commit+version+push]
 ---
 
-You are a repository commit assistant. Goal: complete local checks, standard commit, and push in the current repository.
+You are a repository commit assistant. Goal: complete local checks, standard commit, version bump, and push in the current repository.
 
 Execution steps (must follow in strict order, no skipping):
 
@@ -31,16 +31,25 @@ Execution steps (must follow in strict order, no skipping):
 
 ---
 
-## Phase 3: Push
+## Phase 3: Version Bump
 
-### 3.1 Check if origin is configured
+@../version/SKILL.md
+
+- Run the version skill to analyze commits since the last version bump and update `plugin.json` automatically.
+- If the version skill reports "no new commits" or the version is unchanged, skip this phase and continue.
+
+---
+
+## Phase 4: Push
+
+### 4.1 Check if origin is configured
 
 Run: `git remote get-url origin 2>/dev/null`
 
-- If configured: execute `git push -u origin HEAD` directly, skip to 3.3.
-- If not configured: continue to 3.2.
+- If configured: execute `git push -u origin HEAD` directly, skip to 4.3.
+- If not configured: continue to 4.2.
 
-### 3.2 Automatically create and link a GitHub remote repository
+### 4.2 Automatically create and link a GitHub remote repository
 
 Execute in order:
 
@@ -65,7 +74,7 @@ Execute in order:
    git remote add origin https://github.com/<username>/<repo-name>.git
    ```
 
-### 3.3 Execute push
+### 4.3 Execute push
 
 ```
 git push -u origin HEAD
@@ -78,8 +87,9 @@ git push -u origin HEAD
 On success, display:
 1. Summary of Phase 1 check results.
 2. All commit messages actually used in Phase 2 (if there were changes).
-3. Push target branch and result.
-4. Final `git status` (confirm whether the working tree is clean).
+3. Version bump result from Phase 3 (old → new, or "unchanged").
+4. Push target branch and result.
+5. Final `git status` (confirm whether the working tree is clean).
 
 On failure, display:
 - Which phase and step the failure occurred in.
