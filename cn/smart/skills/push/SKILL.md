@@ -11,7 +11,7 @@ argument-hint: 无需参数。自动 [check+add+commit+push]
 
 ## 阶段一：本地检查
 
-@../check/SKILL_CN.md
+@../check/SKILL.md
 
 - 若任一检查失败，**立即停止**，不执行后续阶段。
 
@@ -21,7 +21,7 @@ argument-hint: 无需参数。自动 [check+add+commit+push]
 
 ⚠️ 下方的 commit skill 包含一个关键的语义分析步骤（第 3 步）。必须完整执行——先输出文件-目的分析表和拆分决策，然后再运行任何 git 命令。
 
-@../commit/SKILL_CN.md
+@../commit/SKILL.md
 
 ⚠️ 验证：上方的提交结果必须与语义分析的分组一致。如果你将所有文件合成了一次提交，但分析显示存在多种 type/目的，请立即停止并重做。
 

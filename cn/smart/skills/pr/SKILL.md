@@ -11,7 +11,7 @@ argument-hint: 无需参数。自动 [check+add+commit+push+pr]
 
 ## 阶段一：Push
 
-@../push/SKILL_CN.md
+@../push/SKILL.md
 
 - 若工作区干净（无任何变更），跳过阶段一，直接进入阶段二。
 
