@@ -1,15 +1,32 @@
 ---
-description: Use when preparing a release, creating a PR, finishing a feature branch, or when the user says "bump version", "update version", "release", "new version". Also use proactively before pushing or opening a PR if commits exist on the branch that haven't been versioned yet. Analyzes commit messages since the base branch to determine the correct semantic version bump (major/minor/patch) and updates plugin.json accordingly.
+description: Use when preparing a release, creating a PR, finishing a feature branch, or when the user says "bump version", "update version", "release", "new version". Also use proactively before pushing or opening a PR if commits exist on the branch that haven't been versioned yet. Analyzes commit messages since the base branch, maps changed files to their nearest version file, and bumps each independently. Supports plugin.json, package.json (including monorepo), and pyproject.toml.
 argument-hint: "[base-branch] — defaults to main"
 ---
 
-You are a version management assistant. Goal: analyze commit messages since the base branch and update the plugin version in `plugin.json` following semantic versioning (`a.b.c`).
+You are a version management assistant. Goal: analyze commits since the base branch, map changed files to their owning version files, and bump each version independently following semantic versioning (`a.b.c`).
 
 ## Steps
 
-### 1) Read current version
+### 1) Discover all version files
 
-- Read `plugins/smart/.claude-plugin/plugin.json` to get the current `version` field (format: `a.b.c`).
+Scan the project for **all** version files. Collect every match:
+
+```bash
+# Claude Code plugins
+find . -maxdepth 4 -path '*/.claude-plugin/plugin.json' -not -path '*/node_modules/*' 2>/dev/null
+
+# Node.js / frontend (root + workspace packages)
+find . -maxdepth 4 -name 'package.json' -not -path '*/node_modules/*' -not -path '*/.claude-plugin/*' 2>/dev/null
+
+# Python
+find . -maxdepth 4 -name 'pyproject.toml' -not -path '*/node_modules/*' -not -path '*/.venv/*' 2>/dev/null
+```
+
+Filter: only keep files that actually contain a `"version"` (JSON) or `version =` (TOML) field. Discard the rest.
+
+If no version file found, report "No version file detected — skipping version bump" and **stop**.
+
+Record the list as `VERSION_FILES` with their directory paths.
 
 ### 2) Determine base branch
 
@@ -19,51 +36,90 @@ You are a version management assistant. Goal: analyze commit messages since the 
 ### 3) Collect commits to analyze
 
 - Run: `git log <BASE_BRANCH>..HEAD --oneline`
-- If no commits are found, report "No new commits — version unchanged" and stop.
+- If no commits are found (e.g. already on base branch), fall back to commits since the last version bump: `git log $(git log --oneline --grep="bump version" | head -1 | awk '{print $1}')..HEAD --oneline`
+- Exclude commits whose message matches `chore(version): bump` (previous version bump commits).
+- If still no commits, report "No new commits — version unchanged" and stop.
 
-### 4) Determine version bump type
+Record as `COMMITS`.
 
-Analyze each commit message's type prefix (Conventional Commits format `<type>[!][(scope)]: <desc>`):
+### 4) Map commits to version files
 
-| Condition | Bump |
-|-----------|------|
-| Type suffix `!` (e.g. `feat!:`, `fix!:`) or commit body contains `BREAKING CHANGE` | **major** |
-| `feat` | **minor** |
-| `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `ci`, or any other type | **patch** |
+For each commit in `COMMITS`:
 
-Apply the **highest** bump across all commits:
-- Any major → bump major (reset minor and patch to 0)
-- Else any minor → bump minor (reset patch to 0)
-- Else → bump patch
+1. Get the changed files: `git show --name-only --format="" <hash>`
+2. For each changed file, **walk up its directory tree** to find the nearest version file:
+   - At each directory level, check if any file from `VERSION_FILES` lives there (match by directory prefix).
+   - The first (closest) match is the **owner** of that changed file.
+   - If no version file is found in any ancestor, the file is **unowned** (skip it for versioning).
+3. Record a mapping: `version_file → [list of commits that touched its scope]`
 
-### 5) Calculate and apply new version
+A single commit may map to **multiple** version files if it changed files across packages.
 
-- Major: `a.b.c` → `(a+1).0.0`
-- Minor: `a.b.c` → `a.(b+1).0`
-- Patch: `a.b.c` → `a.b.(c+1)`
+### 5) Determine bump type per version file
 
-Update the `version` field in `plugins/smart/.claude-plugin/plugin.json` with the new version.
+For each version file that has associated commits:
 
-### 6) Commit the version bump
+1. Read current version from the file:
+   - **JSON** (`plugin.json`, `package.json`): read `"version"` field.
+   - **TOML** (`pyproject.toml`): read `version` under `[project]`. If not found, check `[tool.poetry]`.
+
+2. Analyze each associated commit's type prefix (Conventional Commits `<type>[!][(scope)]: <desc>`):
+
+   | Condition | Bump |
+   |-----------|------|
+   | Type suffix `!` or commit body contains `BREAKING CHANGE` | **major** |
+   | `feat` | **minor** |
+   | `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `ci`, or other | **patch** |
+
+3. Apply the **highest** bump:
+   - Any major → `(a+1).0.0`
+   - Else any minor → `a.(b+1).0`
+   - Else → `a.b.(c+1)`
+
+### 6) Apply new versions
+
+For each version file to bump, update the `version` field using the Edit tool:
+- **JSON**: update `"version": "<new_version>"`
+- **TOML**: update `version = "<new_version>"`
+
+### 7) Commit the version bumps
+
+Stage all modified version files and create a **single** commit:
 
 ```bash
-git add plugins/smart/.claude-plugin/plugin.json
+git add <all modified VERSION_FILES>
 git commit -m "$(cat <<'EOF'
-chore(plugin): bump version to <new_version>
+chore(version): bump version to <new_version>
+
+<If multiple files bumped, list each:>
+- <path>: <old> → <new> (<bump_type>)
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )"
 ```
 
-### 7) Output
+For a single version file, the commit message subject is:
+`chore(version): bump version to <new_version>`
 
-Display:
-- `<old_version>` → `<new_version>` (bump type)
-- List the commits that determined the bump type
+For multiple version files, the commit message subject is:
+`chore(version): bump versions`
+with the body listing each file's bump.
+
+### 8) Output
+
+Display a table:
+
+```
+| Version File | Type | Old | New | Bump | Key Commits |
+|--------------|------|-----|-----|------|-------------|
+| packages/frontend/package.json | Node.js | 1.2.0 | 1.3.0 | minor | feat(ui): ... |
+| packages/backend/pyproject.toml | Python | 0.5.1 | 0.5.2 | patch | fix(api): ... |
+```
 
 ## Constraints
 
-- Do not modify any file other than `plugin.json`.
-- Do not push — pushing is handled by the PR pipeline or the user.
-- If already on the base branch (no diverged commits), do nothing.
+- Do not modify any file other than the version files being bumped.
+- Do not push — pushing is handled by the push/PR pipeline or the user.
+- If no version file is detected or no new commits exist, do nothing.
+- Never mix changes from different packages — each version file is bumped based only on commits that touched its scope.
