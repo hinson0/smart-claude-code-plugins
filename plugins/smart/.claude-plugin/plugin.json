@@ -1,9 +1,9 @@
 {
   "name": "smart",
-  "description": "My name is `smart`.A smart cluade code plugin for you.It has some smart tools(skills,hooks,subagents,etc..).Please enjoy it!!!",
+  "description": "My name is `smart`.A smart claude code plugin for you.It has some smart tools(skills,hooks,subagents,etc..).Please enjoy it!!!",
+  "version": "2.4.0",
   "author": {
     "name": "Hinson",
-    "version": "2.4.0",
     "github": "https://github.com/hinson0"
   }
 }
