@@ -16,7 +16,7 @@
 
 Claude Code용 플러그인입니다. 코드 작성이 끝나면 한마디만 하세요 — 자동으로 검사, 커밋, 푸시하고 `main` 브랜치에 Pull Request를 생성합니다. 추가 작업은 필요 없습니다. `push` 한마디면, 다중 feature 자동 분리, commit message 생성, 푸시까지 완료:
 
-![demo](./assets/to.png)
+![demo](./assets/imgs/to.png)
 
 ---
 
