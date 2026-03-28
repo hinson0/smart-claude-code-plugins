@@ -8,6 +8,43 @@
 #   行 4：CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  本机IP
 #   行 5：工具调用统计
 #   行 6：输出风格  |  vim模式（可选）
+#
+# Statusline JSON 字段说明（由 Claude Code 通过 stdin 传入）：
+#   session_id                — 唯一会话标识符
+#   session_name              — 用户指定的会话名称（如设置）
+#   transcript_path           — 对话记录文件路径（.jsonl）
+#   cwd                       — 当前工作目录（= workspace.current_dir）
+#   model.id                  — 模型标识符（如 "claude-opus-4-6[1m]"）
+#   model.display_name        — 模型显示名称（如 "Opus 4.6 (1M context)"）
+#   workspace.current_dir     — 当前工作目录
+#   workspace.project_dir     — 启动 Claude Code 时的目录（会话期间不变）
+#   workspace.added_dirs      — 额外添加的目录列表
+#   version                   — Claude Code 版本号
+#   output_style.name         — 当前输出样式名称
+#   cost.total_cost_usd       — 总会话成本（美元）
+#   cost.total_duration_ms    — 自会话开始的总挂钟时间（毫秒）
+#   cost.total_api_duration_ms — 等待 API 响应的总时间（毫秒）
+#   cost.total_lines_added    — 累计新增代码行数
+#   cost.total_lines_removed  — 累计删除代码行数
+#   context_window.total_input_tokens   — 整个会话的累积输入 token 总数
+#   context_window.total_output_tokens  — 整个会话的累积输出 token 总数
+#   context_window.context_window_size  — 最大上下文窗口大小（token；默认 200K，扩展 1M）
+#   context_window.current_usage.input_tokens                — 当前上下文中的输入 token
+#   context_window.current_usage.output_tokens               — 本次生成的输出 token
+#   context_window.current_usage.cache_creation_input_tokens — 写入缓存的 token 数
+#   context_window.current_usage.cache_read_input_tokens     — 从缓存读取的 token 数
+#   context_window.used_percentage      — 已使用上下文窗口百分比（仅计输入 token）
+#   context_window.remaining_percentage — 剩余上下文窗口百分比
+#   exceeds_200k_tokens       — 最近 API 响应总 token 是否超过 200K（固定阈值）
+#   rate_limits.five_hour.used_percentage — 5 小时滚动窗口使用百分比
+#   rate_limits.five_hour.resets_at       — 5 小时限制重置时间（Unix 时间戳）
+#   rate_limits.seven_day.used_percentage — 7 天滚动窗口使用百分比
+#   rate_limits.seven_day.resets_at       — 7 天限制重置时间（Unix 时间戳）
+#   条件字段（仅在适用时出现）：
+#   vim.mode                  — 当前 vim 模式（启用 vim 模式时）
+#   agent.name                — agent 名称（使用 --agent 运行时）
+#   worktree.name             — worktree 名称（--worktree 会话时）
+#   worktree.branch           — worktree 分支名
 
 input=$(cat)
 

@@ -8,6 +8,43 @@
 #   line 4: CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  local-IP
 #   line 5: tool-call-stats
 #   line 6: output-style  |  vim-mode  (optional)
+#
+# Statusline JSON fields (piped to stdin by Claude Code):
+#   session_id                — unique session identifier
+#   session_name              — user-assigned session name (if set)
+#   transcript_path           — path to conversation log (.jsonl)
+#   cwd                       — current working directory (= workspace.current_dir)
+#   model.id                  — model identifier (e.g. "claude-opus-4-6[1m]")
+#   model.display_name        — model display name (e.g. "Opus 4.6 (1M context)")
+#   workspace.current_dir     — current working directory
+#   workspace.project_dir     — directory where Claude Code was launched (immutable)
+#   workspace.added_dirs      — additional directories added to workspace
+#   version                   — Claude Code version
+#   output_style.name         — current output style name
+#   cost.total_cost_usd       — total session cost (USD)
+#   cost.total_duration_ms    — wall-clock time since session start (ms)
+#   cost.total_api_duration_ms — time waiting for API responses (ms)
+#   cost.total_lines_added    — cumulative lines added
+#   cost.total_lines_removed  — cumulative lines removed
+#   context_window.total_input_tokens   — cumulative input tokens across session
+#   context_window.total_output_tokens  — cumulative output tokens across session
+#   context_window.context_window_size  — max context window (tokens; 200K default, 1M extended)
+#   context_window.current_usage.input_tokens                — input tokens in current context
+#   context_window.current_usage.output_tokens               — output tokens this generation
+#   context_window.current_usage.cache_creation_input_tokens — tokens written to cache
+#   context_window.current_usage.cache_read_input_tokens     — tokens read from cache
+#   context_window.used_percentage      — context usage % (input tokens only)
+#   context_window.remaining_percentage — remaining context %
+#   exceeds_200k_tokens       — whether latest API total tokens > 200K (fixed threshold)
+#   rate_limits.five_hour.used_percentage — 5h rolling window usage %
+#   rate_limits.five_hour.resets_at       — 5h limit reset (Unix timestamp)
+#   rate_limits.seven_day.used_percentage — 7d rolling window usage %
+#   rate_limits.seven_day.resets_at       — 7d limit reset (Unix timestamp)
+#   Conditional fields (present only when applicable):
+#   vim.mode                  — current vim mode (when vim mode enabled)
+#   agent.name                — agent name (when running with --agent)
+#   worktree.name             — worktree name (when in --worktree session)
+#   worktree.branch           — worktree branch name
 
 input=$(cat)
 
