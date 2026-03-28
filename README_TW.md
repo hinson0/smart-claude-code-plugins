@@ -20,32 +20,6 @@
 
 ---
 
-## 特性
-
-**核心流水線**
-
-- **Fail-Fast 管線** — 任意步驟失敗立即停止，不會出現殘缺推送或錯誤 PR。
-- **自動 CI 偵測** — 讀取 `.github/workflows/*.yml`，在本機執行對應檢查（ruff、pytest、mypy、eslint、tsc、vitest、jest、go test、turbo 等）。自動從 lock 檔案偵測套件管理器。
-- **兩階段智慧提交分組** — 第一階段按 type 硬分割（feat vs fix vs refactor），第二階段按目的對同類 type 進行語義分割。杜絕無關變更混入同一次提交。
-- **Conventional Commits** — 所有 commit message 自動遵循 `<type>(<scope>): <description>` 格式。優先尊重專案 `CLAUDE.md` 設定和既有 `git log` 風格。
-- **自動版本升級** — 自動偵測版本檔案（`plugin.json`、`package.json`、`pyproject.toml`），分析 commit 類型，在推送前自動 bump 語義化版本號。Monorepo 中按檔案歸屬對映到對應 package，各自獨立升級。
-- **自動建立 GitHub 倉庫** — 未設定 remote？自動在 GitHub 建立私有倉庫、設為 origin 並推送，全程無需手動操作。
-- **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `CLAUDE.md` 覆蓋。
-
-**保護與自動化**
-
-- **檔案保護 Hook** — 阻止 Claude 編輯敏感檔案（`.env`、lock 檔案等）。透過專案級 `.claude/.protect_files.jsonc` 設定，支援精確檔名配對和 glob 模式（`*`、`**`）。
-- **會話 Hook** — 會話開始時問候，結束時告別（透過 macOS `say` TTS 語音播報）。
-- **會話日誌** — 每次工具呼叫的完整輸入資料均記錄到 `.claude/session-logs/`，便於事後除錯和稽核。
-
-**實用工具**
-
-- **HUD / Statusline 安裝器** — 一條指令安裝功能豐富的狀態列，顯示模型、Git 分支、上下文用量、速率限制、系統資源和工具呼叫統計。支援安裝 / 刪除 / 回退。
-- **上下文分析 Agent** — 分析哪些外掛占用了最多的上下文視窗，按大小排名展示表格和百分比。
-- **Joke Teller Agent** — 在合適的時機講個程式設計師笑話，緩解工作壓力。
-
----
-
 ## 快速開始
 
 **1. 安裝外掛**（推薦）
@@ -78,6 +52,32 @@ gh auth login
 
 ---
 
+## 特性
+
+**核心流水線**
+
+- **Fail-Fast 管線** — 任意步驟失敗立即停止，不會出現殘缺推送或錯誤 PR。
+- **自動 CI 偵測** — 讀取 `.github/workflows/*.yml`，在本機執行對應檢查（ruff、pytest、mypy、eslint、tsc、vitest、jest、go test、turbo 等）。自動從 lock 檔案偵測套件管理器。
+- **兩階段智慧提交分組** — 第一階段按 type 硬分割（feat vs fix vs refactor），第二階段按目的對同類 type 進行語義分割。杜絕無關變更混入同一次提交。
+- **Conventional Commits** — 所有 commit message 自動遵循 `<type>(<scope>): <description>` 格式。優先尊重專案 `CLAUDE.md` 設定和既有 `git log` 風格。
+- **自動版本升級** — 自動偵測版本檔案（`plugin.json`、`package.json`、`pyproject.toml`），分析 commit 類型，在推送前自動 bump 語義化版本號。Monorepo 中按檔案歸屬對映到對應 package，各自獨立升級。
+- **自動建立 GitHub 倉庫** — 未設定 remote？自動在 GitHub 建立私有倉庫、設為 origin 並推送，全程無需手動操作。
+- **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `CLAUDE.md` 覆蓋。
+
+**保護與自動化**
+
+- **檔案保護 Hook** — 阻止 Claude 編輯敏感檔案（`.env`、lock 檔案等）。透過專案級 `.claude/.protect_files.jsonc` 設定，支援精確檔名配對和 glob 模式（`*`、`**`）。
+- **會話 Hook** — 會話開始時問候，結束時告別（透過 macOS `say` TTS 語音播報）。
+- **會話日誌** — 每次工具呼叫的完整輸入資料均記錄到 `.claude/session-logs/`，便於事後除錯和稽核。
+
+**實用工具**
+
+- **HUD / Statusline 安裝器** — 一條指令安裝功能豐富的狀態列，顯示模型、Git 分支、上下文用量、速率限制、系統資源和工具呼叫統計。支援安裝 / 刪除 / 回退。
+- **上下文分析 Agent** — 分析哪些外掛占用了最多的上下文視窗，按大小排名展示表格和百分比。
+- **Joke Teller Agent** — 在合適的時機講個程式設計師笑話，緩解工作壓力。
+
+---
+
 ## 使用方式
 
 **💬 自然語言** — 在對話中直接描述你的意圖：
@@ -92,10 +92,10 @@ gh auth login
 
 | 指令 | 作用 |
 |---|---|
-| `/smart:pr [目標分支]` | 完整流程：check → commit → version → push → PR（預設目標分支：`main`） |
-| `/smart:push` | check → commit → version → push（不建立 PR） |
 | `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
 | `/smart:version [基準分支]` | 分析 commit 並升級版本號（自動偵測版本檔案；僅在 base branch 上執行） |
+| `/smart:push` | check → commit → version → push（不建立 PR） |
+| `/smart:pr [目標分支]` | 完整流程：check → commit → version → push → PR（預設目標分支：`main`） |
 
 ---
 

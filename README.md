@@ -20,32 +20,6 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 
 ---
 
-## Features
-
-**Core Pipeline**
-
-- **Fail-Fast Pipeline** — Any step fails, everything stops immediately. No partial pushes or broken PRs.
-- **Auto CI Detection** — Reads `.github/workflows/*.yml` and runs matching checks locally (ruff, pytest, mypy, eslint, tsc, vitest, jest, go test, turbo, and more). Auto-detects package manager from lock files.
-- **Two-Phase Smart Commit Grouping** — Phase 1 hard-splits by type (feat vs fix vs refactor), Phase 2 semantically splits within the same type by purpose. No unrelated changes sneak into a single commit.
-- **Conventional Commits** — All commit messages automatically follow `<type>(<scope>): <description>` format. Respects project `CLAUDE.md` overrides and existing `git log` style.
-- **Auto Version Bump** — Detects version files (`plugin.json`, `package.json`, `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
-- **Auto GitHub Repo Creation** — No remote configured? It creates a private repo on GitHub, sets it as origin, and pushes — all automatically.
-- **Consistent Language** — PR title, summary, and test plan automatically use the same language as commit messages. Defaults to English; overridable via project `CLAUDE.md`.
-
-**Protection & Automation**
-
-- **File Protection Hook** — Prevent Claude from editing sensitive files (`.env`, lock files, etc.). Configure per-project via `.claude/.protect_files.jsonc` — supports exact filename matching and glob patterns (`*`, `**`).
-- **Session Hooks** — Greet on session start, goodbye on session end (via macOS `say` TTS).
-- **Session Logs** — Every tool call is logged to `.claude/session-logs/` with full input data for post-session debugging and audit.
-
-**Utilities**
-
-- **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / rewind.
-- **Context Analyzer Agent** — Analyze which plugins consume the most context window. Shows a ranked table with sizes and percentages.
-- **Joke Teller Agent** — Tells a programmer joke to lighten the mood during work.
-
----
-
 ## Quick Start
 
 **1. Install the plugin** _(recommended)_
@@ -78,6 +52,32 @@ It will automatically: detect CI checks → run them locally → stage & commit 
 
 ---
 
+## Features
+
+**Core Pipeline**
+
+- **Fail-Fast Pipeline** — Any step fails, everything stops immediately. No partial pushes or broken PRs.
+- **Auto CI Detection** — Reads `.github/workflows/*.yml` and runs matching checks locally (ruff, pytest, mypy, eslint, tsc, vitest, jest, go test, turbo, and more). Auto-detects package manager from lock files.
+- **Two-Phase Smart Commit Grouping** — Phase 1 hard-splits by type (feat vs fix vs refactor), Phase 2 semantically splits within the same type by purpose. No unrelated changes sneak into a single commit.
+- **Conventional Commits** — All commit messages automatically follow `<type>(<scope>): <description>` format. Respects project `CLAUDE.md` overrides and existing `git log` style.
+- **Auto Version Bump** — Detects version files (`plugin.json`, `package.json`, `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
+- **Auto GitHub Repo Creation** — No remote configured? It creates a private repo on GitHub, sets it as origin, and pushes — all automatically.
+- **Consistent Language** — PR title, summary, and test plan automatically use the same language as commit messages. Defaults to English; overridable via project `CLAUDE.md`.
+
+**Protection & Automation**
+
+- **File Protection Hook** — Prevent Claude from editing sensitive files (`.env`, lock files, etc.). Configure per-project via `.claude/.protect_files.jsonc` — supports exact filename matching and glob patterns (`*`, `**`).
+- **Session Hooks** — Greet on session start, goodbye on session end (via macOS `say` TTS).
+- **Session Logs** — Every tool call is logged to `.claude/session-logs/` with full input data for post-session debugging and audit.
+
+**Utilities**
+
+- **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / rewind.
+- **Context Analyzer Agent** — Analyze which plugins consume the most context window. Shows a ranked table with sizes and percentages.
+- **Joke Teller Agent** — Tells a programmer joke to lighten the mood during work.
+
+---
+
 ## Usage
 
 **💬 Natural language** — just describe what you want:
@@ -92,10 +92,10 @@ It will automatically: detect CI checks → run them locally → stage & commit 
 
 | Command | What it does |
 |---|---|
-| `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
-| `/smart:push` | check → commit → version → push (no PR) |
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
 | `/smart:version [base]` | Analyze commits and bump version (auto-detects version files; only runs on the base branch) |
+| `/smart:push` | check → commit → version → push (no PR) |
+| `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
 
 ---
 

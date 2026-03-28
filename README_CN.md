@@ -20,32 +20,6 @@
 
 ---
 
-## 特性
-
-**核心流水线**
-
-- **Fail-Fast 管道** — 任意步骤失败立即停止，不会出现残缺推送或错误 PR。
-- **自动 CI 检测** — 读取 `.github/workflows/*.yml`，在本地运行对应检查（ruff、pytest、mypy、eslint、tsc、vitest、jest、go test、turbo 等）。自动从 lock 文件检测包管理器。
-- **两阶段智能提交分组** — 第一阶段按 type 硬分割（feat vs fix vs refactor），第二阶段按目的对同类 type 进行语义分割。杜绝无关改动混入同一次提交。
-- **Conventional Commits** — 所有 commit message 自动遵循 `<type>(<scope>): <description>` 格式。优先尊重项目 `CLAUDE.md` 配置和已有 `git log` 风格。
-- **自动版本升级** — 自动检测版本文件（`plugin.json`、`package.json`、`pyproject.toml`），分析 commit 类型，在推送前自动 bump 语义化版本号。Monorepo 中按文件归属映射到对应 package，各自独立升级。
-- **自动创建 GitHub 仓库** — 未配置 remote？自动在 GitHub 创建私有仓库、设为 origin 并推送，全程无需手动操作。
-- **语言一致性** — PR 标题、摘要和测试计划自动与 commit message 使用相同语言。默认英文，可通过项目 `CLAUDE.md` 覆盖。
-
-**保护与自动化**
-
-- **文件保护 Hook** — 阻止 Claude 编辑敏感文件（`.env`、lock 文件等）。通过项目级 `.claude/.protect_files.jsonc` 配置，支持精确文件名匹配和 glob 模式（`*`、`**`）。
-- **会话 Hook** — 会话开始时问候，结束时告别（通过 macOS `say` TTS 语音播报）。
-- **会话日志** — 每次工具调用的完整输入数据均记录到 `.claude/session-logs/`，便于事后调试和审计。
-
-**实用工具**
-
-- **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。支持安装 / 删除 / 回退。
-- **上下文分析 Agent** — 分析哪些插件占用了最多的上下文窗口，按大小排名展示表格和百分比。
-- **Joke Teller Agent** — 在合适的时机讲个程序员笑话，缓解工作压力。
-
----
-
 ## 快速开始
 
 **1. 安装插件**（推荐）
@@ -78,6 +52,32 @@ gh auth login
 
 ---
 
+## 特性
+
+**核心流水线**
+
+- **Fail-Fast 管道** — 任意步骤失败立即停止，不会出现残缺推送或错误 PR。
+- **自动 CI 检测** — 读取 `.github/workflows/*.yml`，在本地运行对应检查（ruff、pytest、mypy、eslint、tsc、vitest、jest、go test、turbo 等）。自动从 lock 文件检测包管理器。
+- **两阶段智能提交分组** — 第一阶段按 type 硬分割（feat vs fix vs refactor），第二阶段按目的对同类 type 进行语义分割。杜绝无关改动混入同一次提交。
+- **Conventional Commits** — 所有 commit message 自动遵循 `<type>(<scope>): <description>` 格式。优先尊重项目 `CLAUDE.md` 配置和已有 `git log` 风格。
+- **自动版本升级** — 自动检测版本文件（`plugin.json`、`package.json`、`pyproject.toml`），分析 commit 类型，在推送前自动 bump 语义化版本号。Monorepo 中按文件归属映射到对应 package，各自独立升级。
+- **自动创建 GitHub 仓库** — 未配置 remote？自动在 GitHub 创建私有仓库、设为 origin 并推送，全程无需手动操作。
+- **语言一致性** — PR 标题、摘要和测试计划自动与 commit message 使用相同语言。默认英文，可通过项目 `CLAUDE.md` 覆盖。
+
+**保护与自动化**
+
+- **文件保护 Hook** — 阻止 Claude 编辑敏感文件（`.env`、lock 文件等）。通过项目级 `.claude/.protect_files.jsonc` 配置，支持精确文件名匹配和 glob 模式（`*`、`**`）。
+- **会话 Hook** — 会话开始时问候，结束时告别（通过 macOS `say` TTS 语音播报）。
+- **会话日志** — 每次工具调用的完整输入数据均记录到 `.claude/session-logs/`，便于事后调试和审计。
+
+**实用工具**
+
+- **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。支持安装 / 删除 / 回退。
+- **上下文分析 Agent** — 分析哪些插件占用了最多的上下文窗口，按大小排名展示表格和百分比。
+- **Joke Teller Agent** — 在合适的时机讲个程序员笑话，缓解工作压力。
+
+---
+
 ## 使用方式
 
 **💬 自然语言** — 在对话中直接描述你的意图：
@@ -92,10 +92,10 @@ gh auth login
 
 | 命令 | 作用 |
 |---|---|
-| `/smart:pr [目标分支]` | 完整流程：check → commit → version → push → PR（默认目标分支：`main`） |
-| `/smart:push` | check → commit → version → push（不创建 PR） |
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
 | `/smart:version [基准分支]` | 分析 commit 并升级版本号（自动检测版本文件；仅在 base branch 上运行） |
+| `/smart:push` | check → commit → version → push（不创建 PR） |
+| `/smart:pr [目标分支]` | 完整流程：check → commit → version → push → PR（默认目标分支：`main`） |
 
 ---
 
