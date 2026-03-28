@@ -22,41 +22,27 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 
 ## Features
 
-- **Two-Phase Smart Commit Grouping** — Phase 1 hard-splits by type (feat vs fix vs refactor), Phase 2 semantically splits within the same type by purpose. No unrelated changes sneak into a single commit.
+**Core Pipeline**
+
 - **Fail-Fast Pipeline** — Any step fails, everything stops immediately. No partial pushes or broken PRs.
-- **Auto CI Detection** — Reads `.github/workflows/*.yml` and runs matching checks locally (ruff, pytest, eslint, tsc, jest, go test, turbo, and more).
-- **Auto GitHub Repo Creation** — No remote configured? It creates one for you.
-- **Conventional Commits** — All commit messages follow `<type>(<scope>): <description>` format automatically.
-- **Auto Version Bump** — Automatically detects your version file (`plugin.json`, `package.json`, or `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
-- **Consistent Language** — PR title, summary, and test plan automatically use the same language as the commit messages. Defaults to English; overridable via project `CLAUDE.md`.
+- **Auto CI Detection** — Reads `.github/workflows/*.yml` and runs matching checks locally (ruff, pytest, mypy, eslint, tsc, vitest, jest, go test, turbo, and more). Auto-detects package manager from lock files.
+- **Two-Phase Smart Commit Grouping** — Phase 1 hard-splits by type (feat vs fix vs refactor), Phase 2 semantically splits within the same type by purpose. No unrelated changes sneak into a single commit.
+- **Conventional Commits** — All commit messages automatically follow `<type>(<scope>): <description>` format. Respects project `CLAUDE.md` overrides and existing `git log` style.
+- **Auto Version Bump** — Detects version files (`plugin.json`, `package.json`, `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
+- **Auto GitHub Repo Creation** — No remote configured? It creates a private repo on GitHub, sets it as origin, and pushes — all automatically.
+- **Consistent Language** — PR title, summary, and test plan automatically use the same language as commit messages. Defaults to English; overridable via project `CLAUDE.md`.
+
+**Protection & Automation**
+
 - **File Protection Hook** — Prevent Claude from editing sensitive files (`.env`, lock files, etc.). Configure per-project via `.claude/.protect_files.jsonc` — supports exact filename matching and glob patterns (`*`, `**`).
-- **Session Hooks** — Greet on session start, goodbye on session end.
-- **Context Analyzer Agent** — Analyze which plugins consume the most context window. Shows a ranked table with sizes and percentages.
+- **Session Hooks** — Greet on session start, goodbye on session end (via macOS `say` TTS).
+- **Session Logs** — Every tool call is logged to `.claude/session-logs/` with full input data for post-session debugging and audit.
+
+**Utilities**
+
 - **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / rewind.
-- **Joke Teller Agent** — Automatically tells a joke at the right moment to lighten the mood during work.
-
----
-
-## Two Ways to Use
-
-**💬 Just say it** — type naturally in chat:
-
-- "commit" / "save my work" → stages & commits with smart grouping
-- "push" → check + commit + version bump + push
-- "create PR" / "open a PR" → check + commit + version bump + push + PR
-
-**⌨️ Slash commands** — for when you want to be explicit:
-
-| Command | What it does |
-|---|---|
-| `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
-| `/smart:push` | check → commit → version → push (no PR) |
-| `/smart:commit` | Stage & commit only (smart grouping, auto message) |
-| `/smart:check` | Run local CI checks only (auto-detects from workflow config) |
-| `/smart:version [base]` | Analyze commits and bump version (auto-detects plugin.json / package.json / pyproject.toml) |
-| `/smart:hud` | Install smart statusline (model, git, context, rate limits, system stats) |
-| `/smart:hud rm` | Remove the statusline |
-| `/smart:hud rewind` | Restore your previous statusline from backup |
+- **Context Analyzer Agent** — Analyze which plugins consume the most context window. Shows a ranked table with sizes and percentages.
+- **Joke Teller Agent** — Tells a programmer joke to lighten the mood during work.
 
 ---
 
@@ -92,31 +78,149 @@ It will automatically: detect CI checks → run them locally → stage & commit 
 
 ---
 
-## How It Works
+## Usage
+
+**💬 Natural language** — just describe what you want:
+
+| What you say | What happens |
+|---|---|
+| "commit" / "save my work" / "done" | Smart commit only (stage + group + commit) |
+| "push" / "push to origin" | check → commit → version → push |
+| "create PR" / "open a pull request" | check → commit → version → push → PR |
+
+**⌨️ Slash commands** — for precise control:
+
+| Command | What it does |
+|---|---|
+| `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
+| `/smart:push` | check → commit → version → push (no PR) |
+| `/smart:commit` | Stage & commit only (smart grouping, auto message) |
+| `/smart:check` | Run local CI checks only (auto-detects from workflow config) |
+| `/smart:version [base]` | Analyze commits and bump version (auto-detects version files; only runs on the base branch) |
+| `/smart:hud` | Install smart statusline |
+| `/smart:hud rm` | Remove the statusline |
+| `/smart:hud rewind` | Restore your previous statusline from backup |
+
+---
+
+## Pipeline
+
+### Overview
 
 ```
 /smart:pr
     │
-    ├── 1. check   — reads .github/workflows/*.yml, runs matching local checks
-    │                (ruff/pytest, eslint/tsc, go test — skips if no CI config)
+    ├── 1. check   — Auto CI detection & local execution
     │
-    ├── 2. commit  — two-phase semantic analysis:
-    │                Phase 1: hard-split by type (feat/fix/refactor/...)
-    │                Phase 2: split same-type changes by purpose
-    │                (auto-generates Conventional Commit messages)
+    ├── 2. commit  — Two-phase semantic analysis & smart grouping
     │
-    ├── 3. version — detects version file (plugin.json / package.json / pyproject.toml)
-    │                analyzes commit types → bumps semver (major/minor/patch)
-    │                (monorepo: maps files to packages, bumps each independently)
+    ├── 3. version — Semantic version bump (monorepo-aware)
     │
-    ├── 4. push    — pushes to origin
-    │                (auto-creates GitHub repo if origin is not configured)
+    ├── 4. push    — Push to origin (auto-creates GitHub repo if needed)
     │
-    └── 5. pr      — opens a Pull Request with auto-generated title & body
-                     (language follows commit messages from step 2)
+    └── 5. pr      — Generate & create Pull Request
 ```
 
-Any step that fails stops the pipeline immediately.
+Each phase is a standalone skill linked via `@../path/SKILL.md` references. Any failure stops the entire pipeline immediately.
+
+### Phase 1: Check
+
+Automatically detects your project's CI configuration and runs the corresponding checks locally.
+
+**How it works:**
+
+1. Scans `.github/workflows/*.yml` for tool keywords
+2. Identifies matching tools: `ruff`, `pytest`, `mypy`, `eslint`, `tsc`, `vitest`, `jest`, `go test`, `golangci-lint`, `turbo`, and more
+3. Detects your package manager from lock files (`uv.lock` → `uv run`, `pnpm-lock.yaml` → `pnpm`, `package-lock.json` → `npm run`, `go.mod` → direct execution)
+4. Runs all detected checks sequentially — any failure halts the pipeline
+5. Allows `ruff --fix` to auto-fix issues before failing
+
+**Supported ecosystems:**
+
+| Ecosystem | Tools |
+|---|---|
+| Python | ruff (lint + format), pytest, mypy |
+| JavaScript / TypeScript | eslint, tsc, vitest, jest, turbo |
+| Go | go test, golangci-lint |
+
+If no `.github/workflows/` directory is found, this phase is skipped silently.
+
+### Phase 2: Commit
+
+The core intelligence — analyzes all pending changes and produces clean, well-grouped commits.
+
+**Two-phase grouping algorithm:**
+
+1. **Hard split by type** — Changes are categorized by Conventional Commit type (`feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`). Different types are **always** separate commits.
+2. **Semantic split by purpose** — Within the same type, changes serving different purposes are further split. For example, two independent `feat` additions become two separate commits.
+
+The `scope` field describes *where* the change happened — it does not affect grouping. Grouping is driven purely by type + purpose.
+
+**Commit message generation priority:**
+
+1. Project `CLAUDE.md` — if it specifies a commit format, that takes precedence
+2. `git log` style — if existing commits follow a consistent style, it's matched
+3. Default — Conventional Commits: `<type>(<scope>): <description>`
+
+**Execution:**
+- Single group → `git add -A` + commit
+- Multiple groups → each group gets `git add <specific files>` + HEREDOC commit
+- Loops until the working tree is clean (handles cases where hooks or formatters modify files during commit)
+
+### Phase 3: Version
+
+Analyzes commit history and automatically bumps the semantic version number.
+
+**Semver rules:**
+
+| Commit pattern | Bump | Example |
+|---|---|---|
+| `feat` | minor | 0.1.0 → 0.2.0 |
+| `fix`, `refactor`, `perf`, `docs`, etc. | patch | 0.1.0 → 0.1.1 |
+| `BREAKING CHANGE` or `!` suffix | major | 0.1.0 → 1.0.0 |
+
+**Version file detection:**
+
+Scans for `plugin.json`, `package.json`, and `pyproject.toml` in the project root and workspace directories.
+
+**Monorepo support:**
+
+Each changed file is traced up the directory tree to find the closest version file (the "closest owner" strategy). Each package is bumped independently based on its own commits.
+
+**Behavior:**
+- Only runs on the base branch (skipped on feature branches)
+- Skipped if no new commits since the last version bump
+- All version changes are committed as a single `chore(version): bump version to X.X.X`
+
+### Phase 4: Push
+
+Pushes commits to the remote repository.
+
+If no `origin` remote is configured:
+1. Creates a new **private** repository on GitHub via `gh repo create`
+2. Adds it as `origin`
+3. Pushes with `git push -u origin HEAD`
+
+### Phase 5: PR
+
+Generates and creates a Pull Request on GitHub.
+
+**How it works:**
+
+1. Detects the current branch and language (inherited from commit phase, or inferred from `git log`)
+2. Asks for the target branch via prompt (defaults to `main`)
+3. Checks for existing open PRs with the same head branch — if found, shows the URL and stops
+4. Collects all commits between `BASE_BRANCH..HEAD`
+5. Generates PR title:
+   - Single commit → uses the commit message directly
+   - Multiple commits → generates a summary title
+6. Generates PR body in Markdown:
+   - **Summary** — bullet points describing the changes
+   - **Commits** — full commit list
+   - **Test Plan** — auto-generated `- [ ]` checklist based on commit types (e.g., `feat` → "verify new feature works", `fix` → "confirm bug is resolved")
+7. Creates the PR via `gh pr create`
+
+The language of the PR title, body, and test plan follows the language used in commit messages.
 
 ---
 
@@ -138,9 +242,14 @@ Prevent Claude from editing sensitive files by creating `.claude/.protect_files.
 ```
 
 **Matching rules:**
-- No wildcards → exact filename match (`.env` blocks `.env` but allows `.env.example`)
-- `*` → glob match within a single directory level (`*.lock` matches `pnpm-lock.yaml`)
-- `**` → recursive match across directories (`config/production/**` matches `config/production/db/secret.json`)
+
+| Pattern | Match type | Example |
+|---|---|---|
+| No wildcards | Exact filename | `.env` blocks `.env` but allows `.env.example` |
+| `*` | Single-level glob | `*.lock` matches `pnpm-lock.yaml` |
+| `**` | Recursive glob | `config/production/**` matches `config/production/db/secret.json` |
+
+The hook intercepts `Edit` and `Write` tool calls via `PreToolUse`. If a protected file is matched, the operation is blocked with an error message.
 
 ---
 
@@ -158,20 +267,67 @@ Install a feature-rich statusline with one command:
 
 | Line | Content |
 |------|---------|
-| 1 | Session ID, model@version |
-| 2 | Directory, git branch (dirty/ahead/behind), last commit time, worktree, battery |
-| 3 | Context progress bar + tokens + cache, rate limits (5h/7d) with reset countdown, session duration, agent |
+| 1 | Session ID / session name, model@version, total cost (USD) |
+| 2 | Directory, git branch (dirty/ahead/behind/stash), last commit time, worktree name, battery |
+| 3 | Context progress bar + tokens + cache, rate limits (5h/7d) with reset countdown, session duration, agent name |
 | 4 | CPU, memory, disk, uptime, runtime versions (Node/Python/Go/Rust/Ruby), local IP |
-| 5 | Tool call stats (Bash/Skill/Agent/Edit) |
-| 6 | Output style, vim mode (optional) |
+| 5 | Tool call stats (Bash/Skill/Agent/Edit counts, parsed from transcript in real time) |
+| 6 | Output style, vim mode (shown only when enabled) |
 
 **Commands:**
 
 | Command | Action |
 |---------|--------|
 | `/smart:hud` | Install (backs up existing statusline automatically) |
-| `/smart:hud rm` | Remove statusline |
+| `/smart:hud rm` | Remove statusline and restore defaults |
 | `/smart:hud rewind` | Restore your previous statusline from backup |
+
+**Note:** Requires `jq`. The statusline script is macOS-optimized (uses `pmset` for battery, `sysctl` for system info).
+
+---
+
+## Agents
+
+### Context Analyzer
+
+Diagnose which plugins consume the most context window.
+
+```
+"analyze context" / "哪个插件最大" / "context怎么这么高"
+```
+
+- Reads enabled plugins from `~/.claude/settings.json`
+- Measures all `.md` files in each plugin's cache directory
+- Outputs a ranked Markdown table with sizes and percentages
+- Merges plugins under 3KB into "Others"
+- Estimates total context window percentage at the bottom
+
+### Joke Teller
+
+Tells a programmer joke to lighten the mood.
+
+```
+"tell me a joke" / "讲个笑话" / "I need a laugh"
+```
+
+- Detects conversation language and tells jokes accordingly
+- Short format (2–4 sentences, punchline style — no Q&A templates)
+- Includes a gentle self-care reminder (hydrate, stretch, rest)
+
+---
+
+## Session Hooks
+
+The plugin includes hooks that trigger at session boundaries and tool calls:
+
+| Hook | Trigger | What it does |
+|------|---------|--------------|
+| `greet.sh` | `SessionStart` | Plays a welcome message via macOS TTS (`say`) |
+| `goodbye.sh` | `SessionEnd` | Plays a farewell message via macOS TTS (`say`) |
+| `session-logs.py` | `PreToolUse` (all tools) | Logs every tool call's full input to `.claude/session-logs/<date>/<session_id>.json` |
+| `protect-files.py` | `PreToolUse` (Edit/Write) | Blocks edits to protected files (see [File Protection](#file-protection)) |
+
+All hooks use `${CLAUDE_PLUGIN_ROOT}` for path resolution. TTS hooks run in the background (`nohup &`) to avoid blocking Claude Code.
 
 ---
 
@@ -180,6 +336,7 @@ Install a feature-rich statusline with one command:
 - [Claude Code](https://claude.ai/code) CLI
 - `git`
 - [`gh` CLI](https://cli.github.com) — for push (auto-create remote) and PR creation
+- `jq` — for HUD statusline only (optional otherwise)
 
 ---
 
