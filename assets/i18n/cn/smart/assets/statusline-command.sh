@@ -2,7 +2,7 @@
 # Claude Code statusLine command — 超级增强版
 #
 # 布局：
-#   行 1：@ 会话标识  |  模型@版本
+#   行 1：@ 会话标识  |  模型@版本  |  $费用
 #   行 2：~/目录  |  ⎇ 分支[dirty][↑↓ ahead/behind][≡stash]  |  commit时间  |  wt:worktree  |  电池
 #   行 3：ctx进度条+tokens+cache  |  rate-limits(含重置倒计时)  |  会话时长  |  agent
 #   行 4：CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  本机IP
@@ -34,6 +34,7 @@ transcript_path=$(echo "$input"| jq -r '.transcript_path // ""')
 agent_name=$(echo "$input"     | jq -r '.agent.name // ""')
 worktree_name=$(echo "$input"  | jq -r '.worktree.name // ""')
 worktree_branch=$(echo "$input"| jq -r '.worktree.branch // ""')
+total_cost=$(echo "$input"     | jq -r '.cost.total_cost_usd // empty')
 
 # ── 模型简称："Claude Sonnet 4.6" → "Sonnet 4.6"
 model_short=$(echo "$model" | sed 's/^Claude //')
@@ -299,6 +300,11 @@ if [ -n "$line1" ]; then
   line1="${line1}${SEP}${VSEP}${SEP}${model_str}"
 else
   line1="$model_str"
+fi
+
+if [ -n "$total_cost" ] && [ "$total_cost" != "empty" ]; then
+  cost_fmt=$(awk -v c="$total_cost" 'BEGIN { printf "$%.2f", c }')
+  line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LGREEN}%s${RESET}" "$cost_fmt")"
 fi
 
 # 行 2：~/目录 | ⎇ 分支 | commit时间 | wt:worktree | 电池

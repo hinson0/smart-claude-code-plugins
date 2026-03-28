@@ -2,7 +2,7 @@
 # Claude Code statusLine command — enhanced
 #
 # Layout:
-#   line 1: @ session-id  |  model@version
+#   line 1: @ session-id  |  model@version  |  $cost
 #   line 2: ~/cwd  |  ⎇ branch[dirty][↑↓ ahead/behind][≡stash]  |  commit-time  |  wt:worktree  |  battery
 #   line 3: ctx-bar+tokens+cache  |  rate-limits(reset countdown)  |  session-duration  |  agent
 #   line 4: CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  local-IP
@@ -34,6 +34,7 @@ transcript_path=$(echo "$input"| jq -r '.transcript_path // ""')
 agent_name=$(echo "$input"     | jq -r '.agent.name // ""')
 worktree_name=$(echo "$input"  | jq -r '.worktree.name // ""')
 worktree_branch=$(echo "$input"| jq -r '.worktree.branch // ""')
+total_cost=$(echo "$input"     | jq -r '.cost.total_cost_usd // empty')
 
 # Short model name: "Claude Sonnet 4.6" → "Sonnet 4.6"
 model_short=$(echo "$model" | sed 's/^Claude //')
@@ -299,6 +300,11 @@ if [ -n "$line1" ]; then
   line1="${line1}${SEP}${VSEP}${SEP}${model_str}"
 else
   line1="$model_str"
+fi
+
+if [ -n "$total_cost" ] && [ "$total_cost" != "empty" ]; then
+  cost_fmt=$(awk -v c="$total_cost" 'BEGIN { printf "$%.2f", c }')
+  line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LGREEN}%s${RESET}" "$cost_fmt")"
 fi
 
 # line 2: ~/cwd | ⎇ branch | commit: time | wt:worktree | battery
