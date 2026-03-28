@@ -36,20 +36,6 @@
 /plugin install smart@smart-claude-code-plugins
 ```
 
-**2. 登录 GitHub CLI** _（仅需一次）_
-
-```bash
-gh auth login
-```
-
-**3. 完成。在任意仓库中运行：**
-
-```
-/smart:pr
-```
-
-它会自动完成：检测 CI 配置并在本地运行检查 → 智能提交 → 版本升级 → 推送 → 在 GitHub 上创建 PR。
-
 ---
 
 ## 特性

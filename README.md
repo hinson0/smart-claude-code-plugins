@@ -36,20 +36,6 @@ Then install the plugin from this marketplace:
 /plugin install smart@smart-claude-code-plugins
 ```
 
-**2. Authenticate GitHub CLI** _(one-time setup)_
-
-```bash
-gh auth login
-```
-
-**3. That's it. Run this in any repo:**
-
-```
-/smart:pr
-```
-
-It will automatically: detect CI checks → run them locally → stage & commit → bump version → push → open a PR on GitHub.
-
 ---
 
 ## Features
