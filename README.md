@@ -275,7 +275,7 @@ Install a feature-rich statusline with one command:
 Diagnose which plugins consume the most context window.
 
 ```
-"analyze context" / "哪个插件最大" / "context怎么这么高"
+"analyze context" / "which plugin is the largest" / "why is context so high"
 ```
 
 - Reads enabled plugins from `~/.claude/settings.json`
@@ -289,7 +289,7 @@ Diagnose which plugins consume the most context window.
 Tells a programmer joke to lighten the mood.
 
 ```
-"tell me a joke" / "讲个笑话" / "I need a laugh"
+"tell me a joke" / "I need a laugh"
 ```
 
 - Detects conversation language and tells jokes accordingly
