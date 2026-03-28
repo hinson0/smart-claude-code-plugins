@@ -95,11 +95,7 @@ gh auth login
 | `/smart:pr [ターゲットブランチ]` | フルパイプライン：check → commit → version → push → PR（デフォルト：`main`） |
 | `/smart:push` | check → commit → version → push（PR は作成しない） |
 | `/smart:commit` | コミットのみ（スマートグルーピング、メッセージ自動生成） |
-| `/smart:check` | ローカル CI チェックのみ実行（workflow 設定を自動検出） |
 | `/smart:version [ベースブランチ]` | コミットを分析しバージョンをバンプ（バージョンファイルを自動検出；ベースブランチでのみ実行） |
-| `/smart:hud` | smart ステータスラインをインストール |
-| `/smart:hud rm` | ステータスラインを削除 |
-| `/smart:hud rewind` | バックアップから以前のステータスラインを復元 |
 
 ---
 

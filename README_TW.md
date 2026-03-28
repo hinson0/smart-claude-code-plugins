@@ -95,11 +95,7 @@ gh auth login
 | `/smart:pr [目標分支]` | 完整流程：check → commit → version → push → PR（預設目標分支：`main`） |
 | `/smart:push` | check → commit → version → push（不建立 PR） |
 | `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
-| `/smart:check` | 僅執行本機 CI 檢查（自動偵測 workflow 設定） |
 | `/smart:version [基準分支]` | 分析 commit 並升級版本號（自動偵測版本檔案；僅在 base branch 上執行） |
-| `/smart:hud` | 安裝 smart 狀態列 |
-| `/smart:hud rm` | 刪除狀態列 |
-| `/smart:hud rewind` | 從備份還原之前的狀態列 |
 
 ---
 

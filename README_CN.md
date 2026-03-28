@@ -95,11 +95,7 @@ gh auth login
 | `/smart:pr [目标分支]` | 完整流程：check → commit → version → push → PR（默认目标分支：`main`） |
 | `/smart:push` | check → commit → version → push（不创建 PR） |
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
-| `/smart:check` | 仅运行本地 CI 检查（自动检测 workflow 配置） |
 | `/smart:version [基准分支]` | 分析 commit 并升级版本号（自动检测版本文件；仅在 base branch 上运行） |
-| `/smart:hud` | 安装 smart 状态栏 |
-| `/smart:hud rm` | 删除状态栏 |
-| `/smart:hud rewind` | 从备份恢复之前的状态栏 |
 
 ---
 

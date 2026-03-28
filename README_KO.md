@@ -95,11 +95,7 @@ gh auth login
 | `/smart:pr [대상 브랜치]` | 전체 파이프라인: check → commit → version → push → PR (기본: `main`) |
 | `/smart:push` | check → commit → version → push (PR 생성 안 함) |
 | `/smart:commit` | 커밋만 수행 (스마트 그룹화, 자동 메시지 생성) |
-| `/smart:check` | 로컬 CI 검사만 실행 (workflow 설정 자동 감지) |
 | `/smart:version [베이스 브랜치]` | 커밋을 분석하고 버전 범프 (버전 파일 자동 감지; 베이스 브랜치에서만 실행) |
-| `/smart:hud` | smart 상태 표시줄 설치 |
-| `/smart:hud rm` | 상태 표시줄 제거 |
-| `/smart:hud rewind` | 백업에서 이전 상태 표시줄 복원 |
 
 ---
 

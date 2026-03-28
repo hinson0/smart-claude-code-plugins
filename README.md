@@ -95,11 +95,7 @@ It will automatically: detect CI checks → run them locally → stage & commit 
 | `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
 | `/smart:push` | check → commit → version → push (no PR) |
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
-| `/smart:check` | Run local CI checks only (auto-detects from workflow config) |
 | `/smart:version [base]` | Analyze commits and bump version (auto-detects version files; only runs on the base branch) |
-| `/smart:hud` | Install smart statusline |
-| `/smart:hud rm` | Remove the statusline |
-| `/smart:hud rewind` | Restore your previous statusline from backup |
 
 ---
 
