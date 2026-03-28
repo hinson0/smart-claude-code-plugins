@@ -4,6 +4,9 @@
 .claude/hook-logs/
 .claude/worktrees/
 .claude/session-logs/
+.claude/statusline-logs/
+.claude/statusline.jsonc
+.claude/statusline.log
 docs/
 .env
 .remember/
