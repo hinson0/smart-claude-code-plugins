@@ -1,13 +1,23 @@
 ---
-description: Use when preparing a release, creating a PR, finishing a feature branch, or when the user says "bump version", "update version", "release", "new version". Also use proactively before pushing or opening a PR if commits exist on the branch that haven't been versioned yet. Analyzes commit messages since the base branch, maps changed files to their nearest version file, and bumps each independently. Supports plugin.json, package.json (including monorepo), and pyproject.toml.
+name: version
+description: This skill should be used when the user says "bump version", "update version", "release", "new version", or when preparing a release after merging to main. Also triggers proactively in the push pipeline, but only on the base branch (main). Supports plugin.json, package.json (including monorepo), and pyproject.toml.
 argument-hint: "[base-branch] — defaults to main"
 ---
 
-You are a version management assistant. Goal: analyze commits since the base branch, map changed files to their owning version files, and bump each version independently following semantic versioning (`a.b.c`).
+Analyze commits on the base branch, map changed files to their owning version files, and bump each version independently following semantic versioning (`a.b.c`).
+
+**Important:** Version bumps only happen on the base branch (e.g. `main`). On feature branches, skip — version will be bumped after the branch merges to main.
 
 ## Steps
 
-### 1) Discover all version files
+### 1) Determine base branch and check current branch
+
+- If the user provided a base branch via `$0`, use it. Otherwise default to `main`.
+- Run: `git branch --show-current`
+- If the current branch is **not** the base branch, report "On feature branch `<branch>` — skipping version bump (bump after merge to `<base>`)" and **stop**.
+- If the user explicitly invoked `/smart:version` (not via push pipeline), proceed regardless of branch — the user knows what they want.
+
+### 2) Discover all version files
 
 Scan the project for **all** version files. Collect every match:
 
@@ -27,11 +37,6 @@ Filter: only keep files that actually contain a `"version"` (JSON) or `version =
 If no version file found, report "No version file detected — skipping version bump" and **stop**.
 
 Record the list as `VERSION_FILES` with their directory paths.
-
-### 2) Determine base branch
-
-- If the user provided a base branch via `$0`, use it.
-- Otherwise default to `main`.
 
 ### 3) Collect commits to analyze
 
