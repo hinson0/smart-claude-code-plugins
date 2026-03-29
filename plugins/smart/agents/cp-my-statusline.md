@@ -1,7 +1,18 @@
 ---
+name: cp-my-statusline
 description: |
   Use this agent to install, remove, or restore the smart plugin's statusline.
   Triggered by the /smart:hud skill. Do NOT trigger directly from user queries.
+
+  <example>
+  Context: User invokes the /smart:hud skill to set up the statusline
+  user: "/smart:hud"
+  assistant: "I'll use the cp-my-statusline agent to install the smart statusline."
+  <commentary>
+  The /smart:hud skill triggers this agent with the install action. The agent
+  copies the statusline script and updates settings.json accordingly.
+  </commentary>
+  </example>
 model: sonnet
 tools: [Read, Edit, Write, Bash]
 color: yellow

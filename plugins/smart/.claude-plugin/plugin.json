@@ -1,6 +1,6 @@
 {
   "name": "smart",
-  "description": "My name is `smart`.A smart claude code plugin for you.It has some smart tools(skills,hooks,subagents,etc..).Please enjoy it!!!",
+  "description": "My name is smart. Smart plugin for Claude Code — automates check, commit, version bump, push, and PR workflows with hooks, skills, and subagents.",
   "version": "3.4.7",
   "author": {
     "name": "Hinson",
