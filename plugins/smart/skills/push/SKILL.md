@@ -35,7 +35,7 @@ Execution steps (must follow in strict order, no skipping):
 
 @../version/SKILL.md
 
-- Run the version skill to analyze commits since the last version bump and update `plugin.json` automatically.
+- Run the version skill to analyze commits since the last version bump and update the detected version file(s) automatically.
 - If the version skill reports "no new commits" or the version is unchanged, skip this phase and continue.
 
 ---
@@ -87,7 +87,7 @@ git push -u origin HEAD
 On success, display:
 1. Summary of Phase 1 check results.
 2. All commit messages actually used in Phase 2 (if there were changes).
-3. Version bump result from Phase 3 (old → new, or "unchanged").
+3. Version bump result from Phase 3: relay the **exact** skip/result message from the version skill (e.g. "On feature branch — skipping", "No new commits — version unchanged", or "old → new"). Do NOT rephrase or summarize — use the version skill's own wording.
 4. Push target branch and result.
 5. Final `git status` (confirm whether the working tree is clean).
 

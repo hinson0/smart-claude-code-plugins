@@ -35,7 +35,7 @@ argument-hint: 无需参数。自动 [check+add+commit+version+push]
 
 @../version/SKILL.md
 
-- 执行 version skill，分析自上次版本升级以来的 commit 并自动更新 `plugin.json` 版本号。
+- 执行 version skill，分析自上次版本升级以来的 commit 并自动更新检测到的版本文件。
 - 若 version skill 报告"无新 commit"或版本无变化，跳过此阶段继续。
 
 ---
@@ -87,7 +87,7 @@ git push -u origin HEAD
 成功时展示：
 1. 阶段一的检查结果摘要。
 2. 阶段二实际使用的所有 commit message（若有改动）。
-3. 阶段三的版本升级结果（旧版本 → 新版本，或"无变化"）。
+3. 阶段三的版本升级结果：必须**原样转述** version skill 输出的跳过/结果消息（如"在特性分支上——跳过"、"无新 commit——版本不变"、或"旧版本 → 新版本"）。不要自行改写或概括。
 4. 推送目标分支与结果。
 5. 最终 `git status`（确认工作区是否干净）。
 
