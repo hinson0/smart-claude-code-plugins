@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 
 """
-流程：
+Flow:
 
-  stdin (JSON) → 提取 file_path
-      → 找项目根目录 (hook 输入的 cwd 或 CLAUDE_PROJECT_DIR 环境变量)
-      → 读取 <项目根>/.claude/protect_files.jsonc
-      → strip 注释 → json.loads → 得到 patterns 数组
-      → 逐个 pattern 匹配:
-          无通配符 → basename 精确匹配
-          有通配符 → fnmatch 匹配
-      → 命中 → stderr 输出中文提示 + exit(2)
-      → 未命中 → exit(0)
+  stdin (JSON) → extract file_path
+      → find project root (cwd from hook input or CLAUDE_PROJECT_DIR env var)
+      → read <project_root>/.claude/.protect_files.jsonc
+      → strip comments → json.loads → get patterns array
+      → match each pattern:
+          no wildcard → exact basename match
+          with wildcard → fnmatch match
+      → match found → stderr output + exit(2)
+      → no match → exit(0)
 
-  关键点：
-  - 用 fnmatch.fnmatch 做 glob 匹配（Python 标准库，无额外依赖）
-  - JSONC strip 注释：用正则去掉 // 行注释
-  - 配置文件不存在时静默放行（exit(0)）
+  Key points:
+  - Uses fnmatch.fnmatch for glob matching (Python stdlib, no extra deps)
+  - JSONC comment stripping: removes // line comments via regex
+  - Silently passes through if config file does not exist (exit(0))
 """
 
 import fnmatch
@@ -28,13 +28,14 @@ from pathlib import Path
 
 
 def _load_protected_patterns(project_root: str) -> list[str]:
-    """读取项目根目录下的 .claude/protect_files.jsonc 配置文件，返回受保护文件模式列表。
+    """Load protected file patterns from .claude/.protect_files.jsonc in project root.
 
     Args:
-        project_root: 项目根目录的绝对路径字符串。
+        project_root: Absolute path string of the project root directory.
 
     Returns:
-        受保护文件模式字符串列表。如果配置文件不存在或解析失败，返回空列表。
+        List of protected file pattern strings. Returns empty list if config
+        file does not exist or fails to parse.
     """
     config_path = Path(project_root, ".claude", ".protect_files.jsonc")
     try:
@@ -49,31 +50,31 @@ def _load_protected_patterns(project_root: str) -> list[str]:
 
 
 def _has_wildcard(pattern: str) -> bool:
-    """检查模式字符串是否包含通配符。
+    """Check whether a pattern string contains wildcard characters.
 
     Args:
-        pattern: 文件匹配模式字符串。
+        pattern: File matching pattern string.
 
     Returns:
-        如果模式包含 * 或 ? 通配符则返回 True，否则返回 False。
+        True if the pattern contains * or ? wildcards, False otherwise.
     """
     return "*" in pattern or "?" in pattern
 
 
 def _strip_jsonc_comments(text: str) -> str:
-    """移除 JSONC 文本中的行注释（//...）。
+    """Remove line comments (//...) from JSONC text.
 
     Args:
-        text: 可能包含 // 行注释的 JSONC 格式文本。
+        text: JSONC-formatted text that may contain // line comments.
 
     Returns:
-        移除所有 // 行注释后的纯 JSON 文本。
+        Pure JSON text with all // line comments removed.
     """
     return re.sub(r"^\s*//.*$", "", text, flags=re.MULTILINE)
 
 
 def _is_protected(rel_path: str, patterns: list[str]) -> str | None:
-    """检查文件是否被保护，返回命中的 pattern 或 None"""
+    """Check if a file is protected; returns the matched pattern or None."""
     base_name = Path(rel_path).name
     for pattern in patterns:
         if _has_wildcard(pattern):
@@ -109,12 +110,13 @@ def main():
     try:
         rel_path = str(Path(file_path).relative_to(project_root))
     except ValueError:
-        sys.exit(0)  # 不在项目内的文件，放行
+        sys.exit(0)  # File is outside the project, allow through
 
     matched = _is_protected(rel_path, patterns)
     if matched:
         print(
-            f'不可以修改文件:{file_path} \n 匹配保护规则 "{matched}"', file=sys.stderr
+            f'Cannot modify file: {file_path}\nMatched protection rule "{matched}"',
+            file=sys.stderr,
         )
         sys.exit(2)
     sys.exit(0)
