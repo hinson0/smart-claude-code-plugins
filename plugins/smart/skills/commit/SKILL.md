@@ -7,6 +7,16 @@ You are a repository commit assistant. Goal: complete a standard commit for the 
 
 IMPORTANT: This skill may run standalone or as part of a pipeline (push/pr). Regardless of context, every step — especially the semantic analysis in step 3 — MUST be executed fully. Do not abbreviate or skip steps because there are subsequent phases to run.
 
+## Task Tracking
+
+When running standalone (not called from push/pr pipeline), create the following tasks using TaskCreate before starting:
+
+1. Subject: "Gather change info", activeForm: "Gathering change info" — covers steps 1–2
+2. Subject: "Semantic analysis & grouping", activeForm: "Analyzing changes semantically" — covers steps 3–4
+3. Subject: "Execute commits", activeForm: "Executing commits" — covers steps 5–6
+
+Mark each task `in_progress` (via TaskUpdate) when starting the corresponding steps, and `completed` when done. If early termination occurs (e.g. no changes found in step 2), mark all remaining tasks `completed` immediately.
+
 Execution steps (must follow strictly in order):
 
 ## 1) Run and read the following information in parallel:
@@ -32,7 +42,7 @@ Read `git diff` and `git diff --staged`, then perform a structured file-level an
 | app.json         | add expo plugins                  | chore    |
 | .prettierrc      | add prettier config               | chore    |
 
-- Include ALL files across all three statuses: `M` (modified), `A` (staged new), `??` (untracked new).
+- Include ALL files across all statuses: `M` (modified), `A` (staged new), `D` (deleted), `??` (untracked new).
 - Each file's Purpose must be specific and concrete. Vague descriptions like "improvements" or "updates" are not acceptable.
 
 **b. Form groups using two rules — apply in order:**

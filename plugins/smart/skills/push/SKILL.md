@@ -3,7 +3,18 @@ description: Use when the user wants to push code to remote (e.g. "push", "push 
 argument-hint: No arguments needed. Auto [check+add+commit+version+push]
 ---
 
-You are a repository commit assistant. Goal: complete local checks, standard commit, version bump, and push in the current repository.
+You are a repository push pipeline assistant. Goal: complete local checks, standard commit, version bump, and push in the current repository.
+
+## Task Tracking
+
+When running standalone (not called from pr pipeline), create the following tasks using TaskCreate before starting:
+
+1. Subject: "Local checks", activeForm: "Running local checks"
+2. Subject: "Commit changes", activeForm: "Committing changes"
+3. Subject: "Version bump", activeForm: "Bumping version"
+4. Subject: "Push to remote", activeForm: "Pushing to remote"
+
+Mark each task `in_progress` (via TaskUpdate) when starting the corresponding phase, and `completed` when the phase succeeds. If a phase is skipped (e.g. no changes to commit) or fails, mark it `completed` immediately.
 
 Execution steps (must follow in strict order, no skipping):
 
@@ -46,7 +57,7 @@ Execution steps (must follow in strict order, no skipping):
 
 Run: `git remote get-url origin 2>/dev/null`
 
-- If configured: execute `git push -u origin HEAD` directly, skip to 4.3.
+- If configured: skip to 4.3.
 - If not configured: continue to 4.2.
 
 ### 4.2 Automatically create and link a GitHub remote repository

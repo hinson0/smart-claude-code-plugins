@@ -1,9 +1,21 @@
 ---
-description: 当用户想要创建 Pull Request（如"pr"、"PR"、"create PR"、"发个PR"、"提个PR"、"创建合并请求"），或需要完整的 check+commit+push+PR 管道时使用。已包含 push 和版本升级 — 无需先手动推送。
-argument-hint: 无需参数。自动 [check+add+commit+version+push+pr]
+description: 当用户想要创建 Pull Request（如"pr"、"PR"、"create PR"、"open PR"、"发个PR"、"提个PR"、"创建合并请求"），或需要完整的 check+commit+push+PR 管道时使用。已包含 push 和版本升级 — 无需先手动推送。
+argument-hint: "[base-branch]（可选）PR 的目标分支，默认为 main。自动 [check+add+commit+version+push+pr]"
 ---
 
 你是仓库提交与 PR 助手。目标：先完成标准提交、版本升级并推送，再在 GitHub 上创建 Pull Request。
+
+## 任务追踪
+
+开始工作前，使用 TaskCreate 创建以下任务：
+
+1. Subject: "本地检查", activeForm: "正在执行本地检查"
+2. Subject: "提交变更", activeForm: "正在提交变更"
+3. Subject: "版本升级", activeForm: "正在升级版本"
+4. Subject: "推送到远端", activeForm: "正在推送到远端"
+5. Subject: "创建 Pull Request", activeForm: "正在创建 Pull Request"
+
+在开始对应阶段时通过 TaskUpdate 将任务标记为 `in_progress`，阶段完成后标记为 `completed`。若阶段被跳过（如无变更需提交）或失败，直接标记为 `completed`。
 
 执行步骤（必须严格按顺序，不可跳过）：
 
@@ -19,26 +31,26 @@ argument-hint: 无需参数。自动 [check+add+commit+version+push+pr]
 
 ## 阶段二：创建 Pull Request
 
-7) 收集基础信息（并行运行）：
+1) 收集基础信息（并行运行）：
 - `git branch --show-current`（当前分支名，记为 `HEAD_BRANCH`）
 - `git log -1 --oneline`（最新一条 commit，用于判断单 commit 场景）
 - 确定 PR 标题、Summary 和 Test Plan 的语言：与阶段一中 commit skill 生成的 commit message 使用相同语言（commit skill 的语言规则为唯一语言决策源）。若阶段一被跳过（无变更），沿用相同规则：默认英文，除非 CLAUDE.md / CLAUDE.local.md 明确规定了 git commit message 语言。Section headers（## Summary、## Commits、## Test Plan）始终保持英文，commit messages 不翻译。
 
-8) 确定目标分支（base branch）：
+2) 确定目标分支（base branch）：
 - 如果用户使用了 $0 来显式指定了目标分支，则使用此分支名字作为 base branch。
 - 否则**一定要**使用 `AskUserQuestion` 工具询问用户：
   > 请问 PR 的目标分支是？（默认 `main`，直接回车即可）
 - 将用户回答记为 `BASE_BRANCH`；若用户直接回车或留空，则 `BASE_BRANCH=main`。
 
-9) 检查 PR 是否已存在：
+3) 检查 PR 是否已存在：
 - 运行：`gh pr list --head <HEAD_BRANCH> --json number,url,state`
 - 若已存在同 head 分支的 **open** PR，直接展示现有 PR 的 URL，提示用户 PR 已存在，并结束。
 
-10) 收集完整 commit 列表：
+4) 收集完整 commit 列表：
 - 运行：`git log <BASE_BRANCH>..HEAD --oneline`
 - 记录所有 commit（hash + message），用于生成 PR 正文。
 
-11) 生成 PR 标题和正文：
+5) 生成 PR 标题和正文：
 - **语言**：使用步骤 7 中确定的语言。Section headers（## Summary, ## Commits, ## Test Plan）始终保持英文。
 - **标题**：
   - 若本分支只有 1 个 commit，直接使用该 commit message 作为标题。
@@ -67,7 +79,7 @@ argument-hint: 无需参数。自动 [check+add+commit+version+push+pr]
    使用 `- [ ]` 格式（未勾选/待验证），不要用 `- [x]`。每条必须针对本 PR 的实际改动，禁止使用泛泛的"验证功能正常"。>
   ```
 
-12) 执行 PR 创建：
+6) 执行 PR 创建：
 ```bash
 gh pr create \
   --title "<PR 标题>" \

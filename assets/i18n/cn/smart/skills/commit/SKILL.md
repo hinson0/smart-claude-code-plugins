@@ -7,6 +7,16 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
 
 重要：本 skill 可能独立运行，也可能作为管道（push/pr）的一部分运行。无论在何种上下文中，每个步骤——尤其是第 3 步的语义分析——都**必须完整执行**。不要因为后续还有其他阶段就省略或跳过任何步骤。
 
+## 任务追踪
+
+独立运行时（非从 push/pr 管道调用），开始工作前使用 TaskCreate 创建以下任务：
+
+1. Subject: "收集变更信息", activeForm: "正在收集变更信息" — 对应步骤 1–2
+2. Subject: "语义分析与分组", activeForm: "正在进行语义分析" — 对应步骤 3–4
+3. Subject: "执行提交", activeForm: "正在执行提交" — 对应步骤 5–6
+
+在开始对应步骤时通过 TaskUpdate 将任务标记为 `in_progress`，完成后标记为 `completed`。若提前终止（如步骤 2 发现无可提交变更），将所有剩余任务立即标记为 `completed`。
+
 执行步骤（必须严格按顺序）：
 
 ## 1) 并行运行并读取以下信息：
@@ -32,7 +42,7 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
 | app.json         | add expo plugins                  | chore    |
 | .prettierrc      | add prettier config               | chore    |
 
-- 必须同时计入 `M`（已修改）、`A`（已暂存新文件）、`??`（未追踪新文件）三类，不得遗漏任何文件。
+- 必须同时计入 `M`（已修改）、`A`（已暂存新文件）、`D`（已删除）、`??`（未追踪新文件）各类，不得遗漏任何文件。
 - 每个文件的 Purpose 必须具体明确，禁止使用 "improvements" 或 "updates" 等模糊描述。
 
 **b. 用两条规则确定分组——按顺序应用：**
