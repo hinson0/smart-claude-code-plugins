@@ -12,5 +12,17 @@
     "feature-dev@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": false,
     "superpowers@claude-plugins-official": false
+  },
+  "permissions": {
+    "allow": ["Edit", "Read", "Write", "Bash", "WebSearch", "Skill"],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(git checkout -- *)",
+      "Bash(git branch -D *)"
+    ]
   }
 }
