@@ -16,8 +16,6 @@ Claude Code 插件，自动化 check → commit → push → PR 流程。
 
 assets/i18n/cn/smart/             # CN 镜像目录（仅供阅读，结构与 plugins/smart/ 对称）
 ├── agents/                       # CN agents（中文版，仅供参考）
-│   ├── context-analyzer.md
-│   ├── cp-my-statusline.md
 │   └── joke-teller.md
 ├── assets/
 │   └── statusline-command.sh
@@ -37,8 +35,6 @@ assets/i18n/cn/smart/             # CN 镜像目录（仅供阅读，结构与 p
 plugins/smart/                    # EN 主插件目录（被 Claude Code 实际加载）
 ├── .claude-plugin/plugin.json    # 插件元数据
 ├── agents/                       # EN agents
-│   ├── context-analyzer.md
-│   ├── cp-my-statusline.md
 │   └── joke-teller.md
 ├── assets/
 │   └── statusline-command.sh     # 打包的 statusline 脚本
