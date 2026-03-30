@@ -48,6 +48,9 @@
 
 input=$(cat)
 
+# 保存原始 JSON 供上下文捕获使用（smart:cxt skill）
+echo "$input" > "$HOME/.claude/.statusline-latest.json" 2>/dev/null
+
 # ══════════════════════════════════════════════════════════
 # 1. 从 JSON 提取 Claude 数据
 # ══════════════════════════════════════════════════════════

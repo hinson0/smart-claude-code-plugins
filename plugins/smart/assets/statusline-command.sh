@@ -48,6 +48,9 @@
 
 input=$(cat)
 
+# Save raw JSON for context capture (used by smart:cxt skill)
+echo "$input" > "$HOME/.claude/.statusline-latest.json" 2>/dev/null
+
 # ══════════════════════════════════════════════════════════
 # 1. Extract Claude data from JSON
 # ══════════════════════════════════════════════════════════
