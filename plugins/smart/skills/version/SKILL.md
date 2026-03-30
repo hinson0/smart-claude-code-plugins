@@ -1,5 +1,4 @@
 ---
-name: version
 description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release after merging to main. Also triggers proactively in the push pipeline, but only on the base branch (main). Supports plugin.json, package.json (including monorepo), and pyproject.toml.
 argument-hint: "[base-branch] — defaults to main"
 ---
@@ -77,10 +76,10 @@ For each version file with associated commits:
 
 2. Classify each commit using Conventional Commits (`<type>[!][(scope)]: <desc>`):
 
-   | Condition | Bump |
-   |-----------|------|
-   | Type suffix `!` or body contains `BREAKING CHANGE` | **major** |
-   | `feat` | **minor** |
+   | Condition                                                          | Bump      |
+   | ------------------------------------------------------------------ | --------- |
+   | Type suffix `!` or body contains `BREAKING CHANGE`                 | **major** |
+   | `feat`                                                             | **minor** |
    | `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `ci`, or other | **patch** |
 
 3. Apply the **highest** bump:
@@ -118,10 +117,10 @@ EOF
 Display a summary table:
 
 ```
-| Version File | Type | Old | New | Bump | Key Commits |
-|--------------|------|-----|-----|------|-------------|
-| packages/frontend/package.json | Node.js | 1.2.0 | 1.3.0 | minor | feat(ui): ... |
-| packages/backend/pyproject.toml | Python | 0.5.1 | 0.5.2 | patch | fix(api): ... |
+| Version File                    | Type    | Old   | New   | Bump  | Key Commits   |
+| ------------------------------- | ------- | ----- | ----- | ----- | ------------- |
+| packages/frontend/package.json  | Node.js | 1.2.0 | 1.3.0 | minor | feat(ui): ... |
+| packages/backend/pyproject.toml | Python  | 0.5.1 | 0.5.2 | patch | fix(api): ... |
 ```
 
 ## Constraints

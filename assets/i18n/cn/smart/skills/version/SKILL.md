@@ -1,5 +1,4 @@
 ---
-name: version
 description: 当用户提到"升级版本"、"更新版本号"、"发布"、"新版本"、"版本升级"、"准备发布"、"递增版本"时触发，或在合并到 main 后准备发布时使用。在 push 管道中也会主动触发，但仅限基准分支（main）上执行。支持 plugin.json、package.json（含 monorepo）和 pyproject.toml。
 argument-hint: "[目标分支] — 默认为 main"
 ---
@@ -77,10 +76,10 @@ find . -maxdepth 4 -name 'pyproject.toml' -not -path '*/node_modules/*' -not -pa
 
 2. 按 Conventional Commits 格式（`<type>[!][(scope)]: <desc>`）分类每个 commit：
 
-   | 条件 | 升级类型 |
-   |------|---------|
-   | 类型后缀 `!` 或 body 包含 `BREAKING CHANGE` | **major** |
-   | `feat` | **minor** |
+   | 条件                                                            | 升级类型  |
+   | --------------------------------------------------------------- | --------- |
+   | 类型后缀 `!` 或 body 包含 `BREAKING CHANGE`                     | **major** |
+   | `feat`                                                          | **minor** |
    | `fix`、`refactor`、`perf`、`docs`、`test`、`chore`、`ci` 或其他 | **patch** |
 
 3. 取**最高级别**的升级：
@@ -118,10 +117,10 @@ EOF
 展示汇总表格：
 
 ```
-| 版本文件 | 类型 | 旧版本 | 新版本 | 升级 | 关键 Commit |
-|---------|------|-------|-------|------|------------|
-| packages/frontend/package.json | Node.js | 1.2.0 | 1.3.0 | minor | feat(ui): ... |
-| packages/backend/pyproject.toml | Python | 0.5.1 | 0.5.2 | patch | fix(api): ... |
+| 版本文件                        | 类型    | 旧版本 | 新版本 | 升级  | 关键 Commit   |
+| ------------------------------- | ------- | ------ | ------ | ----- | ------------- |
+| packages/frontend/package.json  | Node.js | 1.2.0  | 1.3.0  | minor | feat(ui): ... |
+| packages/backend/pyproject.toml | Python  | 0.5.1  | 0.5.2  | patch | fix(api): ... |
 ```
 
 ## 约束
