@@ -1,36 +1,34 @@
 ---
-description: "配置 smart 风格的 statusline"
-argument-hint: "[rm|reset]（空=安装）"
+description: 当用户说"hud"、"statusline"、"安装 statusline"、"配置 statusline"、"移除 statusline"、"恢复 statusline"，或需要安装、移除、恢复 smart 插件的 statusline 时使用此技能。
+argument-hint: "[rm|reset] [--user|--project]（空=安装，默认作用域=user）"
 ---
 
 安装、移除或恢复 smart 插件的 statusline。
 
 ## 确定操作
 
-| 参数 | 操作 |
-|------|------|
-| _（空）_ | `install` — 安装 smart statusline |
-| `rm` | `rm` — 移除 statusline |
-| `reset` | `reset` — 恢复用户之前的 statusline |
+| 参数 | 操作 | 说明 |
+|------|------|------|
+| _（空）_ | `install` | 安装 smart statusline |
+| `rm` | `rm` | 完全移除 statusline |
+| `reset` | `reset` | 恢复之前的 statusline 备份 |
 
 ## 路径
 
 - **源脚本**: `${CLAUDE_PLUGIN_ROOT}/assets/statusline-command.sh`
-- **目标脚本（用户级）**: `~/.claude/statusline-command.sh`
-- **目标脚本（项目级）**: `.claude/statusline-command.sh`
-- **备份脚本**: `~/.claude/statusline-command.sh.bak`（用户级）或 `.claude/statusline-command.sh.bak`（项目级）
-- **配置文件（用户级）**: `~/.claude/settings.json`
-- **配置文件（项目级）**: `.claude/settings.json`
+
+根据作用域解析目标路径：
+
+| 作用域 | 配置文件 | 脚本 | 备份 |
+|--------|----------|------|------|
+| `user` | `~/.claude/settings.json` | `~/.claude/statusline-command.sh` | `~/.claude/statusline-command.sh.bak` |
+| `project` | `.claude/settings.json` | `.claude/statusline-command.sh` | `.claude/statusline-command.sh.bak` |
 
 ## 作用域解析
 
-根据作用域解析目标路径：
-- **user**: settings = `~/.claude/settings.json`, script = `~/.claude/statusline-command.sh`, backup = `~/.claude/statusline-command.sh.bak`
-- **project**: settings = `.claude/settings.json`, script = `.claude/statusline-command.sh`, backup = `.claude/statusline-command.sh.bak`
-
 ### `install` — 询问用户
 
-1. 若用户通过参数显式指定了作用域（如 `/smart:hud --project`），使用该作用域。
+1. 若用户在参数中显式指定了 `--user` 或 `--project`，使用该作用域。
 2. 否则，使用 `AskUserQuestion` 询问：
    > 安装 statusline 到 **user** 作用域（`~/.claude/settings.json`，对所有项目生效）还是 **project** 作用域（`.claude/settings.json`，仅当前项目）？默认 user — 直接回车确认。
 3. 若用户直接回车或留空，`SCOPE=user`。
@@ -73,7 +71,9 @@ argument-hint: "[rm|reset]（空=安装）"
 
 ## 操作: rm
 
-1. 读取目标配置文件。
+按上述自动检测逻辑确定作用域后：
+
+1. 读取目标配置文件。若文件不存在，跳到步骤 3。
 2. 使用 Edit 工具完全移除 settings.json 中的 `statusLine` 字段。
 3. 如果目标脚本存在，删除：
    ```
@@ -84,13 +84,15 @@ argument-hint: "[rm|reset]（空=安装）"
 
 ## 操作: reset
 
+按上述自动检测逻辑确定作用域后：
+
 1. 检查目标作用域的备份脚本是否存在。
    - 如果不存在，报告错误："未找到备份，无法恢复。"
 2. 从备份恢复：
    ```
    cp <备份脚本> <目标脚本>
    ```
-3. 读取目标配置文件。确保 `statusLine` 设置为：
+3. 读取目标配置文件。若文件不存在，报告错误并停止。确保 `statusLine` 设置为：
    ```json
    "statusLine": {
      "type": "command",

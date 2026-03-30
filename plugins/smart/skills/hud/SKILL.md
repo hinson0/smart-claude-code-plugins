@@ -1,36 +1,34 @@
 ---
-description: "Configure claude-hud as your statusline"
-argument-hint: "[rm|reset] (empty=install)"
+description: This skill should be used when the user says "hud", "statusline", "install statusline", "setup statusline", "configure statusline", "remove statusline", "reset statusline", "restore statusline", or wants to install, remove, or restore the smart plugin's statusline.
+argument-hint: "[rm|reset] [--user|--project] (empty=install, default scope=user)"
 ---
 
 Install, remove, or restore the smart plugin's statusline.
 
 ## Determine Action
 
-| Argument  | Action    |
-|-----------|-----------|
-| _(empty)_ | `install` |
-| `rm`      | `rm`      |
-| `reset`   | `reset`   |
+| Argument  | Action    | Description                        |
+|-----------|-----------|------------------------------------|
+| _(empty)_ | `install` | Install smart statusline           |
+| `rm`      | `rm`      | Remove statusline completely       |
+| `reset`   | `reset`   | Restore previous statusline backup |
 
 ## Paths
 
 - **Source script**: `${CLAUDE_PLUGIN_ROOT}/assets/statusline-command.sh`
-- **Target script (user)**: `~/.claude/statusline-command.sh`
-- **Target script (project)**: `.claude/statusline-command.sh`
-- **Backup script**: `~/.claude/statusline-command.sh.bak` (user) or `.claude/statusline-command.sh.bak` (project)
-- **Settings file (user)**: `~/.claude/settings.json`
-- **Settings file (project)**: `.claude/settings.json`
+
+Resolve target paths based on scope:
+
+| Scope     | Settings file             | Script                            | Backup                                |
+|-----------|---------------------------|-----------------------------------|---------------------------------------|
+| `user`    | `~/.claude/settings.json` | `~/.claude/statusline-command.sh` | `~/.claude/statusline-command.sh.bak` |
+| `project` | `.claude/settings.json`   | `.claude/statusline-command.sh`   | `.claude/statusline-command.sh.bak`   |
 
 ## Scope Resolution
 
-Resolve target paths based on scope:
-- **user**: settings = `~/.claude/settings.json`, script = `~/.claude/statusline-command.sh`, backup = `~/.claude/statusline-command.sh.bak`
-- **project**: settings = `.claude/settings.json`, script = `.claude/statusline-command.sh`, backup = `.claude/statusline-command.sh.bak`
-
 ### For `install` — ask user
 
-1. If the user explicitly specified a scope via the argument (e.g. `/smart:hud --project`), use that scope.
+1. If the user explicitly specified `--user` or `--project` in the argument, use that scope.
 2. Otherwise, use `AskUserQuestion` to ask:
    > Install statusline to **user** scope (`~/.claude/settings.json`, applies to all projects) or **project** scope (`.claude/settings.json`, this project only)? Default: user — press Enter to confirm.
 3. If the user presses Enter or leaves blank, `SCOPE=user`.
@@ -38,8 +36,8 @@ Resolve target paths based on scope:
 ### For `rm` / `reset` — auto-detect
 
 Check which scopes have the smart statusline installed by testing whether the script file exists:
-- `~/.claude/statusline-command.sh` → user scope installed
-- `.claude/statusline-command.sh` → project scope installed
+- `~/.claude/statusline-command.sh` exists → user scope installed
+- `.claude/statusline-command.sh` exists → project scope installed
 
 Then decide:
 - **Only one scope installed** → use that scope automatically, no need to ask.
@@ -73,7 +71,9 @@ Then decide:
 
 ## Action: rm
 
-1. Read the target settings file.
+Determine scope using the auto-detect logic above, then:
+
+1. Read the target settings file. If it does not exist, skip to step 3.
 2. Remove the `statusLine` field entirely from settings.json using Edit tool.
 3. Delete the target script if it exists:
    ```
@@ -84,13 +84,15 @@ Then decide:
 
 ## Action: reset
 
+Determine scope using the auto-detect logic above, then:
+
 1. Check if the backup script exists at the target scope.
    - If not, report error: "No backup found. Nothing to restore."
 2. Restore from backup:
    ```
    cp <backup-script> <target-script>
    ```
-3. Read the target settings file. Ensure `statusLine` is set to:
+3. Read the target settings file. If it does not exist, report error and stop. Ensure `statusLine` is set to:
    ```json
    "statusLine": {
      "type": "command",
