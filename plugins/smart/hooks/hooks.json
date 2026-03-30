@@ -20,15 +20,6 @@
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-logs.py"
           }
         ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/protect-files.py"
-          }
-        ]
       }
     ],
     "SessionEnd": [
