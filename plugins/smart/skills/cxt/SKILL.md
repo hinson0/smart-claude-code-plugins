@@ -1,6 +1,5 @@
 ---
-name: cxt
-description: This skill should be used when the user says "capture context", "save context", "context snapshot", "cxt", "dump statusline", "save session info", "export session", or wants to export the current Claude Code session's statusline data as an annotated JSONC file to .claude/context-logs/.
+description: This skill should be used when the user says "capture context", "save context", "context snapshot", "cxt", "context", "context usage", "statusline", "statusline usage", "dump statusline", "save session info", "export session", or wants to export the current Claude Code session's statusline data as an annotated JSONC snapshot to .claude/context-logs/. Invoked explicitly via /smart:cxt.
 argument-hint: No arguments needed. Captures current statusline data snapshot.
 ---
 
@@ -16,7 +15,7 @@ The statusline script must be configured and running. It saves raw JSON to `~/.c
 
 ### 1) Read the statusline data
 
-Read `~/.claude/.statusline-latest.json`. If the file is missing or empty, report the error and stop.
+Read `~/.claude/.statusline-latest.json`. If the file is missing, empty, or contains malformed JSON (e.g., interrupted write), report the error clearly and stop.
 
 ### 2) Determine output language
 
@@ -55,6 +54,7 @@ Rules:
 3. Create the output directory if needed: `{project_root}/.claude/context-logs/`
 4. Write to: `{project_root}/.claude/context-logs/{session_id}.jsonc`
 5. Overwrite if the file already exists (same session, latest snapshot wins)
+6. If `.claude/context-logs/` is not already in the project's `.gitignore`, remind the user to add it — these are personal session snapshots, not shared project data
 
 ### 5) Report
 
