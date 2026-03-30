@@ -47,7 +47,13 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 
 ### 2) 读取已启用插件
 
-读取 `~/.claude/settings.json`。提取 `enabledPlugins` 映射。收集所有值为 `true` 的条目——这些是活跃的插件。
+读取两个设置文件以确定插件的有效状态：
+
+1. **全局**：读取 `~/.claude/settings.json` → 提取 `enabledPlugins` 映射。
+2. **项目级**：读取 `.claude/settings.json`（项目根目录） → 提取 `enabledPlugins` 映射（若存在）。
+3. **合并**：项目级条目覆盖全局条目。插件有效值为 `true` 时才视为活跃。
+
+收集所有有效活跃的插件——这些是需要分类的对象。
 
 ### 3) 对每个插件进行分类
 
@@ -81,11 +87,11 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 
 然后使用 AskUserQuestion 确认：
 - 列出每个建议禁用的插件及一行原因
-- 询问："是否禁用这些插件？（可随时在 settings.json 中重新启用）"
+- 询问："是否为本项目禁用这些插件？（可随时在 .claude/settings.json 中重新启用）"
 
 **若确认：**
 
-编辑 `~/.claude/settings.json` — 将每个确认的插件在 `enabledPlugins` 映射中的值设为 `false`。使用 Edit 工具精准修改，不要重写整个文件。
+编辑 `.claude/settings.json`（项目级，非全局 `~/.claude/settings.json`）— 将每个确认的插件在 `enabledPlugins` 映射中的值添加或更新为 `false`。若 `.claude/settings.json` 不存在则创建，包含 `enabledPlugins` 键。若存在但无 `enabledPlugins` 键则添加。使用 Edit 工具精准修改，不要重写整个文件。绝不修改全局 `~/.claude/settings.json`。
 
 **若用户拒绝或想保留部分：**
 

@@ -47,7 +47,13 @@ If no indicator files are found, report "Unable to detect project type — no ch
 
 ### 2) Read enabled plugins
 
-Read `~/.claude/settings.json`. Extract the `enabledPlugins` map. Collect all entries where the value is `true` — these are the active plugins.
+Read both settings files to determine the effective plugin state:
+
+1. **Global**: Read `~/.claude/settings.json` → extract `enabledPlugins` map.
+2. **Project**: Read `.claude/settings.json` (project root) → extract `enabledPlugins` map if it exists.
+3. **Merge**: Project-level entries override global entries. A plugin is active if its effective value is `true`.
+
+Collect all effectively active plugins — these are the ones to classify.
 
 ### 3) Classify each plugin
 
@@ -81,11 +87,11 @@ Project type: python
 
 Then use AskUserQuestion to confirm:
 - List each plugin recommended for disabling with a one-line reason
-- Ask: "Disable these plugins for this session? (They can be re-enabled anytime in settings.json)"
+- Ask: "Disable these plugins for this project? (They can be re-enabled anytime in .claude/settings.json)"
 
 **If confirmed:**
 
-Edit `~/.claude/settings.json` — set each confirmed plugin's value to `false` in the `enabledPlugins` map. Use the Edit tool for precision; do not rewrite the entire file.
+Edit `.claude/settings.json` (project-level, not global `~/.claude/settings.json`) — add or update each confirmed plugin's value to `false` in the `enabledPlugins` map. If `.claude/settings.json` does not exist, create it with the `enabledPlugins` key. If it exists but has no `enabledPlugins` key, add it. Use the Edit tool for precision; do not rewrite the entire file. Never modify the global `~/.claude/settings.json`.
 
 **If the user declines or wants to keep some:**
 
