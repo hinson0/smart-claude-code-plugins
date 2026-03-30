@@ -58,8 +58,9 @@ Then install the plugin from this marketplace:
 
 **Utilities**
 
-- **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / rewind.
-- **Context Analyzer Agent** — Analyze which plugins consume the most context window. Shows a ranked table with sizes and percentages.
+- **Visual Progress Tracking** — Pipeline phases display as a live task list with pending/active/completed status, timing, and token usage.
+- **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / reset, with user or project scope.
+- **Help Overview** — `/smart:help` dynamically scans and lists all skills, hooks, and agents with descriptions.
 - **Joke Teller Agent** — Tells a programmer joke to lighten the mood during work.
 
 ---
@@ -82,6 +83,8 @@ Then install the plugin from this marketplace:
 | `/smart:version [base]` | Analyze commits and bump version (auto-detects version files; only runs on the base branch) |
 | `/smart:push` | check → commit → version → push (no PR) |
 | `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
+| `/smart:hud [rm\|reset]` | Install, remove, or reset statusline (`--user` / `--project` scope) |
+| `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
 
 ---
 
@@ -260,29 +263,16 @@ Install a feature-rich statusline with one command:
 
 | Command | Action |
 |---------|--------|
-| `/smart:hud` | Install (backs up existing statusline automatically) |
-| `/smart:hud rm` | Remove statusline and restore defaults |
-| `/smart:hud rewind` | Restore your previous statusline from backup |
+| `/smart:hud` | Install to user scope (backs up existing statusline automatically) |
+| `/smart:hud --project` | Install to project scope (`.claude/settings.json`, this project only) |
+| `/smart:hud rm` | Remove statusline (auto-detects which scope is installed) |
+| `/smart:hud reset` | Restore your previous statusline from backup |
 
 **Note:** Requires `jq`. The statusline script is macOS-optimized (uses `pmset` for battery, `sysctl` for system info).
 
 ---
 
 ## Agents
-
-### Context Analyzer
-
-Diagnose which plugins consume the most context window.
-
-```
-"analyze context" / "which plugin is the largest" / "why is context so high"
-```
-
-- Reads enabled plugins from `~/.claude/settings.json`
-- Measures all `.md` files in each plugin's cache directory
-- Outputs a ranked Markdown table with sizes and percentages
-- Merges plugins under 3KB into "Others"
-- Estimates total context window percentage at the bottom
 
 ### Joke Teller
 

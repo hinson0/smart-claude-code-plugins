@@ -58,8 +58,9 @@
 
 **實用工具**
 
-- **HUD / Statusline 安裝器** — 一條指令安裝功能豐富的狀態列，顯示模型、Git 分支、上下文用量、速率限制、系統資源和工具呼叫統計。支援安裝 / 刪除 / 回退。
-- **上下文分析 Agent** — 分析哪些外掛占用了最多的上下文視窗，按大小排名展示表格和百分比。
+- **視覺化進度追蹤** — 管道階段以即時任務清單顯示，包含待執行/執行中/已完成狀態、計時和 token 統計。
+- **HUD / Statusline 安裝器** — 一條指令安裝功能豐富的狀態列，顯示模型、Git 分支、上下文用量、速率限制、系統資源和工具呼叫統計。支援安裝 / 刪除 / 重置，可選 user 或 project 作用域。
+- **說明概覽** — `/smart:help` 動態掃描並列出所有技能、hook 和 agent 及其描述。
 - **Joke Teller Agent** — 在合適的時機講個程式設計師笑話，緩解工作壓力。
 
 ---
@@ -82,6 +83,8 @@
 | `/smart:version [基準分支]` | 分析 commit 並升級版本號（自動偵測版本檔案；僅在 base branch 上執行） |
 | `/smart:push` | check → commit → version → push（不建立 PR） |
 | `/smart:pr [目標分支]` | 完整流程：check → commit → version → push → PR（預設目標分支：`main`） |
+| `/smart:hud [rm\|reset]` | 安裝、刪除或重置狀態列（`--user` / `--project` 作用域） |
+| `/smart:help [skill\|hook\|agent]` | 顯示所有外掛元件概覽（或按類別篩選） |
 
 ---
 
@@ -260,29 +263,16 @@ PR 標題、內文和測試計畫的語言與 commit message 保持一致。
 
 | 指令 | 操作 |
 |------|------|
-| `/smart:hud` | 安裝（自動備份既有狀態列） |
-| `/smart:hud rm` | 刪除狀態列並還原預設 |
-| `/smart:hud rewind` | 從備份還原之前的狀態列 |
+| `/smart:hud` | 安裝到 user 作用域（自動備份既有狀態列） |
+| `/smart:hud --project` | 安裝到 project 作用域（`.claude/settings.json`，僅當前專案） |
+| `/smart:hud rm` | 刪除狀態列（自動偵測已安裝的作用域） |
+| `/smart:hud reset` | 從備份還原之前的狀態列 |
 
 **注意：** 需要安裝 `jq`。狀態列腳本針對 macOS 最佳化（使用 `pmset` 取得電量、`sysctl` 取得系統資訊）。
 
 ---
 
 ## Agents
-
-### 上下文分析器（Context Analyzer）
-
-診斷哪些外掛占用了最多的上下文視窗。
-
-```
-"analyze context" / "哪個外掛最大" / "context怎麼這麼高"
-```
-
-- 從 `~/.claude/settings.json` 讀取已啟用的外掛清單
-- 統計每個外掛快取目錄下所有 `.md` 檔案的大小
-- 輸出 Markdown 排名表，包含大小和百分比
-- 將 3KB 以下的外掛合併為 "Others"
-- 在底部估算總上下文視窗占用百分比
 
 ### 笑話講述器（Joke Teller）
 

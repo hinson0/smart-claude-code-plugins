@@ -58,8 +58,9 @@
 
 **实用工具**
 
-- **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。支持安装 / 删除 / 回退。
-- **上下文分析 Agent** — 分析哪些插件占用了最多的上下文窗口，按大小排名展示表格和百分比。
+- **可视化进度追踪** — 管道阶段以实时任务列表显示，包含待执行/执行中/已完成状态、计时和 token 统计。
+- **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。支持安装 / 删除 / 重置，可选 user 或 project 作用域。
+- **帮助概览** — `/smart:help` 动态扫描并列出所有技能、hook 和 agent 及其描述。
 - **Joke Teller Agent** — 在合适的时机讲个程序员笑话，缓解工作压力。
 
 ---
@@ -82,6 +83,8 @@
 | `/smart:version [基准分支]` | 分析 commit 并升级版本号（自动检测版本文件；仅在 base branch 上运行） |
 | `/smart:push` | check → commit → version → push（不创建 PR） |
 | `/smart:pr [目标分支]` | 完整流程：check → commit → version → push → PR（默认目标分支：`main`） |
+| `/smart:hud [rm\|reset]` | 安装、移除或重置状态栏（`--user` / `--project` 作用域） |
+| `/smart:help [skill\|hook\|agent]` | 显示所有插件组件概览（或按类别筛选） |
 
 ---
 
@@ -260,29 +263,16 @@ PR 标题、正文和测试计划的语言与 commit message 保持一致。
 
 | 命令 | 操作 |
 |------|------|
-| `/smart:hud` | 安装（自动备份已有状态栏） |
-| `/smart:hud rm` | 删除状态栏并恢复默认 |
-| `/smart:hud rewind` | 从备份恢复之前的状态栏 |
+| `/smart:hud` | 安装到 user 作用域（自动备份已有状态栏） |
+| `/smart:hud --project` | 安装到 project 作用域（`.claude/settings.json`，仅当前项目） |
+| `/smart:hud rm` | 删除状态栏（自动检测已安装的作用域） |
+| `/smart:hud reset` | 从备份恢复之前的状态栏 |
 
 **注意：** 需要安装 `jq`。状态栏脚本针对 macOS 优化（使用 `pmset` 获取电量、`sysctl` 获取系统信息）。
 
 ---
 
 ## Agents
-
-### 上下文分析器（Context Analyzer）
-
-诊断哪些插件占用了最多的上下文窗口。
-
-```
-"analyze context" / "哪个插件最大" / "context怎么这么高"
-```
-
-- 从 `~/.claude/settings.json` 读取已启用的插件列表
-- 统计每个插件缓存目录下所有 `.md` 文件的大小
-- 输出 Markdown 排名表，包含大小和百分比
-- 将 3KB 以下的插件合并为 "Others"
-- 在底部估算总上下文窗口占用百分比
 
 ### 笑话讲述器（Joke Teller）
 
