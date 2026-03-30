@@ -1,5 +1,5 @@
 ---
-description: 当用户说"capture context"、"save context"、"context snapshot"、"cxt"、"context"、"context usage"、"statusline"、"statusline usage"、"dump statusline"、"save session info"、"export session"，或想要将当前 Claude Code 会话的 statusline 数据导出为带注释的 JSONC 快照到 .claude/context-logs/ 时，应使用此技能。通过 /smart:cxt 显式调用。
+description: 当用户说"capture context"、"save context"、"context snapshot"、"token-log"、"token log"、"context"、"context usage"、"statusline"、"statusline usage"、"dump statusline"、"save session info"、"export session"，或想要将当前 Claude Code 会话的 statusline 数据导出为带注释的 JSONC 快照到 .claude/token-logs/ 时，应使用此技能。通过 /smart:token-log 显式调用。
 argument-hint: 无需参数。捕获当前 statusline 数据快照。
 ---
 
@@ -51,10 +51,10 @@ statusline 脚本必须已配置并正在运行。脚本每次更新时会将原
 
 1. 从 JSON 数据中提取 `session_id`
 2. 确定项目根目录（使用当前工作目录）
-3. 按需创建输出目录：`{项目根}/.claude/context-logs/`
-4. 写入：`{项目根}/.claude/context-logs/{session_id}.jsonc`
+3. 按需创建输出目录：`{项目根}/.claude/token-logs/`
+4. 写入：`{项目根}/.claude/token-logs/{session_id}.jsonc`
 5. 若文件已存在则覆盖（同一会话，以最新快照为准）
-6. 若 `.claude/context-logs/` 尚未在项目的 `.gitignore` 中，提醒用户添加——这些是个人会话快照，不属于共享项目数据
+6. 若 `.claude/token-logs/` 尚未在项目的 `.gitignore` 中，提醒用户添加——这些是个人会话快照，不属于共享项目数据
 
 ### 5) 报告
 

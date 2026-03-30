@@ -1,9 +1,9 @@
 ---
-description: This skill should be used when the user says "capture context", "save context", "context snapshot", "cxt", "context", "context usage", "statusline", "statusline usage", "dump statusline", "save session info", "export session", or wants to export the current Claude Code session's statusline data as an annotated JSONC snapshot to .claude/context-logs/. Invoked explicitly via /smart:cxt.
+description: This skill should be used when the user says "capture context", "save context", "context snapshot", "token-log", "token log","context", "context usage", "statusline", "statusline usage", "dump statusline", "save session info", "export session", or wants to export the current Claude Code session's statusline data as an annotated JSONC snapshot to .claude/token-logs/. Invoked explicitly via /smart:token-log.
 argument-hint: No arguments needed. Captures current statusline data snapshot.
 ---
 
-# Context Capture
+# Token Log
 
 Capture the current Claude Code session's statusline data and save it as an annotated JSONC file with descriptive comments.
 
@@ -51,10 +51,10 @@ Rules:
 
 1. Extract `session_id` from the JSON data
 2. Determine the project root directory (use the current working directory)
-3. Create the output directory if needed: `{project_root}/.claude/context-logs/`
-4. Write to: `{project_root}/.claude/context-logs/{session_id}.jsonc`
+3. Create the output directory if needed: `{project_root}/.claude/token-logs/`
+4. Write to: `{project_root}/.claude/token-logs/{session_id}.jsonc`
 5. Overwrite if the file already exists (same session, latest snapshot wins)
-6. If `.claude/context-logs/` is not already in the project's `.gitignore`, remind the user to add it — these are personal session snapshots, not shared project data
+6. If `.claude/token-logs/` is not already in the project's `.gitignore`, remind the user to add it — these are personal session snapshots, not shared project data
 
 ### 5) Report
 

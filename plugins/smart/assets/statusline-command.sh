@@ -48,7 +48,7 @@
 
 input=$(cat)
 
-# Save raw JSON for context capture (used by smart:cxt skill)
+# Save raw JSON for context capture (used by smart:token-log skill)
 echo "$input" > "$HOME/.claude/.statusline-latest.json" 2>/dev/null
 
 # ══════════════════════════════════════════════════════════

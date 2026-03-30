@@ -48,7 +48,7 @@
 
 input=$(cat)
 
-# 保存原始 JSON 供上下文捕获使用（smart:cxt skill）
+# 保存原始 JSON 供上下文捕获使用（smart:token-log skill）
 echo "$input" > "$HOME/.claude/.statusline-latest.json" 2>/dev/null
 
 # ══════════════════════════════════════════════════════════
