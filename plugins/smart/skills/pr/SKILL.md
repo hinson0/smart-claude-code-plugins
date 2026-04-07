@@ -38,8 +38,10 @@ Execution steps (must follow in strict order, no skipping):
 
 2) Determine the target branch (base branch):
 - If the user explicitly specified a target branch via $0, use that branch name as the base branch.
-- Otherwise, you **must** use the `AskUserQuestion` tool to ask the user:
-  > What is the target branch for the PR? (Default: `main`, just press Enter)
+- Otherwise, you **must** interactively ask the user:
+  1. First call `ToolSearch` with query `select:AskUserQuestion` to fetch the tool schema.
+  2. Then call `AskUserQuestion` to ask:
+     > What is the target branch for the PR? (Default: `main`, just press Enter)
 - Record the user's answer as `BASE_BRANCH`; if the user presses Enter or leaves it blank, set `BASE_BRANCH=main`.
 
 3) Check if a PR already exists:
