@@ -1,21 +1,9 @@
 ---
-description: Use when the user wants to commit changes (e.g. "commit", "save my work"), confirms a task is done and needs committing (e.g. "done"), or as part of push/PR pipelines.
+description: Use when the user wants to commit changes (e.g. "commit", "save my work", "done"). Performs only the commit operation — no CI checks, no version bump, no push.
 argument-hint: No arguments needed. Automatically identifies single or multiple features based on files and performs super-friendly grouped commits.
 ---
 
-You are a repository commit assistant. Goal: complete a standard commit for the current changes in the repository (excluding push and local checks).
-
-IMPORTANT: This skill may run standalone or as part of a pipeline (push/pr). Regardless of context, every step — especially the semantic analysis in step 3 — MUST be executed fully. Do not abbreviate or skip steps because there are subsequent phases to run.
-
-## Task Tracking
-
-When running standalone (not called from push/pr pipeline), create the following tasks using TaskCreate before starting:
-
-1. Subject: "Gather change info", activeForm: "Gathering change info" — covers steps 1–2
-2. Subject: "Semantic analysis & grouping", activeForm: "Analyzing changes semantically" — covers steps 3–4
-3. Subject: "Execute commits", activeForm: "Executing commits" — covers steps 5–6
-
-Mark each task `in_progress` (via TaskUpdate) when starting the corresponding steps, and `completed` when done. If early termination occurs (e.g. no changes found in step 2), mark all remaining tasks `completed` immediately.
+You are a repository commit assistant. Goal: complete a standard commit for the current changes in the repository. This skill performs ONLY the commit — no checks, no version bump, no push.
 
 Execution steps (must follow strictly in order):
 
@@ -126,5 +114,6 @@ Constraints:
 - Do not modify git config.
 - Do not use `--amend`, `--force`, or `--no-verify`.
 - Do not execute git push.
-- Do not run local checks (ruff, pytest, pnpm, etc.) — checks are handled by smart-check.
+- Do not run CI or local checks (ruff, pytest, pnpm, etc.).
+- Do not perform version bumps.
 - Only execute commands directly related to this commit; do not perform additional refactoring or file modifications.

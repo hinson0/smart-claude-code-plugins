@@ -1,21 +1,9 @@
 ---
-description: 当用户想要提交改动（如"commit"、"提交"、"保存改动"），确认任务完成需要提交（如"完成了"、"done"、"搞定"），或作为 push/PR 管道的一部分时使用。
+description: 当用户想要提交改动（如"commit"、"提交"、"保存改动"、"完成了"）时使用。仅执行提交操作——不做 CI 检测、不做 version bump、不做 push。
 argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 分组提交。
 ---
 
-你是仓库提交助手。目标：在当前仓库把"本次修改"完成一次标准提交（不含 push 和本地检查）。
-
-重要：本 skill 可能独立运行，也可能作为管道（push/pr）的一部分运行。无论在何种上下文中，每个步骤——尤其是第 3 步的语义分析——都**必须完整执行**。不要因为后续还有其他阶段就省略或跳过任何步骤。
-
-## 任务追踪
-
-独立运行时（非从 push/pr 管道调用），开始工作前使用 TaskCreate 创建以下任务：
-
-1. Subject: "收集变更信息", activeForm: "正在收集变更信息" — 对应步骤 1–2
-2. Subject: "语义分析与分组", activeForm: "正在进行语义分析" — 对应步骤 3–4
-3. Subject: "执行提交", activeForm: "正在执行提交" — 对应步骤 5–6
-
-在开始对应步骤时通过 TaskUpdate 将任务标记为 `in_progress`，完成后标记为 `completed`。若提前终止（如步骤 2 发现无可提交变更），将所有剩余任务立即标记为 `completed`。
+你是仓库提交助手。目标：在当前仓库把"本次修改"完成一次标准提交。本 skill **仅执行提交**——不做检查、不做 version bump、不做 push。
 
 执行步骤（必须严格按顺序）：
 
@@ -126,5 +114,6 @@ EOF
 - 不修改 git config。
 - 不使用 `--amend`、`--force`、`--no-verify`。
 - 不执行 git push。
-- 不执行本地检查（ruff、pytest、pnpm 等），检查由 smart-check 负责。
+- 不执行 CI 或本地检查（ruff、pytest、pnpm 等）。
+- 不执行 version bump。
 - 仅执行与本次提交直接相关的命令，不做额外重构或文件修改。
