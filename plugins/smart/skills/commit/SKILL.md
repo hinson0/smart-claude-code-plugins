@@ -72,7 +72,11 @@ For each group determined in step 3, generate one commit message.
 2. Format inferred from recent `git log` commits (if the project consistently uses a style, follow it)
 3. Default format below (Conventional Commits)
 
-**Language**: Default to English. Use a different language only if the project's `CLAUDE.md` / `CLAUDE.local.md` explicitly specifies one for git commit messages (e.g., "commit messages in Chinese").
+**Language**: Determine the language using the following priority chain:
+
+1. **CLAUDE.md / CLAUDE.local.md explicit rule** — if the project file specifies a language for git commit messages (e.g., "commit messages in Chinese"), use that language and stop here.
+2. **Infer from `git log`** — examine the recent commit messages already read in step 1. If all recent commits share the same language consistently, use that language.
+3. **Mixed languages detected** — if recent commits contain messages in multiple languages, first call `ToolSearch` with query `select:AskUserQuestion` to load the tool schema, then call `AskUserQuestion` to ask: "Commit messages in this repo use mixed languages. Which language should I use for this commit? (Default: English)"
 
 **Default format (used when format priority 1 and 2 do not apply):**
 - Format: `<type>(<scope>): <description>`

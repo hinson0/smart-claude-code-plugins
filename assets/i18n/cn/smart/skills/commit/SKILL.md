@@ -72,7 +72,11 @@ chore: add prettierrc configuration
 2. 从 `git log` 近期 commit 推断的格式（如项目一直使用某种风格则延续）
 3. 下述默认格式（Conventional Commits）
 
-**语言**：默认使用英文。仅当项目 `CLAUDE.md` / `CLAUDE.local.md` 中明确规定 git commit message 使用其他语言时（如"commit message 用中文"），才使用指定语言。
+**语言**：按以下优先级链依次判断：
+
+1. **CLAUDE.md / CLAUDE.local.md 显式规定** — 若项目文件中明确指定了 commit message 的语言（如"commit message 用中文"），直接使用该语言，停止判断。
+2. **从 `git log` 推断** — 检查步骤 1 中已读取的近期 commit message 语言。若所有近期 commit 语言一致，则使用该语言。
+3. **检测到混合语言** — 若近期 commit message 存在多种语言，先调用 `ToolSearch`（query: `select:AskUserQuestion`）加载工具 schema，再调用 `AskUserQuestion` 询问用户："该仓库的 commit message 使用了多种语言，本次提交应使用哪种语言？（默认：英文）"
 
 **默认格式（当格式优先级 1、2 均不适用时使用）：**
 - 格式：`<type>(<scope>): <description>`
