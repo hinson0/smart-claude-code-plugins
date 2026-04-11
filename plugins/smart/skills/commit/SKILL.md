@@ -1,9 +1,9 @@
 ---
-description: Use when the user wants to commit changes (e.g. "commit", "save my work", "done"). Performs only the commit operation — no CI checks, no version bump, no push.
-argument-hint: No arguments needed. Automatically identifies single or multiple features based on files and performs super-friendly grouped commits.
+description: This skill should be used when the user wants to commit staged or unstaged changes (e.g. "commit", "save my work", "done", "make a commit"). Performs only the commit operation — no CI checks, no version bump, no push.
+argument-hint: No arguments needed. Automatically identifies single or multiple features based on files and performs grouped commits.
 ---
 
-You are a repository commit assistant. Goal: complete a standard commit for the current changes in the repository. This skill performs ONLY the commit — no checks, no version bump, no push.
+Goal: Complete a standard commit for the current repository changes. This skill performs ONLY the commit — no checks, no version bump, no push.
 
 Execution steps (must follow strictly in order):
 
@@ -14,7 +14,7 @@ Execution steps (must follow strictly in order):
 - `git log -5 --oneline`
 
 ## 2) Determine if there are committable changes:
-- If there are no changes at all, reply "No committable changes found" and stop.
+- If `git status --short` returns empty (working tree is completely clean), reply "No committable changes found" and stop.
 
 ## 3) Determine commit groups
 > (CRITICAL — output the analysis to the terminal, not just think it)
@@ -31,12 +31,13 @@ Read `git diff` and `git diff --staged`, then perform a structured file-level an
 | .prettierrc      | add prettier config               | chore    |
 
 - Include ALL files across all statuses: `M` (modified), `A` (staged new), `D` (deleted), `??` (untracked new).
+- For untracked files (`??`), infer purpose from filename and path context — there is no diff to read.
 - Each file's Purpose must be specific and concrete. Vague descriptions like "improvements" or "updates" are not acceptable.
 
 **b. Form groups using two rules — apply in order:**
 
 1. **Type is a hard boundary.** Files with different types are always in separate groups. No exceptions.
-2. **Purpose is a soft boundary.** Within the same type group, split further if files serve independent, unrelated purposes.
+2. **Purpose is a soft boundary.** Within the same type group, split further if files serve independent, unrelated purposes. Two files are "independently purposed" if their changes could be reverted independently without breaking each other, and their commit messages would be meaningfully different.
 
 When in doubt, split. Too many small commits is always better than one bloated commit mixing unrelated changes.
 
@@ -76,7 +77,7 @@ For each group determined in step 3, generate one commit message.
 
 1. **CLAUDE.md / CLAUDE.local.md explicit rule** — if the project file specifies a language for git commit messages (e.g., "commit messages in Chinese"), use that language and stop here.
 2. **Infer from `git log`** — examine the recent commit messages already read in step 1. If all recent commits share the same language consistently, use that language.
-3. **Mixed languages detected** — if recent commits contain messages in multiple languages, first call `ToolSearch` with query `select:AskUserQuestion` to load the tool schema, then call `AskUserQuestion` to ask: "Commit messages in this repo use mixed languages. Which language should I use for this commit? (Default: English)"
+3. **Cannot determine language** — if recent commits contain messages in multiple languages, or there is no commit history to infer from (new repository), first call `ToolSearch` with query `select:AskUserQuestion` to load the tool schema, then call `AskUserQuestion` to ask: "Commit messages in this repo use mixed languages (or no history exists). Which language should I use for this commit? (Default: English)"
 
 **Default format (used when format priority 1 and 2 do not apply):**
 - Format: `<type>(<scope>): <description>`
@@ -97,6 +98,7 @@ EOF
 )"
 ```
 - **Multiple commits (NEVER use `git add -A` — each commit must only stage its own files):**
+  - ⚠️ First, run `git reset HEAD` to unstage all currently staged files (soft reset — working tree changes are fully preserved). This ensures no pre-staged files leak into any group's commit.
   - For each group, sequentially:
     - `git add <specific files for this group>` (list every file explicitly, do not use `-A` or `.`)
     - Commit using HEREDOC:

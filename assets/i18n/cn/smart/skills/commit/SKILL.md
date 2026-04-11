@@ -1,9 +1,9 @@
 ---
-description: 当用户想要提交改动（如"commit"、"提交"、"保存改动"、"完成了"）时使用。仅执行提交操作——不做 CI 检测、不做 version bump、不做 push。
+description: 当用户想要提交已暂存或未暂存的改动（如"commit"、"提交"、"保存改动"、"完成了"、"make a commit"）时使用。仅执行提交操作——不做 CI 检测、不做 version bump、不做 push。
 argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 分组提交。
 ---
 
-你是仓库提交助手。目标：在当前仓库把"本次修改"完成一次标准提交。本 skill **仅执行提交**——不做检查、不做 version bump、不做 push。
+目标：在当前仓库把"本次修改"完成一次标准提交。本 skill **仅执行提交**——不做检查、不做 version bump、不做 push。
 
 执行步骤（必须严格按顺序）：
 
@@ -14,7 +14,7 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
 - `git log -5 --oneline`
 
 ## 2) 判断是否有可提交变更：
-- 若没有任何变更，直接回复"当前无可提交改动"，并结束。
+- 若 `git status --short` 返回为空（工作区完全干净），直接回复"当前无可提交改动"，并结束。
 
 ## 3) 确定提交分组
 >（关键步骤 — 必须将分析结果输出到终端，不能只在内部思考）
@@ -31,12 +31,13 @@ argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 
 | .prettierrc      | add prettier config               | chore    |
 
 - 必须同时计入 `M`（已修改）、`A`（已暂存新文件）、`D`（已删除）、`??`（未追踪新文件）各类，不得遗漏任何文件。
+- 对于未追踪文件（`??`），从文件名和路径推断 purpose——此类文件没有 diff 可读。
 - 每个文件的 Purpose 必须具体明确，禁止使用 "improvements" 或 "updates" 等模糊描述。
 
 **b. 用两条规则确定分组——按顺序应用：**
 
 1. **Type 是硬边界。** 不同 type 的文件必须分为不同组，无例外。
-2. **Purpose 是软边界。** 同一 type 组内，若文件服务于独立且不相关的目的，则进一步拆分。
+2. **Purpose 是软边界。** 同一 type 组内，若文件服务于独立且不相关的目的，则进一步拆分。"独立无关"的判断标准：两个文件的改动可以独立回滚而不影响彼此，且各自的 commit message 会有实质性差异。
 
 拿不准时，宁可多拆。拆分过细永远好过将不相关改动混在一起。
 
@@ -76,7 +77,7 @@ chore: add prettierrc configuration
 
 1. **CLAUDE.md / CLAUDE.local.md 显式规定** — 若项目文件中明确指定了 commit message 的语言（如"commit message 用中文"），直接使用该语言，停止判断。
 2. **从 `git log` 推断** — 检查步骤 1 中已读取的近期 commit message 语言。若所有近期 commit 语言一致，则使用该语言。
-3. **检测到混合语言** — 若近期 commit message 存在多种语言，先调用 `ToolSearch`（query: `select:AskUserQuestion`）加载工具 schema，再调用 `AskUserQuestion` 询问用户："该仓库的 commit message 使用了多种语言，本次提交应使用哪种语言？（默认：英文）"
+3. **无法确定语言** — 若近期 commit message 存在多种语言，或仓库没有任何提交历史（新仓库），先调用 `ToolSearch`（query: `select:AskUserQuestion`）加载工具 schema，再调用 `AskUserQuestion` 询问用户："该仓库的 commit message 存在多种语言（或暂无历史记录），本次提交应使用哪种语言？（默认：英文）"
 
 **默认格式（当格式优先级 1、2 均不适用时使用）：**
 - 格式：`<type>(<scope>): <description>`
@@ -97,6 +98,7 @@ EOF
 )"
 ```
 - **多次提交（**禁止使用 `git add -A`** — 每次提交只能 add 该分组自身的文件）：**
+  - ⚠️ 首先执行 `git reset HEAD`，将所有已 staged 的文件全部 unstage（软重置——工作区改动完整保留）。这样可确保之前预先 staged 的文件不会泄漏进任何分组的提交。
   - 按分组依次执行（`M` 修改文件和 `??` 新文件均须纳入分组）：
     - `git add <该组的具体文件>`（逐个列出文件，禁止使用 `-A` 或 `.`）
     - 使用 HEREDOC 提交该组：
