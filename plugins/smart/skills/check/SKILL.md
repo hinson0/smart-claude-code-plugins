@@ -22,19 +22,41 @@ Run: `ls .github/workflows/*.yml 2>/dev/null || ls .github/workflows/*.yaml 2>/d
 
 ## Step 3: Infer check tools from workflow files
 
-Read all workflow file contents, grep for the following keywords, and build a "check tool inventory":
+Read **every** workflow file found. For each file, extract two things:
+
+### 3a. Detect tools
+
+Grep for the following keywords and build a "check tool inventory":
 
 | Detection keyword (appears in CI files) | Corresponding local check |
 |---|---|
 | `ruff` | Python lint |
 | `pytest` | Python test |
-| `mypy` | Python type check |
+| `mypy` or `pyright` | Python type check |
 | `eslint` | JS/TS lint |
 | `tsc` or `type-check` | TS type check |
 | `vitest` or `jest` | JS/TS test |
 | `turbo` | Turbo monorepo check |
 | `go test` | Go test |
 | `golangci-lint` | Go lint |
+
+### 3b. Detect working directories (monorepo support)
+
+For each workflow file, check for a `working-directory` setting (either under `defaults.run.working-directory` or per-step). Record the mapping: **workflow file → working directory**.
+
+Example CI pattern:
+```yaml
+defaults:
+  run:
+    working-directory: apps/backend
+```
+
+If a workflow has a working directory, all tools detected in that workflow inherit it. If no working directory is specified, the tools run from the repository root.
+
+Build the final inventory as a table:
+
+| Tool | Working directory | Source workflow |
+|---|---|---|
 
 If **no known tools are detected**: output "No known check tools found in CI workflows, skipping local checks", and stop.
 
@@ -50,22 +72,26 @@ Based on files present in the project root directory, determine the execution pr
 
 ## Step 5: Execute checks
 
-Run each tool in the check tool inventory sequentially, all checks executed from the repository root:
+**CRITICAL: Run ALL tools in the inventory. Do NOT selectively skip tools based on which files were changed. The purpose of local check is to mirror CI — CI runs every workflow, so local check must run every detected tool.**
+
+For each tool in the inventory, `cd` into its working directory (from step 3b) before executing. If no working directory was detected, execute from the repository root.
 
 **Python:**
-- `ruff` → `uv run ruff check . --fix` (or `ruff check . --fix`)
-- `pytest` → `uv run pytest -v` (or `pytest -v`)
-- `mypy` → `uv run mypy .` (or `mypy .`)
+- `ruff` → `cd <dir> && uv run ruff check . --fix` (or `ruff check . --fix`)
+- `pytest` → `cd <dir> && uv run pytest -v` (or `pytest -v`)
+- `mypy` / `pyright` → `cd <dir> && uv run mypy .` (or `uv run pyright .`)
 
 **JS/TS:**
-- `eslint` → `pnpm lint` (or `npm run lint`)
-- `tsc` / `type-check` → `pnpm type-check` (or `npx tsc --noEmit`)
-- `vitest` / `jest` → `pnpm test` (or `npm test`)
+- `eslint` → `cd <dir> && pnpm lint` (or `npm run lint`)
+- `tsc` / `type-check` → `cd <dir> && pnpm type-check` (or `npx tsc --noEmit`)
+- `vitest` / `jest` → `cd <dir> && pnpm test` (or `npm test`)
 - `turbo` → extract turbo command from CI file, execute as-is (e.g., `pnpm turbo lint type-check build`)
 
 **Go:**
-- `go test` → `go test ./...`
-- `golangci-lint` → `golangci-lint run`
+- `go test` → `cd <dir> && go test ./...`
+- `golangci-lint` → `cd <dir> && golangci-lint run`
+
+When the inventory spans multiple working directories (e.g., `apps/backend` and `apps/mobile`), run each group in its own directory. Never collapse all checks into one directory.
 
 ## Step 6: Output results (in English)
 
@@ -82,3 +108,4 @@ Run each tool in the check tool inventory sequentially, all checks executed from
 - Do not modify git config.
 - Do not execute git add / commit / push.
 - Do not modify any source files (except ruff `--fix`, which is expected behavior).
+- Do not filter checks by changed files. Run the FULL check tool inventory every time.
