@@ -1,18 +1,17 @@
 ---
-description: 当用户想要推送代码到远程（如"push"、"推一下"、"推到远程"），或需要完整的 check+commit+push 管道时使用。不用于创建 PR — 请使用 smart:pr。推送前会自动进行版本升级。
-argument-hint: 无需参数。自动 [check+add+commit+version+push]
+description: 当用户想要推送代码到远程（如"push"、"推一下"、"推到远程"），或需要完整的 commit+push 管道时使用。不用于创建 PR — 请使用 smart:pr。推送前会自动进行版本升级。
+argument-hint: 无需参数。自动 [add+commit+version+push]
 ---
 
-你是仓库推送管道助手。目标：在当前仓库完成本地检查、标准提交、版本升级并推送。
+你是仓库推送管道助手。目标：在当前仓库完成标准提交、版本升级并推送。
 
 ## 任务追踪
 
 独立运行时（非从 pr 管道调用），开始工作前使用 TaskCreate 创建以下任务：
 
-1. Subject: "本地检查", activeForm: "正在执行本地检查"
-2. Subject: "提交变更", activeForm: "正在提交变更"
-3. Subject: "版本升级", activeForm: "正在升级版本"
-4. Subject: "推送到远端", activeForm: "正在推送到远端"
+1. Subject: "提交变更", activeForm: "正在提交变更"
+2. Subject: "版本升级", activeForm: "正在升级版本"
+3. Subject: "推送到远端", activeForm: "正在推送到远端"
 
 在开始对应阶段时通过 TaskUpdate 将任务标记为 `in_progress`，阶段完成后标记为 `completed`。若阶段被跳过（如无变更需提交）或失败，直接标记为 `completed`。
 
@@ -20,15 +19,7 @@ argument-hint: 无需参数。自动 [check+add+commit+version+push]
 
 ---
 
-## 阶段一：本地检查
-
-@../check/SKILL.md
-
-- 若任一检查失败，**立即停止**，不执行后续阶段。
-
----
-
-## 阶段二：提交
+## 阶段一：提交
 
 ⚠️ 下方的 commit skill 包含一个关键的语义分析步骤（第 3 步）。必须完整执行——先输出文件-目的分析表和拆分决策，然后再运行任何 git 命令。
 
@@ -36,13 +27,13 @@ argument-hint: 无需参数。自动 [check+add+commit+version+push]
 
 ⚠️ 验证：上方的提交结果必须与语义分析的分组一致。如果你将所有文件合成了一次提交，但分析显示存在多种 type/目的，请立即停止并重做。
 
-- 若工作区无任何变更，跳过本阶段，直接进入阶段三。
+- 若工作区无任何变更，跳过本阶段，直接进入阶段二。
 
 **提交完成后，运行 `git status --short` 检查是否还有剩余改动。** 若仍有未提交的文件，自动对这些文件再次执行提交阶段——不要停下来询问用户。重复执行，直至工作区干净。用户执行 push 的意图就是推送所有改动。
 
 ---
 
-## 阶段三：版本升级
+## 阶段二：版本升级
 
 @../version/SKILL.md
 
@@ -51,16 +42,16 @@ argument-hint: 无需参数。自动 [check+add+commit+version+push]
 
 ---
 
-## 阶段四：推送
+## 阶段三：推送
 
-### 4.1 检查 origin 是否已配置
+### 3.1 检查 origin 是否已配置
 
 运行：`git remote get-url origin 2>/dev/null`
 
 - 若已配置：跳到 4.3。
 - 若未配置：继续 4.2。
 
-### 4.2 自动创建并关联 GitHub 远程仓库
+### 3.2 自动创建并关联 GitHub 远程仓库
 
 依次执行：
 
@@ -85,7 +76,7 @@ argument-hint: 无需参数。自动 [check+add+commit+version+push]
    git remote add origin https://github.com/<用户名>/<仓库名>.git
    ```
 
-### 4.3 执行推送
+### 3.3 执行推送
 
 ```
 git push -u origin HEAD
@@ -96,11 +87,10 @@ git push -u origin HEAD
 ## 输出结果
 
 成功时展示：
-1. 阶段一的检查结果摘要。
-2. 阶段二实际使用的所有 commit message（若有改动）。
-3. 阶段三的版本升级结果：必须**原样转述** version skill 输出的跳过/结果消息（如"无新 commit——版本不变"或"旧版本 → 新版本"）。不要自行改写或概括。
-4. 推送目标分支与结果。
-5. 最终 `git status`（确认工作区是否干净）。
+1. 阶段一实际使用的所有 commit message（若有改动）。
+2. 阶段二的版本升级结果：必须**原样转述** version skill 输出的跳过/结果消息（如"无新 commit——版本不变"或"旧版本 → 新版本"）。不要自行改写或概括。
+3. 推送目标分支与结果。
+4. 最终 `git status`（确认工作区是否干净）。
 
 失败时展示：
 - 失败发生在哪个阶段与步骤。

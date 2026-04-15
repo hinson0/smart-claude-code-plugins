@@ -1,18 +1,17 @@
 ---
-description: Use when the user wants to push code to remote (e.g. "push", "push to origin"), or wants the full check+commit+push pipeline. Not for creating PRs — use smart:pr instead. Includes automatic version bump before push.
-argument-hint: No arguments needed. Auto [check+add+commit+version+push]
+description: Use when the user wants to push code to remote (e.g. "push", "push to origin"), or wants the full commit+push pipeline. Not for creating PRs — use smart:pr instead. Includes automatic version bump before push.
+argument-hint: No arguments needed. Auto [add+commit+version+push]
 ---
 
-You are a repository push pipeline assistant. Goal: complete local checks, standard commit, version bump, and push in the current repository.
+You are a repository push pipeline assistant. Goal: complete standard commit, version bump, and push in the current repository.
 
 ## Task Tracking
 
 When running standalone (not called from pr pipeline), create the following tasks using TaskCreate before starting:
 
-1. Subject: "Local checks", activeForm: "Running local checks"
-2. Subject: "Commit changes", activeForm: "Committing changes"
-3. Subject: "Version bump", activeForm: "Bumping version"
-4. Subject: "Push to remote", activeForm: "Pushing to remote"
+1. Subject: "Commit changes", activeForm: "Committing changes"
+2. Subject: "Version bump", activeForm: "Bumping version"
+3. Subject: "Push to remote", activeForm: "Pushing to remote"
 
 Mark each task `in_progress` (via TaskUpdate) when starting the corresponding phase, and `completed` when the phase succeeds. If a phase is skipped (e.g. no changes to commit) or fails, mark it `completed` immediately.
 
@@ -20,15 +19,7 @@ Execution steps (must follow in strict order, no skipping):
 
 ---
 
-## Phase 1: Local Checks
-
-@../check/SKILL.md
-
-- If any check fails, **stop immediately** and do not proceed to subsequent phases.
-
----
-
-## Phase 2: Commit
+## Phase 1: Commit
 
 ⚠️ The commit skill below contains a CRITICAL semantic analysis step (step 3). Execute it completely — output the file-purpose table and splitting decision before running any git commands.
 
@@ -36,13 +27,13 @@ Execution steps (must follow in strict order, no skipping):
 
 ⚠️ Verify: the commit(s) above must match the grouping from the semantic analysis. If you committed everything in one shot but the analysis showed multiple types/purposes, STOP and redo.
 
-- If there are no changes in the working tree, skip this phase and proceed directly to Phase 3.
+- If there are no changes in the working tree, skip this phase and proceed directly to Phase 2.
 
 **After all commits, run `git status --short` to check for remaining changes.** If there are still modified or untracked files, automatically run the commit phase again for those files — do not pause or ask the user. Repeat until the working tree is clean. The user's intent when running push is to push everything.
 
 ---
 
-## Phase 3: Version Bump
+## Phase 2: Version Bump
 
 @../version/SKILL.md
 
@@ -51,16 +42,16 @@ Execution steps (must follow in strict order, no skipping):
 
 ---
 
-## Phase 4: Push
+## Phase 3: Push
 
-### 4.1 Check if origin is configured
+### 3.1 Check if origin is configured
 
 Run: `git remote get-url origin 2>/dev/null`
 
 - If configured: skip to 4.3.
 - If not configured: continue to 4.2.
 
-### 4.2 Automatically create and link a GitHub remote repository
+### 3.2 Automatically create and link a GitHub remote repository
 
 Execute in order:
 
@@ -85,7 +76,7 @@ Execute in order:
    git remote add origin https://github.com/<username>/<repo-name>.git
    ```
 
-### 4.3 Execute push
+### 3.3 Execute push
 
 ```
 git push -u origin HEAD
@@ -96,11 +87,10 @@ git push -u origin HEAD
 ## Output
 
 On success, display:
-1. Summary of Phase 1 check results.
-2. All commit messages actually used in Phase 2 (if there were changes).
-3. Version bump result from Phase 3: relay the **exact** skip/result message from the version skill (e.g. "No new commits — version unchanged", or "old → new"). Do NOT rephrase or summarize — use the version skill's own wording.
-4. Push target branch and result.
-5. Final `git status` (confirm whether the working tree is clean).
+1. All commit messages actually used in Phase 1 (if there were changes).
+2. Version bump result from Phase 2: relay the **exact** skip/result message from the version skill (e.g. "No new commits — version unchanged", or "old → new"). Do NOT rephrase or summarize — use the version skill's own wording.
+3. Push target branch and result.
+4. Final `git status` (confirm whether the working tree is clean).
 
 On failure, display:
 - Which phase and step the failure occurred in.
