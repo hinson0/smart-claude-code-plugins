@@ -68,7 +68,7 @@ Skip the `help` skill itself from the listing.
 
 | Name | Description | Model |
 |------|-------------|-------|
-| joke-teller | Tell jokes to lighten the mood | haiku |
+| <name> | <description> | <model> |
 ```
 
 ## Output Format
