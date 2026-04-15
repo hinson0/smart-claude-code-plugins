@@ -173,7 +173,7 @@ Scans for `plugin.json`, `package.json`, and `pyproject.toml` in the project roo
 Each changed file is traced up the directory tree to find the closest version file (the "closest owner" strategy). Each package is bumped independently based on its own commits.
 
 **Behavior:**
-- Only runs on the base branch (skipped on feature branches)
+- Runs on any branch (main and feature branches)
 - Skipped if no new commits since the last version bump
 - All version changes are committed as a single `chore(version): bump version to X.X.X`
 

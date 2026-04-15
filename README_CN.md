@@ -80,7 +80,7 @@
 | 命令 | 作用 |
 |---|---|
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
-| `/smart:version [基准分支]` | 分析 commit 并升级版本号（自动检测版本文件；仅在 base branch 上运行） |
+| `/smart:version [基准分支]` | 分析 commit 并升级版本号（自动检测版本文件；任意分支均可运行） |
 | `/smart:push` | check → commit → version → push（不创建 PR） |
 | `/smart:pr [目标分支]` | 完整流程：check → commit → version → push → PR（默认目标分支：`main`） |
 | `/smart:hud [rm\|reset]` | 安装、移除或重置状态栏（`--user` / `--project` 作用域） |
@@ -173,7 +173,7 @@
 每个变更文件沿目录树向上查找最近的版本文件（"closest owner"策略），各 package 根据自己的 commit 独立 bump。
 
 **行为：**
-- 仅在 base branch 上运行（feature 分支自动跳过）
+- 任意分支均可运行（main 与 feature 分支均支持）
 - 若上次 version bump 后无新提交，则跳过
 - 所有版本变更统一提交为一个 `chore(version): bump version to X.X.X`
 
