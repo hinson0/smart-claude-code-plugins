@@ -1,6 +1,6 @@
 # Smart Claude Code Plugins
 
-Claude Code 插件，自动化 check → commit → push → PR 流程。
+Claude Code 插件，自动化 commit → push → PR 流程（push 内含 version bump）。
 
 ## 对话语言
 请用中文回复,包括思考过程/回复用户
