@@ -1,107 +1,74 @@
 ---
-description: 当用户说"hud"、"statusline"、"安装 statusline"、"配置 statusline"、"移除 statusline"、"恢复 statusline"，或需要安装、移除、恢复 smart 插件的 statusline 时使用此技能。
-argument-hint: "[rm|reset] [--user|--project]（空=安装，默认作用域=user）"
+description: 当用户说"hud"、"statusline"、"安装 statusline"、"配置 statusline"、"恢复 statusline"，或需要安装、恢复 smart 插件的 statusline 时使用此技能。
+argument-hint: "[1|2|reset]（1=简化版，2=完整版，reset=恢复备份，默认=2）"
 ---
 
-安装、移除或恢复 smart 插件的 statusline。
+安装或恢复 smart 插件的 statusline（仅支持 user 级别）。
 
 ## 确定操作
 
 | 参数 | 操作 | 说明 |
 |------|------|------|
-| _（空）_ | `install` | 安装 smart statusline |
-| `rm` | `rm` | 完全移除 statusline |
+| `1` | `install-level1` | 安装简化版 statusline（只显示 session + ctx 两行） |
+| `2` | `install-level2` | 安装完整版 statusline（全部 6 行） |
+| _（空）_ | `install-level2` | 默认：安装完整版 |
 | `reset` | `reset` | 恢复之前的 statusline 备份 |
 
-## 路径
+## 路径（仅 user 级别）
 
-- **源脚本**: `${CLAUDE_PLUGIN_ROOT}/assets/statusline-command.sh`
+- **源脚本 level 1**: `${CLAUDE_PLUGIN_ROOT}/assets/statusline-command-level1.sh`
+- **源脚本 level 2**: `${CLAUDE_PLUGIN_ROOT}/assets/statusline-command.sh`
+- **目标脚本**: `~/.claude/statusline-command.sh`
+- **备份脚本**: `~/.claude/statusline-command.sh.bak`
+- **配置文件**: `~/.claude/settings.json`
 
-根据作用域解析目标路径：
+## 操作: install-level1 / install-level2
 
-| 作用域 | 配置文件 | 脚本 | 备份 |
-|--------|----------|------|------|
-| `user` | `~/.claude/settings.json` | `~/.claude/statusline-command.sh` | `~/.claude/statusline-command.sh.bak` |
-| `project` | `.claude/settings.json` | `.claude/statusline-command.sh` | `.claude/statusline-command.sh.bak` |
-
-## 作用域解析
-
-### `install` — 询问用户
-
-1. 若用户在参数中显式指定了 `--user` 或 `--project`，使用该作用域。
-2. 否则，使用 `AskUserQuestion` 询问：
-   > 安装 statusline 到 **user** 作用域（`~/.claude/settings.json`，对所有项目生效）还是 **project** 作用域（`.claude/settings.json`，仅当前项目）？默认 user — 直接回车确认。
-3. 若用户直接回车或留空，`SCOPE=user`。
-
-### `rm` / `reset` — 自动检测
-
-检查哪些作用域已安装 smart statusline（判断脚本文件是否存在）：
-- `~/.claude/statusline-command.sh` 存在 → user 作用域已安装
-- `.claude/statusline-command.sh` 存在 → project 作用域已安装
-
-然后决策：
-- **仅一个作用域已安装** → 自动使用该作用域，无需询问。
-- **两个作用域都已安装** → 使用 `AskUserQuestion` 询问：
-  > statusline 同时存在于 **user** 和 **project** 作用域。从哪个移除？（user / project / both，默认 both）
-  若用户直接回车或留空，对**两个**作用域依次执行操作。
-- **两个作用域都未安装** → 报告"未找到已安装的 statusline。"并停止。
-
-## 操作: install
-
-1. 从插件的 `assets/` 目录读取源脚本。
+1. 从插件 `assets/` 目录读取对应源脚本：
+   - Level 1 → `statusline-command-level1.sh`
+   - Level 2 → `statusline-command.sh`
 2. 如果目标脚本已存在，先备份：
    ```
-   cp <目标脚本> <备份脚本>
+   cp ~/.claude/statusline-command.sh ~/.claude/statusline-command.sh.bak
    ```
-3. 将源脚本复制到目标路径。
-4. 读取目标配置文件。如果 `statusLine` 字段已存在，记录其当前值。然后设置：
+3. 将源脚本复制到目标路径：
+   ```
+   cp <源脚本> ~/.claude/statusline-command.sh
+   ```
+4. 读取 `~/.claude/settings.json`，设置 `statusLine` 字段：
    ```json
    "statusLine": {
      "type": "command",
-     "command": "bash <目标脚本绝对路径>"
+     "command": "bash ~/.claude/statusline-command.sh"
    }
    ```
    使用 Edit 工具修改 settings.json — 不要覆盖整个文件。
-   若为项目级作用域，先确保 `.claude/` 目录存在。
 5. 报告成功：
-   - 确认脚本已复制及作用域（user/project）
+   - 确认安装的是哪个 level
    - 确认 settings.json 已更新
    - 如果创建了备份，说明备份位置
    - 告知用户重启会话以查看新的 statusline
 
-## 操作: rm
-
-按上述自动检测逻辑确定作用域后：
-
-1. 读取目标配置文件。若文件不存在，跳到步骤 3。
-2. 使用 Edit 工具完全移除 settings.json 中的 `statusLine` 字段。
-3. 如果目标脚本存在，删除：
-   ```
-   rm -f <目标脚本>
-   ```
-4. 不要删除备份文件（用户可能需要稍后恢复）。
-5. 报告成功 — statusline 已移除，重启会话生效。
-
 ## 操作: reset
 
-按上述自动检测逻辑确定作用域后：
-
-1. 检查目标作用域的备份脚本是否存在。
-   - 如果不存在，报告错误："未找到备份，无法恢复。"
+1. 检查备份脚本 `~/.claude/statusline-command.sh.bak` 是否存在。
+   - 如果不存在，报告错误："未找到备份，无法恢复。"并停止。
 2. 从备份恢复：
    ```
-   cp <备份脚本> <目标脚本>
+   cp ~/.claude/statusline-command.sh.bak ~/.claude/statusline-command.sh
    ```
-3. 读取目标配置文件。若文件不存在，报告错误并停止。确保 `statusLine` 设置为：
+3. 读取 `~/.claude/settings.json`，确保 `statusLine` 设置为：
    ```json
    "statusLine": {
      "type": "command",
-     "command": "bash <目标脚本绝对路径>"
+     "command": "bash ~/.claude/statusline-command.sh"
    }
    ```
+   若文件不存在，报告错误并停止。
 4. 报告成功 — 已恢复之前的 statusline，重启会话生效。
 
 ## 约束
 
 - 修改 settings.json 时始终使用 Edit 工具，不要覆盖整个文件。
 - 不要修改 settings.json 中的其他字段。
+- 仅支持 user 级别（`~/.claude/`）。
