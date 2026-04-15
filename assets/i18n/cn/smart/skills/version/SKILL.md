@@ -1,20 +1,16 @@
 ---
-description: 当用户提到"升级版本"、"更新版本号"、"发布"、"新版本"、"版本升级"、"准备发布"、"递增版本"时触发，或在合并到 main 后准备发布时使用。在 push 管道中也会主动触发，但仅限基准分支（main）上执行。支持 plugin.json、package.json（含 monorepo）和 pyproject.toml。
+description: 当用户提到"升级版本"、"更新版本号"、"发布"、"新版本"、"版本升级"、"准备发布"、"递增版本"时触发。在 push 管道中也会主动触发，支持任意分支执行。支持 plugin.json、package.json（含 monorepo）和 pyproject.toml。
 argument-hint: "[目标分支] — 默认为 main"
 ---
 
-分析基准分支上的 commit，将变更文件映射到其所属的版本文件，按语义化版本规范（`a.b.c`）独立升级每个版本号。
-
-**重要：** 版本升级仅在基准分支（如 `main`）上执行。Feature 分支上跳过——等分支合并到 main 后再统一升级。
+分析自上次版本升级（或分支从基准分叉）以来的 commit，将变更文件映射到其所属的版本文件，按语义化版本规范（`a.b.c`）独立升级每个版本号。
 
 ## 执行步骤
 
-### 1) 确定基准分支并检查当前分支
+### 1) 确定基准分支与当前分支
 
 - 若用户通过 `$0` 指定了基准分支，使用该分支；否则默认为 `main`。
-- 执行：`git branch --show-current`
-- 若当前分支**不是**基准分支，报告"当前在 feature 分支 `<branch>` — 跳过版本升级（合并到 `<base>` 后再升级）"并**停止**。
-- 例外：若用户直接调用了 `/smart:version`（非通过 push 管道），无论在哪个分支都继续执行。
+- 执行：`git branch --show-current`，记录为 `CURRENT_BRANCH`。
 
 ### 2) 发现所有版本文件
 

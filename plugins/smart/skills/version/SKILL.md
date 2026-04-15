@@ -1,20 +1,16 @@
 ---
-description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release after merging to main. Also triggers proactively in the push pipeline, but only on the base branch (main). Supports plugin.json, package.json (including monorepo), and pyproject.toml.
+description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release. Also triggers proactively in the push pipeline on any branch. Supports plugin.json, package.json (including monorepo), and pyproject.toml.
 argument-hint: "[base-branch] — defaults to main"
 ---
 
-Analyze commits on the base branch, map changed files to their owning version files, and bump each version independently following semantic versioning (`a.b.c`).
-
-**Important:** Version bumps only happen on the base branch (e.g. `main`). On feature branches, skip — version will be bumped after the branch merges to main.
+Analyze commits since the last version bump (or since branching from the base), map changed files to their owning version files, and bump each version independently following semantic versioning (`a.b.c`).
 
 ## Steps
 
-### 1) Determine base branch and check current branch
+### 1) Determine base branch and current branch
 
 - Use the base branch from `$0` if provided; otherwise default to `main`.
-- Run: `git branch --show-current`
-- If the current branch is **not** the base branch, report "On feature branch `<branch>` — skipping version bump (bump after merge to `<base>`)" and **stop**.
-- Exception: if the user explicitly invoked `/smart:version` (not via push pipeline), proceed regardless of branch.
+- Run: `git branch --show-current` — record as `CURRENT_BRANCH`.
 
 ### 2) Discover all version files
 
