@@ -1,18 +1,19 @@
 ---
 description: 当用户说"help"、"帮助"、"有什么功能"、"列出技能"、"列出hook"、"列出agent"、"怎么用"，或想了解 smart 插件的功能概览时使用此技能。
 argument-hint: "[skill|hook|agent]（空=显示全部）"
+model: haiku
 ---
 
 通过动态扫描插件目录，展示 smart 插件各组件的格式化概览。
 
 ## 确定类别
 
-| 参数              | 类别      |
-|-------------------|-----------|
-| _（空）_          | `all`     |
-| `skill` / `skills`| `skill`  |
-| `hook` / `hooks`  | `hook`   |
-| `agent` / `agents`| `agent`  |
+| 参数               | 类别    |
+| ------------------ | ------- |
+| _（空）_           | `all`   |
+| `skill` / `skills` | `skill` |
+| `hook` / `hooks`   | `hook`  |
+| `agent` / `agents` | `agent` |
 
 ## 扫描指令
 

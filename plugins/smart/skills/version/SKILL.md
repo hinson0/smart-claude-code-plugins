@@ -1,6 +1,7 @@
 ---
 description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release. Also triggers proactively in the push pipeline on any branch. Supports plugin.json, package.json (including monorepo), and pyproject.toml.
 argument-hint: "[base-branch] — defaults to main"
+model: claude-sonnet-4-6
 ---
 
 Analyze commits since the last version bump (or since branching from the base), map changed files to their owning version files, and bump each version independently following semantic versioning (`a.b.c`).
@@ -51,14 +52,20 @@ Record as `COMMITS`.
 
 ### 4) Map commits to version files
 
-For each commit in `COMMITS`:
+Fetch all commits and their changed files in a **single command** (avoids per-commit shell calls):
 
-1. Get changed files: `git show --name-only --format="" <hash>`
-2. For each changed file, walk up the directory tree to find the nearest version file:
-   - At each level, check if any `VERSION_FILES` entry resides in that directory (match by directory prefix).
-   - The first (closest) match is the **owner** of that changed file.
-   - If no version file is found in any ancestor, the file is **unowned** — skip it.
-3. Record the mapping: `version_file → [list of commits that touched its scope]`
+```bash
+git log <BASE_BRANCH>..HEAD --name-only --format="COMMIT:%H" | grep -v '^$'
+```
+
+Parse the output: lines starting with `COMMIT:` are commit hashes; subsequent non-empty lines are files changed by that commit.
+
+For each changed file, walk up the directory tree to find the nearest version file:
+- At each level, check if any `VERSION_FILES` entry resides in that directory (match by directory prefix).
+- The first (closest) match is the **owner** of that changed file.
+- If no version file is found in any ancestor, the file is **unowned** — skip it.
+
+Record the mapping: `version_file → [list of commits that touched its scope]`
 
 A single commit may map to **multiple** version files if it changed files across packages.
 

@@ -1,6 +1,7 @@
 ---
 description: 当用户说"capture context"、"save context"、"context snapshot"、"token-log"、"token log"、"context"、"context usage"、"statusline"、"statusline usage"、"dump statusline"、"save session info"、"export session"，或想要将当前 Claude Code 会话的 statusline 数据导出为带注释的 JSONC 快照到 .claude/token-logs/ 时，应使用此技能。通过 /smart:token-log 显式调用。
 argument-hint: 无需参数。捕获当前 statusline 数据快照。
+model: sonnet
 ---
 
 # 上下文捕获
@@ -20,6 +21,7 @@ statusline 脚本必须已配置并正在运行。脚本每次更新时会将原
 ### 2) 确定输出语言
 
 根据当前对话语言决定 JSONC 注释语言：
+
 - 用户使用中文交流 → 中文注释
 - 用户使用英文交流 → 英文注释
 - 其他情况，跟随用户语言
@@ -40,6 +42,7 @@ statusline 脚本必须已配置并正在运行。脚本每次更新时会将原
 ```
 
 规则：
+
 - 添加捕获时间戳头部（当前 UTC 时间，ISO 8601 格式）
 - 根据 `references/field-descriptions.md` 中的描述，在每个字段后添加注释
 - 对嵌套对象，在左花括号行添加注释描述该组
@@ -59,6 +62,7 @@ statusline 脚本必须已配置并正在运行。脚本每次更新时会将原
 ### 5) 报告
 
 显示简要确认信息：
+
 - 输出文件路径
 - 会话 ID
 - 捕获时间戳

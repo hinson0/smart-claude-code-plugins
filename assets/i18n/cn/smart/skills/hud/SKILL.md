@@ -1,18 +1,19 @@
 ---
 description: 当用户说"hud"、"statusline"、"安装 statusline"、"配置 statusline"、"恢复 statusline"，或需要安装、恢复 smart 插件的 statusline 时使用此技能。
 argument-hint: "[1|2|reset]（1=简化版，2=完整版，reset=恢复备份，默认=2）"
+model: sonnet
 ---
 
 安装或恢复 smart 插件的 statusline（仅支持 user 级别）。
 
 ## 确定操作
 
-| 参数 | 操作 | 说明 |
-|------|------|------|
-| `1` | `install-level1` | 安装简化版 statusline（只显示 session + ctx 两行） |
-| `2` | `install-level2` | 安装完整版 statusline（全部 6 行） |
-| _（空）_ | `install-level2` | 默认：安装完整版 |
-| `reset` | `reset` | 恢复之前的 statusline 备份 |
+| 参数     | 操作             | 说明                                               |
+| -------- | ---------------- | -------------------------------------------------- |
+| `1`      | `install-level1` | 安装简化版 statusline（只显示 session + ctx 两行） |
+| `2`      | `install-level2` | 安装完整版 statusline（全部 6 行）                 |
+| _（空）_ | `install-level2` | 默认：安装完整版                                   |
+| `reset`  | `reset`          | 恢复之前的 statusline 备份                         |
 
 ## 路径（仅 user 级别）
 

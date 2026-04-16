@@ -1,6 +1,7 @@
 ---
 description: 当用户提到"升级版本"、"更新版本号"、"发布"、"新版本"、"版本升级"、"准备发布"、"递增版本"时触发。在 push 管道中也会主动触发，支持任意分支执行。支持 plugin.json、package.json（含 monorepo）和 pyproject.toml。
 argument-hint: "[目标分支] — 默认为 main"
+model: sonnet
 ---
 
 分析自上次版本升级（或分支从基准分叉）以来的 commit，将变更文件映射到其所属的版本文件，按语义化版本规范（`a.b.c`）独立升级每个版本号。
@@ -39,11 +40,14 @@ find . -maxdepth 4 -name 'pyproject.toml' -not -path '*/node_modules/*' -not -pa
 
 1. 执行：`git log <BASE_BRANCH>..HEAD --oneline`
 2. 若为空（如已在基准分支上），定位上次版本升级 commit：
+
    ```bash
    LAST_BUMP=$(git log --all --oneline --grep="chore(version): bump" -1 --format="%H")
    ```
+
    - 若找到：`git log ${LAST_BUMP}..HEAD --oneline`
    - 若未找到（无历史版本升级记录）：`git log -20 --oneline`
+
 3. 排除匹配 `chore(version): bump` 的 commit（之前的版本升级提交）。
 4. 若无 commit 剩余，报告"无新 commit — 版本号不变"并**停止**。
 
@@ -51,14 +55,21 @@ find . -maxdepth 4 -name 'pyproject.toml' -not -path '*/node_modules/*' -not -pa
 
 ### 4) 将 commit 映射到版本文件
 
-对 `COMMITS` 中的每个 commit：
+用**单条命令**一次性获取所有 commit 及其变更文件（避免逐 commit 调用 shell）：
 
-1. 获取变更文件：`git show --name-only --format="" <hash>`
-2. 对每个变更文件，沿目录树向上查找最近的版本文件：
-   - 在每一级目录，检查 `VERSION_FILES` 中是否有文件位于该目录（按目录前缀匹配）。
-   - 第一个（最近的）匹配即为该变更文件的**所有者**。
-   - 若在所有祖先目录中都未找到版本文件，该文件**无归属**——跳过。
-3. 记录映射关系：`版本文件 → [触及其作用域的 commit 列表]`
+```bash
+git log <BASE_BRANCH>..HEAD --name-only --format="COMMIT:%H" | grep -v '^$'
+```
+
+解析输出：以 `COMMIT:` 开头的行是 commit 哈希；紧随其后的非空行是该 commit 变更的文件。
+
+对每个变更文件，沿目录树向上查找最近的版本文件：
+
+- 在每一级目录，检查 `VERSION_FILES` 中是否有文件位于该目录（按目录前缀匹配）。
+- 第一个（最近的）匹配即为该变更文件的**所有者**。
+- 若在所有祖先目录中都未找到版本文件，该文件**无归属**——跳过。
+
+记录映射关系：`版本文件 → [触及其作用域的 commit 列表]`
 
 一个 commit 若修改了跨包的文件，可能映射到**多个**版本文件。
 
@@ -86,6 +97,7 @@ find . -maxdepth 4 -name 'pyproject.toml' -not -path '*/node_modules/*' -not -pa
 ### 6) 应用新版本
 
 使用 Edit 工具更新每个版本文件的 `version` 字段：
+
 - **JSON**：`"version": "<new_version>"`
 - **TOML**：`version = "<new_version>"`
 

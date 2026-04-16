@@ -1,6 +1,7 @@
 ---
-description: This skill should be used when the user says "analyze","optimize plugins", "disable unused plugins", "save context", "reduce context usage", "which plugins do I need", "clean up plugins", "focus context", "trim plugins", or wants to detect the project type and disable irrelevant plugins to save context window space. Invoked explicitly via /smart:analyze.
+description: This skill should be used when the user says "analyze","optimize plugins", "disable unused plugins", "save context", "reduce context usage", "which plugins do I need", "clean up plugins", "focus context", "trim plugins", or wants to detect the project type and disable irrelevant plugins to save context window space. Invoked explicitly via /smart:op.
 argument-hint: No arguments needed. Automatically detects project type and recommends plugin changes.
+model: claude-sonnet-4-6
 ---
 
 # Analyze — Context-Aware Plugin Optimizer
@@ -107,7 +108,7 @@ Display a final summary:
 - Detected project type(s)
 - Plugins disabled (count and names)
 - Plugins kept (count)
-- Reminder: "Run `/smart:analyze` again after switching projects to re-optimize."
+- Reminder: "Run `/smart:op` again after switching projects to re-optimize."
 
 ## Edge Cases
 

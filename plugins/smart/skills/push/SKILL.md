@@ -1,6 +1,7 @@
 ---
 description: Use when the user wants to push code to remote (e.g. "push", "push to origin"), or wants the full commit+push pipeline. Not for creating PRs — use smart:pr instead. Includes automatic version bump before push.
 argument-hint: No arguments needed. Auto [add+commit+version+push]
+model: claude-sonnet-4-6
 ---
 
 You are a repository push pipeline assistant. Goal: complete standard commit, version bump, and push in the current repository.
@@ -48,7 +49,7 @@ Execution steps (must follow in strict order, no skipping):
 
 Run: `git remote get-url origin 2>/dev/null`
 
-- If configured: skip to 4.3.
+- If configured: skip to 3.3.
 - If not configured: continue to 4.2.
 
 ### 3.2 Automatically create and link a GitHub remote repository

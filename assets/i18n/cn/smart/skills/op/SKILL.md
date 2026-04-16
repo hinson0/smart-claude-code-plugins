@@ -1,6 +1,7 @@
 ---
-description: 当用户说"analyze"、"优化插件"、"禁用无用插件"、"节省上下文"、"减少上下文占用"、"我需要哪些插件"、"清理插件"、"聚焦上下文"、"精简插件"，或想要检测项目类型并禁用无关插件以节省上下文窗口空间时，应使用此技能。通过 /smart:analyze 显式调用。
+description: 当用户说"analyze"、"优化插件"、"禁用无用插件"、"节省上下文"、"减少上下文占用"、"我需要哪些插件"、"清理插件"、"聚焦上下文"、"精简插件"，或想要检测项目类型并禁用无关插件以节省上下文窗口空间时，应使用此技能。通过 /smart:op 显式调用。
 argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
+model: sonnet
 ---
 
 # Aim — 上下文感知插件优化器
@@ -19,18 +20,18 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 
 快速参考：
 
-| 标志 | 类型 |
-|---|---|
-| `pyproject.toml`、`requirements.txt`、`setup.py`、`Pipfile` | python |
-| `package.json` | javascript（检查依赖确定框架 — 见步骤 1b） |
-| `tsconfig.json` | typescript |
-| `Cargo.toml` | rust |
-| `go.mod` | go |
-| `Gemfile` | ruby |
-| `*.sln`、`*.csproj` | dotnet |
-| `build.gradle`、`pom.xml` | java |
-| `pubspec.yaml` | flutter |
-| `.claude-plugin/plugin.json` 或子目录 `*/.claude-plugin/plugin.json` | claude-plugin |
+| 标志                                                                 | 类型                                       |
+| -------------------------------------------------------------------- | ------------------------------------------ |
+| `pyproject.toml`、`requirements.txt`、`setup.py`、`Pipfile`          | python                                     |
+| `package.json`                                                       | javascript（检查依赖确定框架 — 见步骤 1b） |
+| `tsconfig.json`                                                      | typescript                                 |
+| `Cargo.toml`                                                         | rust                                       |
+| `go.mod`                                                             | go                                         |
+| `Gemfile`                                                            | ruby                                       |
+| `*.sln`、`*.csproj`                                                  | dotnet                                     |
+| `build.gradle`、`pom.xml`                                            | java                                       |
+| `pubspec.yaml`                                                       | flutter                                    |
+| `.claude-plugin/plugin.json` 或子目录 `*/.claude-plugin/plugin.json` | claude-plugin                              |
 
 **1b) 框架检测** — 若 `package.json` 存在，读取 `dependencies` 和 `devDependencies` 键以识别框架（react、vue、next、svelte、angular、react-native、express 等）。将每个检测到的框架作为额外类型标签添加。
 
@@ -39,6 +40,7 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 若存在多个标志，项目具有多种类型（如包含 Python + TypeScript 的 monorepo）。
 
 输出检测到的类型：
+
 ```
 检测到的项目类型：python, typescript, react
 ```
@@ -86,6 +88,7 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 ```
 
 然后使用 AskUserQuestion 确认：
+
 - 列出每个建议禁用的插件及一行原因
 - 询问："是否为本项目禁用这些插件？（可随时在 .claude/settings.json 中重新启用）"
 
@@ -104,10 +107,11 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 ### 5) 报告
 
 显示最终摘要：
+
 - 检测到的项目类型
 - 已禁用插件（数量和名称）
 - 已保留插件（数量）
-- 提醒："切换项目后可再次运行 `/smart:analyze` 重新优化。"
+- 提醒："切换项目后可再次运行 `/smart:op` 重新优化。"
 
 ## 边界情况
 

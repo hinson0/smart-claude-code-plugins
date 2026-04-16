@@ -1,6 +1,7 @@
 ---
 description: 当用户想要推送代码到远程（如"push"、"推一下"、"推到远程"），或需要完整的 commit+push 管道时使用。不用于创建 PR — 请使用 smart:pr。推送前会自动进行版本升级。
 argument-hint: 无需参数。自动 [add+commit+version+push]
+model: sonnet
 ---
 
 你是仓库推送管道助手。目标：在当前仓库完成标准提交、版本升级并推送。
@@ -48,7 +49,7 @@ argument-hint: 无需参数。自动 [add+commit+version+push]
 
 运行：`git remote get-url origin 2>/dev/null`
 
-- 若已配置：跳到 4.3。
+- 若已配置：跳到 3.3。
 - 若未配置：继续 4.2。
 
 ### 3.2 自动创建并关联 GitHub 远程仓库
@@ -67,6 +68,7 @@ argument-hint: 无需参数。自动 [add+commit+version+push]
    - 若不存在：继续步骤 5。
 
 5. 创建 GitHub 仓库（默认私有）：
+
    ```
    gh repo create <仓库名> --private --source=. --remote=origin
    ```
@@ -87,12 +89,14 @@ git push -u origin HEAD
 ## 输出结果
 
 成功时展示：
+
 1. 阶段一实际使用的所有 commit message（若有改动）。
 2. 阶段二的版本升级结果：必须**原样转述** version skill 输出的跳过/结果消息（如"无新 commit——版本不变"或"旧版本 → 新版本"）。不要自行改写或概括。
 3. 推送目标分支与结果。
 4. 最终 `git status`（确认工作区是否干净）。
 
 失败时展示：
+
 - 失败发生在哪个阶段与步骤。
 - 具体错误信息。
 - 下一步可执行的修复命令。

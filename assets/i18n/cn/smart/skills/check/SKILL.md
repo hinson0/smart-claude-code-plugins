@@ -2,6 +2,7 @@
 description: 自动检测项目 CI 配置，提取并在本地运行对应的检查命令
 argument-hint: 无需参数，自动从 .github/workflows/*.yml 推断检查方式
 user-invocable: false
+model: haiku
 ---
 
 你是本地检查助手。目标：从项目 CI 配置中推断应运行哪些检查，并在本地执行。
@@ -11,6 +12,7 @@ user-invocable: false
 ## 第一步：确认工作区有改动
 
 运行 `git status --short`，同时计入 `M`、`A`、`??` 三类文件。
+
 - 若无任何改动：输出"当前无改动，跳过检查"，结束。
 
 ## 第二步：检测 CI 工作流文件
@@ -28,23 +30,24 @@ user-invocable: false
 
 grep 以下关键词，建立"检查工具清单"：
 
-| 检测关键词（CI 文件中出现） | 对应本地检查 |
-|---|---|
-| `ruff` | Python lint |
-| `pytest` | Python test |
-| `mypy` 或 `pyright` | Python type check |
-| `eslint` | JS/TS lint |
-| `tsc` 或 `type-check` | TS type check |
-| `vitest` 或 `jest` | JS/TS test |
-| `turbo` | Turbo monorepo 检查 |
-| `go test` | Go test |
-| `golangci-lint` | Go lint |
+| 检测关键词（CI 文件中出现） | 对应本地检查        |
+| --------------------------- | ------------------- |
+| `ruff`                      | Python lint         |
+| `pytest`                    | Python test         |
+| `mypy` 或 `pyright`         | Python type check   |
+| `eslint`                    | JS/TS lint          |
+| `tsc` 或 `type-check`       | TS type check       |
+| `vitest` 或 `jest`          | JS/TS test          |
+| `turbo`                     | Turbo monorepo 检查 |
+| `go test`                   | Go test             |
+| `golangci-lint`             | Go lint             |
 
 ### 3b. 检测工作目录（monorepo 支持）
 
 对每个工作流文件，检查是否存在 `working-directory` 设置（`defaults.run.working-directory` 或单步骤级别）。记录映射：**工作流文件 → 工作目录**。
 
 CI 中的典型模式：
+
 ```yaml
 defaults:
   run:
@@ -56,7 +59,7 @@ defaults:
 构建最终清单表：
 
 | 工具 | 工作目录 | 来源工作流 |
-|---|---|---|
+| ---- | -------- | ---------- |
 
 若**未检测到任何已知工具**：输出"CI 工作流中未发现已知检查工具，跳过本地检查"，结束。
 
@@ -77,17 +80,20 @@ defaults:
 对于清单中的每个工具，先 `cd` 到第三步 3b 中确定的工作目录再执行。若未检测到工作目录，则在仓库根目录执行。
 
 **Python 类：**
+
 - `ruff` → `cd <dir> && uv run ruff check . --fix`（或 `ruff check . --fix`）
 - `pytest` → `cd <dir> && uv run pytest -v`（或 `pytest -v`）
 - `mypy` / `pyright` → `cd <dir> && uv run mypy .`（或 `uv run pyright .`）
 
 **JS/TS 类：**
+
 - `eslint` → `cd <dir> && pnpm lint`（或 `npm run lint`）
 - `tsc` / `type-check` → `cd <dir> && pnpm type-check`（或 `npx tsc --noEmit`）
 - `vitest` / `jest` → `cd <dir> && pnpm test`（或 `npm test`）
 - `turbo` → 从 CI 文件提取 turbo 命令，原样执行（如 `pnpm turbo lint type-check build`）
 
 **Go 类：**
+
 - `go test` → `cd <dir> && go test ./...`
 - `golangci-lint` → `cd <dir> && golangci-lint run`
 
