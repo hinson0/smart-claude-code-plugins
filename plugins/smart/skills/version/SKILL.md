@@ -1,5 +1,5 @@
 ---
-description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release. Also triggers proactively in the push pipeline on any branch. Supports plugin.json, package.json (including monorepo), and pyproject.toml.
+description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release. Also triggers proactively in the push pipeline on any branch. Supports plugin.json, package.json (including monorepo), pyproject.toml, and app.json (Expo/React Native).
 argument-hint: "[base-branch] — defaults to main"
 model: claude-sonnet-4-6
 ---
@@ -26,9 +26,14 @@ find . -maxdepth 4 -name 'package.json' -not -path '*/node_modules/*' -not -path
 
 # Python
 find . -maxdepth 4 -name 'pyproject.toml' -not -path '*/node_modules/*' -not -path '*/.venv/*' 2>/dev/null
+
+# Expo / React Native
+find . -maxdepth 4 -name 'app.json' -not -path '*/node_modules/*' 2>/dev/null
 ```
 
 Filter: keep only files that contain a `"version"` (JSON) or `version =` (TOML) field. Discard the rest.
+
+**Special case for `app.json`:** The version field is nested under `expo.version`, not at the root level. When filtering, check that the file contains both `"expo"` and `"version"` keys. When a root-level `package.json` already exists in the same directory, skip `app.json` to avoid double-bumping the same project (the `package.json` takes precedence for Node tooling).
 
 If no version file is found, report "No version file detected — skipping version bump" and **stop**.
 
@@ -74,7 +79,8 @@ A single commit may map to **multiple** version files if it changed files across
 For each version file with associated commits:
 
 1. Read current version:
-   - **JSON** (`plugin.json`, `package.json`): read `"version"` field.
+   - **JSON** (`plugin.json`, `package.json`): read root-level `"version"` field.
+   - **Expo** (`app.json`): read `expo.version` (nested under the `"expo"` key).
    - **TOML** (`pyproject.toml`): read `version` under `[project]`. If absent, check `[tool.poetry]`.
 
 2. Classify each commit using Conventional Commits (`<type>[!][(scope)]: <desc>`):
@@ -93,7 +99,14 @@ For each version file with associated commits:
 ### 6) Apply new versions
 
 Update the `version` field in each version file using the Edit tool:
-- **JSON**: `"version": "<new_version>"`
+- **JSON** (`plugin.json`, `package.json`): match and replace root-level `"version": "<old_version>"`.
+- **Expo** (`app.json`): the version is nested — match the surrounding context to avoid ambiguity:
+  ```json
+  "expo": {
+    ...
+    "version": "<old_version>",
+  ```
+  Replace only the `"version"` line inside the `expo` block.
 - **TOML**: `version = "<new_version>"`
 
 ### 7) Commit the version bumps
@@ -124,6 +137,7 @@ Display a summary table:
 | ------------------------------- | ------- | ----- | ----- | ----- | ------------- |
 | packages/frontend/package.json  | Node.js | 1.2.0 | 1.3.0 | minor | feat(ui): ... |
 | packages/backend/pyproject.toml | Python  | 0.5.1 | 0.5.2 | patch | fix(api): ... |
+| app.json                        | Expo    | 1.0.0 | 1.1.0 | minor | feat(rn): ... |
 ```
 
 ## Constraints
