@@ -1,7 +1,7 @@
 ---
 description: This skill should be used when the user says "analyze","optimize plugins", "disable unused plugins", "save context", "reduce context usage", "which plugins do I need", "clean up plugins", "focus context", "trim plugins", or wants to detect the project type and disable irrelevant plugins to save context window space. Invoked explicitly via /smart:op.
 argument-hint: No arguments needed. Automatically detects project type and recommends plugin changes.
-model: claude-sonnet-4-6
+model: sonnet
 ---
 
 # Analyze — Context-Aware Plugin Optimizer
@@ -20,18 +20,18 @@ Scan the current working directory root for indicator files. Consult `references
 
 Quick reference:
 
-| Indicator | Type |
-|---|---|
-| `pyproject.toml`, `requirements.txt`, `setup.py`, `Pipfile` | python |
-| `package.json` | javascript (inspect deps for framework — see step 1b) |
-| `tsconfig.json` | typescript |
-| `Cargo.toml` | rust |
-| `go.mod` | go |
-| `Gemfile` | ruby |
-| `*.sln`, `*.csproj` | dotnet |
-| `build.gradle`, `pom.xml` | java |
-| `pubspec.yaml` | flutter |
-| `.claude-plugin/plugin.json` or child `*/.claude-plugin/plugin.json` | claude-plugin |
+| Indicator                                                            | Type                                                  |
+| -------------------------------------------------------------------- | ----------------------------------------------------- |
+| `pyproject.toml`, `requirements.txt`, `setup.py`, `Pipfile`          | python                                                |
+| `package.json`                                                       | javascript (inspect deps for framework — see step 1b) |
+| `tsconfig.json`                                                      | typescript                                            |
+| `Cargo.toml`                                                         | rust                                                  |
+| `go.mod`                                                             | go                                                    |
+| `Gemfile`                                                            | ruby                                                  |
+| `*.sln`, `*.csproj`                                                  | dotnet                                                |
+| `build.gradle`, `pom.xml`                                            | java                                                  |
+| `pubspec.yaml`                                                       | flutter                                               |
+| `.claude-plugin/plugin.json` or child `*/.claude-plugin/plugin.json` | claude-plugin                                         |
 
 **1b) Framework detection** — if `package.json` exists, read `dependencies` and `devDependencies` keys to identify frameworks (react, vue, next, svelte, angular, react-native, express, etc.). Add each detected framework as an additional type tag.
 
@@ -40,6 +40,7 @@ Quick reference:
 If multiple indicators exist, the project has multiple types (e.g., a monorepo with Python + TypeScript).
 
 Output the detected types:
+
 ```
 Detected project type(s): python, typescript, react
 ```
@@ -87,6 +88,7 @@ Project type: python
 ```
 
 Then use AskUserQuestion to confirm:
+
 - List each plugin recommended for disabling with a one-line reason
 - Ask: "Disable these plugins for this project? (They can be re-enabled anytime in .claude/settings.json)"
 
@@ -105,6 +107,7 @@ Report: "All enabled plugins are relevant to this project — no changes needed.
 ### 5) Report
 
 Display a final summary:
+
 - Detected project type(s)
 - Plugins disabled (count and names)
 - Plugins kept (count)

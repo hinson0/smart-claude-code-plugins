@@ -1,7 +1,7 @@
 ---
 description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release. Also triggers proactively in the push pipeline on any branch. Supports plugin.json, package.json (including monorepo), pyproject.toml, and app.json (Expo/React Native).
 argument-hint: "[base-branch] — defaults to main"
-model: claude-sonnet-4-6
+model: haiku
 ---
 
 Analyze commits since the last version bump (or since branching from the base), map changed files to their owning version files, and bump each version independently following semantic versioning (`a.b.c`).
@@ -48,6 +48,7 @@ Gather new commits with a fallback chain:
    ```bash
    LAST_BUMP=$(git log --all --oneline --grep="chore(version): bump" -1 --format="%H")
    ```
+
    - If found: `git log ${LAST_BUMP}..HEAD --oneline`
    - If not found (no prior bump): `git log -20 --oneline`
 3. Exclude commits matching `chore(version): bump` (previous version bumps).
@@ -66,6 +67,7 @@ git log <BASE_BRANCH>..HEAD --name-only --format="COMMIT:%H" | grep -v '^$'
 Parse the output: lines starting with `COMMIT:` are commit hashes; subsequent non-empty lines are files changed by that commit.
 
 For each changed file, walk up the directory tree to find the nearest version file:
+
 - At each level, check if any `VERSION_FILES` entry resides in that directory (match by directory prefix).
 - The first (closest) match is the **owner** of that changed file.
 - If no version file is found in any ancestor, the file is **unowned** — skip it.
@@ -99,6 +101,7 @@ For each version file with associated commits:
 ### 6) Apply new versions
 
 Update the `version` field in each version file using the Edit tool:
+
 - **JSON** (`plugin.json`, `package.json`): match and replace root-level `"version": "<old_version>"`.
 - **Expo** (`app.json`): the version is nested — match the surrounding context to avoid ambiguity:
   ```json

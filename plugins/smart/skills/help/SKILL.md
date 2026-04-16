@@ -1,19 +1,19 @@
 ---
 description: This skill should be used when the user says "help", "what can you do", "list skills", "list hooks", "list agents", "show commands", "how to use", or wants an overview of the smart plugin's capabilities.
 argument-hint: "[skill|hook|agent] (empty=show all)"
-model: claude-haiku-4-5-20251001
+model: sonnet
 ---
 
 Display a formatted overview of the smart plugin's components by dynamically scanning the plugin directory.
 
 ## Determine Category
 
-| Argument          | Category  |
-|-------------------|-----------|
-| _(empty)_         | `all`     |
-| `skill` / `skills`| `skill`  |
-| `hook` / `hooks`  | `hook`   |
-| `agent` / `agents`| `agent`  |
+| Argument           | Category |
+| ------------------ | -------- |
+| _(empty)_          | `all`    |
+| `skill` / `skills` | `skill`  |
+| `hook` / `hooks`   | `hook`   |
+| `agent` / `agents` | `agent`  |
 
 ## Scanning Instructions
 

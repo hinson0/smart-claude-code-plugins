@@ -1,7 +1,7 @@
 ---
 description: This skill should be used when the user says "capture context", "save context", "context snapshot", "token-log", "token log","context", "context usage", "statusline", "statusline usage", "dump statusline", "save session info", "export session", or wants to export the current Claude Code session's statusline data as an annotated JSONC snapshot to .claude/token-logs/. Invoked explicitly via /smart:token-log.
 argument-hint: No arguments needed. Captures current statusline data snapshot.
-model: claude-sonnet-4-6
+model: haiku
 ---
 
 # Token Log
@@ -21,6 +21,7 @@ Read `~/.claude/.statusline-latest.json`. If the file is missing, empty, or cont
 ### 2) Determine output language
 
 Use the current conversation language for JSONC comments:
+
 - If the user communicates in Chinese → Chinese comments
 - If the user communicates in English → English comments
 - Otherwise, follow the user's language
@@ -41,6 +42,7 @@ Construct the JSONC file with this structure:
 ```
 
 Rules:
+
 - Add the capture timestamp header (current UTC time in ISO 8601)
 - Add a descriptive comment after each field using the descriptions from `references/field-descriptions.md`
 - For nested objects, add a comment on the opening brace line describing the group
@@ -60,6 +62,7 @@ Rules:
 ### 5) Report
 
 Display a brief confirmation:
+
 - Output file path
 - Session ID
 - Capture timestamp

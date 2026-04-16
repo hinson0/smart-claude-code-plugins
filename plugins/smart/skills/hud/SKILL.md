@@ -1,19 +1,19 @@
 ---
 description: This skill should be used when the user says "hud", "statusline", "install statusline", "setup statusline", "configure statusline", "reset statusline", "restore statusline", or wants to install or restore the smart plugin's statusline.
 argument-hint: "[1|2|reset] (1=minimal, 2=full, reset=restore backup, default=2)"
-model: claude-sonnet-4-6
+model: sonnet
 ---
 
 Install or restore the smart plugin's statusline (user scope only).
 
 ## Determine Action
 
-| Argument    | Action            | Description                                     |
-|-------------|-------------------|-------------------------------------------------|
-| `1`         | `install-level1`  | Install minimal statusline (session + ctx only) |
-| `2`         | `install-level2`  | Install full statusline (all 6 lines)           |
-| _(empty)_   | `install-level2`  | Default: install full statusline                |
-| `reset`     | `reset`           | Restore previous statusline backup              |
+| Argument  | Action           | Description                                     |
+| --------- | ---------------- | ----------------------------------------------- |
+| `1`       | `install-level1` | Install minimal statusline (session + ctx only) |
+| `2`       | `install-level2` | Install full statusline (all 6 lines)           |
+| _(empty)_ | `install-level2` | Default: install full statusline                |
+| `reset`   | `reset`          | Restore previous statusline backup              |
 
 ## Paths (user scope only)
 
