@@ -15,20 +15,17 @@ Analyze commits since the last version bump (or since branching from the base), 
 
 ### 2) Discover all version files
 
-Scan the project for all version files:
+**IMPORTANT: Run the bash command below directly. Do NOT use the Glob tool — it does not respect `.gitignore` and returns hundreds of files from `node_modules` and other ignored directories.**
+
+Use `git ls-files` to automatically respect `.gitignore` without hardcoding any exclusion paths:
 
 ```bash
-# Claude Code plugins
-find . -maxdepth 4 -path '*/.claude-plugin/plugin.json' -not -path '*/node_modules/*' 2>/dev/null
-
-# Node.js / frontend (root + workspace packages)
-find . -maxdepth 4 -name 'package.json' -not -path '*/node_modules/*' -not -path '*/.claude-plugin/*' 2>/dev/null
-
-# Python
-find . -maxdepth 4 -name 'pyproject.toml' -not -path '*/node_modules/*' -not -path '*/.venv/*' 2>/dev/null
-
-# Expo / React Native
-find . -maxdepth 4 -name 'app.json' -not -path '*/node_modules/*' 2>/dev/null
+# Includes tracked files AND untracked-but-not-ignored new files
+# Automatically excludes everything in .gitignore (node_modules, .venv, dist, etc.)
+{
+  git ls-files
+  git ls-files --others --exclude-standard
+} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.claude-plugin/plugin\.json$'
 ```
 
 Filter: keep only files that contain a `"version"` (JSON) or `version =` (TOML) field. Discard the rest.

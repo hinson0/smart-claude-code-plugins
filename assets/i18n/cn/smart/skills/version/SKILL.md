@@ -15,20 +15,22 @@ model: sonnet
 
 ### 2) 发现所有版本文件
 
-扫描项目中的所有版本文件：
+**重要：直接执行下方 bash 命令。禁止使用 Glob 工具 — Glob 不尊重 `.gitignore`，会从 `node_modules` 等忽略目录中返回大量无关文件。**
+
+使用 `git ls-files` 自动尊重 `.gitignore`，无需硬编码任何排除路径：
 
 ```bash
-# Claude Code 插件
-find . -maxdepth 4 -path '*/.claude-plugin/plugin.json' -not -path '*/node_modules/*' 2>/dev/null
-
-# Node.js / 前端（根目录 + 工作区子包）
-find . -maxdepth 4 -name 'package.json' -not -path '*/node_modules/*' -not -path '*/.claude-plugin/*' 2>/dev/null
-
-# Python
-find . -maxdepth 4 -name 'pyproject.toml' -not -path '*/node_modules/*' -not -path '*/.venv/*' 2>/dev/null
+# 包含已跟踪文件 + 未跟踪但未被忽略的新文件
+# 自动排除 .gitignore 中的所有路径（node_modules、.venv、dist 等）
+{
+  git ls-files
+  git ls-files --others --exclude-standard
+} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.claude-plugin/plugin\.json$'
 ```
 
 过滤：仅保留包含 `"version"`（JSON）或 `version =`（TOML）字段的文件，丢弃其余。
+
+**`app.json` 特殊处理：** 版本字段嵌套在 `expo.version` 下，而非根级别。过滤时，需确认文件同时包含 `"expo"` 和 `"version"` 字段。若同一目录下已存在 `package.json`，则跳过 `app.json`，避免重复升级（Node 工具链以 `package.json` 为准）。
 
 若未找到任何版本文件，报告"未检测到版本文件 — 跳过版本升级"并**停止**。
 
