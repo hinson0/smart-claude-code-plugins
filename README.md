@@ -49,6 +49,7 @@ Then install the plugin from this marketplace:
 - **Auto Version Bump** — Detects version files (`plugin.json`, `package.json`, `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
 - **Auto GitHub Repo Creation** — No remote configured? It creates a private repo on GitHub, sets it as origin, and pushes — all automatically.
 - **Consistent Language** — PR title, summary, and test plan automatically use the same language as commit messages. Defaults to English; overridable via project `CLAUDE.md`.
+- **Per-Skill Model Assignment** — `check` uses Haiku for fast, token-efficient CI detection. All other skills (`commit`, `push`, `pr`, `version`, `hud`) use Sonnet for semantic analysis and content generation.
 
 **Protection & Automation**
 
