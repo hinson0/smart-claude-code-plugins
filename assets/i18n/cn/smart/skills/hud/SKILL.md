@@ -1,7 +1,6 @@
 ---
 description: 当用户说"hud"、"statusline"、"安装 statusline"、"配置 statusline"、"恢复 statusline"，或需要安装、恢复 smart 插件的 statusline 时使用此技能。
 argument-hint: "[1|2|reset]（1=简化版，2=完整版，reset=恢复备份，默认=2）"
-model: sonnet
 ---
 
 安装或恢复 smart 插件的 statusline（仅支持 user 级别）。

@@ -2,7 +2,6 @@
 description: 自动检测项目 CI 配置，提取并在本地运行对应的检查命令（通用，不依赖固定目录结构）
 argument-hint: 无需参数，自动从 .github/workflows/*.yml 推断检查方式
 user-invocable: false
-model: haiku
 ---
 
 你是本地检查助手。目标：从项目 CI 配置中推断应运行哪些检查，并在本地执行。

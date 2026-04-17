@@ -1,7 +1,6 @@
 ---
 description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release. Also triggers proactively in the push pipeline on any branch. Supports plugin.json, package.json (including monorepo), pyproject.toml, and app.json (Expo/React Native).
 argument-hint: "[base-branch] — defaults to main"
-model: haiku
 ---
 
 Analyze commits since the last version bump (or since branching from the base), map changed files to their owning version files, and bump each version independently following semantic versioning (`a.b.c`).

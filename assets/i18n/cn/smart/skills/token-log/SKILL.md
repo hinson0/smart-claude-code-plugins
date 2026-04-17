@@ -1,7 +1,6 @@
 ---
 description: 当用户说"capture context"、"save context"、"context snapshot"、"token-log"、"token log"、"context"、"context usage"、"statusline"、"statusline usage"、"dump statusline"、"save session info"、"export session"，或想要将当前 Claude Code 会话的 statusline 数据导出为带注释的 JSONC 快照到 .claude/token-logs/ 时，应使用此技能。通过 /smart:token-log 显式调用。
 argument-hint: 无需参数。捕获当前 statusline 数据快照。
-model: sonnet
 ---
 
 # 上下文捕获

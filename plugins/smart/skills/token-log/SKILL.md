@@ -1,7 +1,6 @@
 ---
 description: This skill should be used when the user says "capture context", "save context", "context snapshot", "token-log", "token log","context", "context usage", "statusline", "statusline usage", "dump statusline", "save session info", "export session", or wants to export the current Claude Code session's statusline data as an annotated JSONC snapshot to .claude/token-logs/. Invoked explicitly via /smart:token-log.
 argument-hint: No arguments needed. Captures current statusline data snapshot.
-model: haiku
 ---
 
 # Token Log

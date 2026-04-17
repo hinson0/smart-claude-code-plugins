@@ -1,7 +1,6 @@
 ---
 description: This skill should be used when the user wants to commit staged or unstaged changes (e.g. "commit", "save my work", "done", "make a commit"). Performs only the commit operation — no CI checks, no version bump, no push.
 argument-hint: No arguments needed. Automatically identifies single or multiple features based on files and performs grouped commits.
-model: sonnet
 ---
 
 Goal: Complete a standard commit for the current repository changes. This skill performs ONLY the commit — no checks, no version bump, no push.

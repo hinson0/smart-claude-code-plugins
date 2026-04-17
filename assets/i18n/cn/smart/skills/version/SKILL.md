@@ -1,7 +1,6 @@
 ---
 description: 当用户提到"升级版本"、"更新版本号"、"发布"、"新版本"、"版本升级"、"准备发布"、"递增版本"时触发。在 push 管道中也会主动触发，支持任意分支执行。支持 plugin.json、package.json（含 monorepo）和 pyproject.toml。
 argument-hint: "[目标分支] — 默认为 main"
-model: sonnet
 ---
 
 分析自上次版本升级（或分支从基准分叉）以来的 commit，将变更文件映射到其所属的版本文件，按语义化版本规范（`a.b.c`）独立升级每个版本号。

@@ -1,7 +1,6 @@
 ---
 description: This skill should be used when the user says "hud", "statusline", "install statusline", "setup statusline", "configure statusline", "reset statusline", "restore statusline", or wants to install or restore the smart plugin's statusline.
 argument-hint: "[1|2|reset] (1=minimal, 2=full, reset=restore backup, default=2)"
-model: sonnet
 ---
 
 Install or restore the smart plugin's statusline (user scope only).

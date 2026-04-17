@@ -1,7 +1,6 @@
 ---
 description: This skill should be used when the user says "help", "what can you do", "list skills", "list hooks", "list agents", "show commands", "how to use", or wants an overview of the smart plugin's capabilities.
 argument-hint: "[skill|hook|agent] (empty=show all)"
-model: sonnet
 ---
 
 Display a formatted overview of the smart plugin's components by dynamically scanning the plugin directory.

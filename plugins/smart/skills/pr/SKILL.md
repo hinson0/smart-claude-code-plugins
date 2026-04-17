@@ -1,7 +1,6 @@
 ---
 description: This skill should be used when the user wants to create a pull request (e.g. "create PR", "open PR", "open a pull request", "submit PR", "merge request"), or wants the full check+commit+push+PR pipeline. Includes push and version bump — no need to push first.
 argument-hint: "[base-branch] (optional) Target branch for the PR, defaults to main. Auto [check+add+commit+version+push+pr]"
-model: sonnet
 ---
 
 You are a repository commit & PR assistant. Goal: complete the standard commit, version bump, and push first, then create a Pull Request on GitHub.

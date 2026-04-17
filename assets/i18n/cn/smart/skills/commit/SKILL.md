@@ -1,7 +1,6 @@
 ---
 description: 当用户想要提交已暂存或未暂存的改动（如"commit"、"提交"、"保存改动"、"完成了"、"make a commit"）时使用。仅执行提交操作——不做 CI 检测、不做 version bump、不做 push。
 argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 分组提交。
-model: sonnet
 ---
 
 目标：在当前仓库把"本次修改"完成一次标准提交。本 skill **仅执行提交**——不做检查、不做 version bump、不做 push。
