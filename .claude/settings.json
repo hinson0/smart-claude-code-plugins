@@ -1,6 +1,17 @@
 {
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Read",
+      "Write",
+      "Bash",
+      "WebSearch",
+      "Skill"
+    ]
+  },
   "enabledPlugins": {
     "smart@smart": true,
+    "sentry@claude-plugins-official": false,
     "code-review@claude-plugins-official": false,
     "code-simplifier@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
@@ -9,20 +20,8 @@
     "pyright-lsp@claude-plugins-official": false,
     "supabase@claude-plugins-official": false,
     "typescript-lsp@claude-plugins-official": false,
-    "feature-dev@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": false,
     "security-guidance@claude-plugins-official": false,
     "superpowers@claude-plugins-official": false
-  },
-  "permissions": {
-    "allow": ["Edit", "Read", "Write", "Bash", "WebSearch", "Skill"],
-    "deny": [
-      "Bash(rm -rf *)",
-      "Bash(sudo *)",
-      "Bash(git push --force *)",
-      "Bash(git push -f *)",
-      "Bash(git reset --hard *)",
-      "Bash(git checkout -- *)",
-      "Bash(git branch -D *)"
-    ]
   }
 }
