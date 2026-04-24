@@ -2,8 +2,9 @@
 
 Claude Code 插件，自动化 commit → push → PR 流程（push 内含 version bump）。
 
-## 对话语言
-请用中文回复,包括思考过程/回复用户
+## 铁律
+
+凡涉及功能变更、组件新增/删除、或用户可见行为改动，**必须在同一次操作中主动同步更新所有 README 文件**（`README.md`、`README_CN.md`、`README_TW.md`、`README_KO.md`、`README_JA.md`），无需用户提醒，不可遗漏。
 
 ## 项目结构
 
