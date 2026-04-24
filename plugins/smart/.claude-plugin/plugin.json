@@ -1,7 +1,7 @@
 {
   "name": "smart",
   "description": "My name is smart. Smart plugin for Claude Code — automates check, commit, version bump, push, and PR workflows with hooks, skills, and subagents.",
-  "version": "3.11.4",
+  "version": "3.12.0",
   "author": {
     "name": "Hinson",
     "github": "https://github.com/hinson0"
