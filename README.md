@@ -252,7 +252,10 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 | Rule file | What it enforces |
 |---|---|
-| `pydantic-v2.md` | Pydantic V2 best practices: `ConfigDict`, `field_validator`, `model_validate`, forbidden V1 APIs, Python 3.10+ type syntax |
+| `pydantic-v2.md` | Pydantic V2 standards: `ConfigDict`, validators, discriminated unions, `TypeAdapter`, `RootModel`, `SecretStr`, `pydantic-settings`, V1→V2 migration |
+| `python-3.14.md` | Python 3.14 standards: deferred annotations, `[T]` generics, `@override`, `Self`, `TaskGroup`, `StrEnum`, `datetime.UTC`, subinterpreters, `match` guards |
+| `fastapi.md` | FastAPI 0.115+ standards: `Annotated` dependencies, `lifespan`, `APIRouter` organization, `BackgroundTasks`, `dependency_overrides`, security scopes |
+| `sqlalchemy-v2.md` | SQLAlchemy 2.0 standards: `DeclarativeBase`, `Mapped[T]`, naming conventions, async sessions, `AsyncAttrs`, `selectinload`, UPSERT, Alembic |
 
 Rules are inactive by default — symlink only what's relevant to your project.
 

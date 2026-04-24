@@ -252,7 +252,10 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 | 规则文件 | 约束内容 |
 |---|---|
-| `pydantic-v2.md` | Pydantic V2 最佳实践：`ConfigDict`、`field_validator`、`model_validate`、禁止 V1 API、Python 3.10+ 类型语法 |
+| `pydantic-v2.md` | Pydantic V2 规范：`ConfigDict`、校验器、判别联合、`TypeAdapter`、`RootModel`、`SecretStr`、`pydantic-settings`、V1→V2 迁移 |
+| `python-3.14.md` | Python 3.14 规范：延迟注解、`[T]` 泛型、`@override`、`Self`、`TaskGroup`、`StrEnum`、`datetime.UTC`、子解释器、`match` 守卫 |
+| `fastapi.md` | FastAPI 0.115+ 规范：`Annotated` 依赖注入、`lifespan`、`APIRouter` 组织、`BackgroundTasks`、`dependency_overrides`、安全作用域 |
+| `sqlalchemy-v2.md` | SQLAlchemy 2.0 规范：`DeclarativeBase`、`Mapped[T]`、命名约定、异步会话、`AsyncAttrs`、`selectinload`、UPSERT、Alembic |
 
 规则默认不激活，按需软链即可。
 

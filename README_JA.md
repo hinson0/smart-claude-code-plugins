@@ -252,7 +252,10 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 | ルールファイル | 適用内容 |
 |---|---|
-| `pydantic-v2.md` | Pydantic V2 ベストプラクティス：`ConfigDict`、`field_validator`、`model_validate`、V1 API 禁止、Python 3.10+ 型構文 |
+| `pydantic-v2.md` | Pydantic V2 標準：`ConfigDict`、バリデータ、判別共用体、`TypeAdapter`、`RootModel`、`SecretStr`、`pydantic-settings`、V1→V2 移行 |
+| `python-3.14.md` | Python 3.14 標準：遅延アノテーション、`[T]` ジェネリクス、`@override`、`Self`、`TaskGroup`、`StrEnum`、`datetime.UTC`、サブインタープリタ、`match` ガード |
+| `fastapi.md` | FastAPI 0.115+ 標準：`Annotated` 依存性注入、`lifespan`、`APIRouter` 組織、`BackgroundTasks`、`dependency_overrides`、セキュリティスコープ |
+| `sqlalchemy-v2.md` | SQLAlchemy 2.0 標準：`DeclarativeBase`、`Mapped[T]`、命名規則、非同期セッション、`AsyncAttrs`、`selectinload`、UPSERT、Alembic |
 
 ルールはデフォルトで無効です — 必要なものだけシンボリックリンクしてください。
 

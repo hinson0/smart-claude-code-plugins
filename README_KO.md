@@ -252,7 +252,10 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 | 규칙 파일 | 적용 내용 |
 |---|---|
-| `pydantic-v2.md` | Pydantic V2 모범 사례: `ConfigDict`, `field_validator`, `model_validate`, V1 API 금지, Python 3.10+ 타입 문법 |
+| `pydantic-v2.md` | Pydantic V2 표준: `ConfigDict`, 검증기, 판별 유니온, `TypeAdapter`, `RootModel`, `SecretStr`, `pydantic-settings`, V1→V2 마이그레이션 |
+| `python-3.14.md` | Python 3.14 표준: 지연 어노테이션, `[T]` 제네릭, `@override`, `Self`, `TaskGroup`, `StrEnum`, `datetime.UTC`, 서브인터프리터, `match` 가드 |
+| `fastapi.md` | FastAPI 0.115+ 표준: `Annotated` 의존성 주입, `lifespan`, `APIRouter` 조직, `BackgroundTasks`, `dependency_overrides`, 보안 스코프 |
+| `sqlalchemy-v2.md` | SQLAlchemy 2.0 표준: `DeclarativeBase`, `Mapped[T]`, 명명 규칙, 비동기 세션, `AsyncAttrs`, `selectinload`, UPSERT, Alembic |
 
 규칙은 기본적으로 비활성화되어 있습니다 — 필요한 것만 심볼릭 링크하세요.
 
