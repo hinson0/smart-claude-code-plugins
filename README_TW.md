@@ -63,6 +63,7 @@
 - **HUD / Statusline 安裝器** — 一條指令安裝功能豐富的狀態列，顯示模型、Git 分支、上下文用量、速率限制、系統資源和工具呼叫統計。支援安裝 / 刪除 / 重置，可選 user 或 project 作用域。
 - **說明概覽** — `/smart:help` 動態掃描並列出所有技能、hook 和 agent 及其描述。
 - **Joke Teller Agent** — 在合適的時機講個程式設計師笑話，緩解工作壓力。
+- **內建編碼規則** — 預置規則檔案（如 Pydantic V2 標準）存於 `rules/` 目錄，按需軟連結至專案的 `.claude/rules/` 即可啟用。
 
 ---
 
@@ -236,6 +237,24 @@ PR 標題、內文和測試計畫的語言與 commit message 保持一致。
 | `**` | 跨目錄遞迴 | `config/production/**` 配對 `config/production/db/secret.json` |
 
 該 hook 透過 `PreToolUse` 攔截 `Edit` 和 `Write` 工具呼叫。若配對到受保護檔案，操作將被阻斷並回傳錯誤訊息。
+
+---
+
+## 內建規則
+
+外掛預置了編碼規則檔案，存放在 `rules/` 目錄下。按需將規則檔案軟連結到專案的 `.claude/rules/` 中即可啟用：
+
+```bash
+ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
+```
+
+**可用規則：**
+
+| 規則檔案 | 約束內容 |
+|---|---|
+| `pydantic-v2.md` | Pydantic V2 最佳實踐：`ConfigDict`、`field_validator`、`model_validate`、禁止 V1 API、Python 3.10+ 型別語法 |
+
+規則預設不啟用，按需軟連結即可。
 
 ---
 

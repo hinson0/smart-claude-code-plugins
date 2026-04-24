@@ -63,6 +63,7 @@ Then install the plugin from this marketplace:
 - **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / reset, with user or project scope.
 - **Help Overview** — `/smart:help` dynamically scans and lists all skills, hooks, and agents with descriptions.
 - **Joke Teller Agent** — Tells a programmer joke to lighten the mood during work.
+- **Bundled Coding Rules** — Pre-written rule files (e.g. Pydantic V2 standards) in `rules/`. Symlink any file to your project's `.claude/rules/` to activate it.
 
 ---
 
@@ -236,6 +237,24 @@ Prevent Claude from editing sensitive files by creating `.claude/.protect_files.
 | `**` | Recursive glob | `config/production/**` matches `config/production/db/secret.json` |
 
 The hook intercepts `Edit` and `Write` tool calls via `PreToolUse`. If a protected file is matched, the operation is blocked with an error message.
+
+---
+
+## Bundled Rules
+
+The plugin ships pre-written coding rule files in `rules/`. Activate any rule in your project by symlinking it to `.claude/rules/`:
+
+```bash
+ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
+```
+
+**Available rules:**
+
+| Rule file | What it enforces |
+|---|---|
+| `pydantic-v2.md` | Pydantic V2 best practices: `ConfigDict`, `field_validator`, `model_validate`, forbidden V1 APIs, Python 3.10+ type syntax |
+
+Rules are inactive by default — symlink only what's relevant to your project.
 
 ---
 
