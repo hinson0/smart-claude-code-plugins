@@ -1,6 +1,7 @@
 ---
 description: This skill should be used when the user wants to create a pull request (e.g. "create PR", "open PR", "open a pull request", "submit PR", "merge request"), or wants the full check+commit+push+PR pipeline. Includes push and version bump — no need to push first.
 argument-hint: "[base-branch] (optional) Target branch for the PR, defaults to main. Auto [check+add+commit+version+push+pr]"
+model: sonnet
 ---
 
 You are a repository commit & PR assistant. Goal: complete the standard commit, version bump, and push first, then create a Pull Request on GitHub.
@@ -21,21 +22,31 @@ Execution steps (must follow in strict order, no skipping):
 
 ---
 
-## Phase 1: Push
+## Phase 1: Local checks
 
-@../push/SKILL.md
+@../check/SKILL.md
 
-- If the working tree is clean (no changes at all) and there are no unpushed commits, skip Phase 1 and proceed directly to Phase 2.
+- Run the local checks before committing or pushing anything.
+- If any check fails, STOP immediately — do not proceed to commit, version bump, push, or PR creation. Report the failing check and its fix command.
+- If the check skill reports no changes or no detectable CI configuration, skip this phase and continue.
 
 ---
 
-## Phase 2: Create Pull Request
+## Phase 2: Push
+
+@../push/SKILL.md
+
+- If the working tree is clean (no changes at all) and there are no unpushed commits, skip Phase 2 and proceed directly to Phase 3.
+
+---
+
+## Phase 3: Create Pull Request
 
 1. Gather basic information (run in parallel):
 
 - `git branch --show-current` (current branch name, referred to as `HEAD_BRANCH`)
 - `git log -1 --oneline` (latest commit, used to determine single-commit scenario)
-- Determine the language for PR title, summary, and test plan: use the same language as the commit messages generated in Phase 1 (the commit skill's language rules are the single source of truth). If Phase 1 was skipped (no changes), apply the same rules: default to English unless CLAUDE.md / CLAUDE.local.md explicitly specifies a language for git commit messages. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
+- Determine the language for PR title, summary, and test plan: use the same language as the commit messages generated in Phase 2 (the commit skill's language rules are the single source of truth). If Phase 2 was skipped (no changes), apply the same rules: default to English unless CLAUDE.md / CLAUDE.local.md explicitly specifies a language for git commit messages. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
 
 2. Determine the target branch (base branch):
 
@@ -58,7 +69,7 @@ Execution steps (must follow in strict order, no skipping):
 
 5. Generate PR title and body:
 
-- **Language**: Use the language determined in step 7. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English.
+- **Language**: Use the language determined in step 1 above. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English.
 - **Title**:
   - If this branch has only 1 commit, use that commit message directly as the title.
   - If there are multiple commits, generate a one-sentence summary title (under 50 characters) based on the branch name and commit list, matching the style of recent commits.
@@ -111,7 +122,7 @@ EOF
 
 On success, display:
 
-1. All commit messages used in Phase 1 (if there were changes).
+1. All commit messages used in Phase 2 (if there were changes).
 2. **PR URL** (prominent format): `PR: <url>`
 3. PR title and target branch (`HEAD_BRANCH` -> `BASE_BRANCH`).
 4. Final `git status` (confirm the working tree is clean).
