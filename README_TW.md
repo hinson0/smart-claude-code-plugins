@@ -49,7 +49,6 @@
 - **自動版本升級** — 自動偵測版本檔案（`plugin.json`、`package.json`、`pyproject.toml`），分析 commit 類型，在推送前自動 bump 語義化版本號。Monorepo 中按檔案歸屬對映到對應 package，各自獨立升級。
 - **自動建立 GitHub 倉庫** — 未設定 remote？自動在 GitHub 建立私有倉庫、設為 origin 並推送，全程無需手動操作。
 - **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `CLAUDE.md` 覆蓋。
-- **按技能分配模型** — `check` 使用 Haiku 快速執行 CI 偵測（省錢提速）；`commit`、`push`、`pr` 使用 Sonnet，用於語義分析和內容生成。
 
 **保護與自動化**
 
