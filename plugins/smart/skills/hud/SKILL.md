@@ -1,18 +1,20 @@
 ---
 description: This skill should be used when the user says "hud", "statusline", "install statusline", "setup statusline", "configure statusline", "reset statusline", "restore statusline", or wants to install or restore the smart plugin's statusline.
-argument-hint: "[1|2|reset] (1=minimal, 2=full, reset=restore backup, default=2)"
+argument-hint: "[0|1|2|reset|normal|all] (0/reset=restore backup, 1/normal=minimal, 2/all=full, default=2)"
 ---
 
 Install or restore the smart plugin's statusline (user scope only).
 
 ## Determine Action
 
-| Argument  | Action           | Description                                     |
-| --------- | ---------------- | ----------------------------------------------- |
-| `1`       | `install-level1` | Install minimal statusline (session + ctx only) |
-| `2`       | `install-level2` | Install full statusline (all 6 lines)           |
-| _(empty)_ | `install-level2` | Default: install full statusline                |
-| `reset`   | `reset`          | Restore previous statusline backup              |
+Arguments are case-insensitive, and each level accepts either the number or its word alias — `1` and `normal` are equivalent, as are `2`/`all` and `0`/`reset`.
+
+| Argument       | Action           | Description                                     |
+| -------------- | ---------------- | ----------------------------------------------- |
+| `1` / `normal` | `install-level1` | Install minimal statusline (session + ctx only) |
+| `2` / `all`    | `install-level2` | Install full statusline (all 6 lines)           |
+| `0` / `reset`  | `reset`          | Restore previous statusline backup              |
+| _(empty)_      | `install-level2` | Default: install full statusline                |
 
 ## Paths (user scope only)
 
