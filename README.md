@@ -64,6 +64,7 @@ Then install the plugin from this marketplace:
 - **Help Overview** — `/smart:help` dynamically scans and lists all skills, hooks, and agents with descriptions.
 - **Joke Teller Agent** — Tells a programmer joke to lighten the mood during work.
 - **Bundled Coding Rules** — Pre-written rule files (e.g. Pydantic V2 standards) in `rules/`. Symlink any file to your project's `.claude/rules/` to activate it.
+- **Session Knowledge Distillation** — `/smart:distill` extracts the valuable Q&A from your current session, clusters it into topic-keyed markdown files, and writes them to a knowledge base. The target directory is read from `.smart/settings.json` (project) or `~/.smart/settings.json` (global), or asked once via `AskUserQuestion` and saved — so later runs are silent. Default `.smart/knowledges/`; a `{date}` token enables date-nested dirs like `~/knowledges/md/{date}`. A duplicate/new/diff comparison appends instead of duplicating on re-distill, and reviewed files (`.printed.md` or with a sibling PDF) are never touched.
 
 ---
 
@@ -87,6 +88,7 @@ Then install the plugin from this marketplace:
 | `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
 | `/smart:hud [rm\|reset]` | Install, remove, or reset statusline (`--user` / `--project` scope) |
 | `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
+| `/smart:distill [dir]` | Distill the current session into topic-keyed knowledge files (default `.smart/knowledges/`) |
 
 ---
 

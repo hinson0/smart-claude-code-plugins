@@ -64,6 +64,7 @@
 - **說明概覽** — `/smart:help` 動態掃描並列出所有技能、hook 和 agent 及其描述。
 - **Joke Teller Agent** — 在合適的時機講個程式設計師笑話，緩解工作壓力。
 - **內建編碼規則** — 預置規則檔案（如 Pydantic V2 標準）存於 `rules/` 目錄，按需軟連結至專案的 `.claude/rules/` 即可啟用。
+- **會話知識蒸餾** — `/smart:distill` 從當前會話擷取有價值的問答對，按主題聚類成 markdown 檔案，落盤到知識庫。目標目錄讀自 `.smart/settings.json`（專案）或 `~/.smart/settings.json`（全域），沒有則用 `AskUserQuestion` 問一次並保存——之後靜默。預設 `.smart/knowledges/`；`{date}` 佔位符支援按日期嵌套的目錄（如 `~/knowledges/md/{date}`）。重複/新增/差分三態比對讓重複蒸餾只追加不重複，已 review 檔案（`.printed.md` 或有同名 PDF）絕不觸碰。
 
 ---
 
@@ -87,6 +88,7 @@
 | `/smart:pr [目標分支]` | 完整流程：check → commit → version → push → PR（預設目標分支：`main`） |
 | `/smart:hud [rm\|reset]` | 安裝、刪除或重置狀態列（`--user` / `--project` 作用域） |
 | `/smart:help [skill\|hook\|agent]` | 顯示所有外掛元件概覽（或按類別篩選） |
+| `/smart:distill [目錄]` | 把當前會話蒸餾成按主題命名的知識檔案（預設 `.smart/knowledges/`） |
 
 ---
 
