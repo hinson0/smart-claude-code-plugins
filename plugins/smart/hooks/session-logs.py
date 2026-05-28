@@ -3,7 +3,8 @@
 """
 Reads JSON data from stdin and appends it to the session log file in the
 project directory. Logs are organized by date under
-.claude/session-logs/YYYY-MM-DD/, with filenames based on the session_id field.
+.smart/session-logs/YYYY-MM-DD/, with filenames based on the session_id field.
+Each log file is kept as a single valid JSON array of entries.
 """
 
 import json
@@ -25,13 +26,26 @@ except json.JSONDecodeError:
 project_dir = Path(os.environ.get("CLAUDE_PROJECT_DIR", "."))
 
 # Determine log directory
-log_dir = Path(project_dir, ".claude", "session-logs", date.today().isoformat())
+log_dir = Path(project_dir, ".smart", "session-logs", date.today().isoformat())
 
 # Create directory if it doesn't exist
 log_dir.mkdir(exist_ok=True, parents=True)
 
-# Write log entry
+# Read existing entries, append, and rewrite so the file stays a valid JSON array.
+# A corrupt or legacy-format file is discarded rather than crashing the hook.
 log_file = log_dir / f"{data['session_id']}.json"
-with open(log_file, "a", encoding="utf-8") as f:
-    f.write(json.dumps(data, ensure_ascii=False, indent=2))
-    f.write("\n\n")
+entries = []
+if log_file.exists():
+    try:
+        with open(log_file, "r", encoding="utf-8") as f:
+            existing = json.load(f)
+        if isinstance(existing, list):
+            entries = existing
+    except (json.JSONDecodeError, OSError):
+        entries = []
+
+entries.append(data)
+
+with open(log_file, "w", encoding="utf-8") as f:
+    json.dump(entries, f, ensure_ascii=False, indent=2)
+    f.write("\n")
