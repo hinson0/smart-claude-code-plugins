@@ -53,9 +53,8 @@
 
 **保護與自動化**
 
-- **檔案保護 Hook** — 阻止 Claude 編輯敏感檔案（`.env`、lock 檔案等）。透過專案級 `.claude/.protect_files.jsonc` 設定，支援精確檔名配對和 glob 模式（`*`、`**`）。
 - **會話 Hook** — 會話開始時問候，結束時告別（透過 macOS `say` TTS 語音播報）。
-- **會話日誌** — 每次工具呼叫的完整輸入資料均記錄到 `.claude/session-logs/`，便於事後除錯和稽核。
+- **會話日誌** — 每次工具呼叫的完整輸入資料均記錄到 `.smart/session-logs/`，便於事後除錯和稽核。
 
 **實用工具**
 
@@ -213,35 +212,6 @@ PR 標題、內文和測試計畫的語言與 commit message 保持一致。
 
 ---
 
-## 檔案保護
-
-在專案根目錄建立 `.claude/.protect_files.jsonc`，阻止 Claude 編輯敏感檔案：
-
-```jsonc
-// 受保護的檔案清單 — Claude Code 不可編輯
-// 不含萬用字元的為精確檔名配對，含 * 或 ** 的走 glob 模式
-[
-  ".env",
-  "package-lock.json",
-  "pnpm-lock.yaml",
-  "yarn.lock",
-  "*.secret",
-  "config/production/**"
-]
-```
-
-**配對規則：**
-
-| 模式 | 配對方式 | 範例 |
-|---|---|---|
-| 無萬用字元 | 精確檔名 | `.env` 攔截 `.env` 但不影響 `.env.example` |
-| `*` | 單層目錄 glob | `*.lock` 配對 `pnpm-lock.yaml` |
-| `**` | 跨目錄遞迴 | `config/production/**` 配對 `config/production/db/secret.json` |
-
-該 hook 透過 `PreToolUse` 攔截 `Edit` 和 `Write` 工具呼叫。若配對到受保護檔案，操作將被阻斷並回傳錯誤訊息。
-
----
-
 ## 內建規則
 
 外掛預置了編碼規則檔案，存放在 `rules/` 目錄下。按需將規則檔案軟連結到專案的 `.claude/rules/` 中即可啟用：
@@ -321,10 +291,22 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 |------|---------|------|
 | `greet.sh` | `SessionStart` | 透過 macOS TTS（`say`）播放歡迎語 |
 | `goodbye.sh` | `SessionEnd` | 透過 macOS TTS（`say`）播放告別語 |
-| `session-logs.py` | `PreToolUse`（所有工具） | 將每次工具呼叫的完整輸入記錄到 `.claude/session-logs/<日期>/<session_id>.json` |
-| `protect-files.py` | `PreToolUse`（Edit/Write） | 阻止編輯受保護檔案（參見[檔案保護](#檔案保護)） |
+| `session-logs.py` | `PreToolUse`（所有工具） | 將每次工具呼叫的完整輸入記錄到 `.smart/session-logs/<日期>/<session_id>.json` |
 
 所有 hooks 透過 `${CLAUDE_PLUGIN_ROOT}` 解析路徑。TTS hooks 在背景執行（`nohup &`），不阻塞 Claude Code。
+
+---
+
+## 計畫保真守衛
+
+本市集中的獨立外掛（`plugins/plan-fidelity-guard`），與 `smart` 互不相依。它用於防止一個常見失誤：實作計畫在編寫時把已批准的 UI 設計悄悄簡化掉。
+
+| Hook | 事件 | 功能 |
+|------|------|------|
+| `plan-guard.py` | `UserPromptSubmit` | 當 prompt 要求編寫實作計畫時，注入一份清單：逐元素照搬已批准的設計、打算省略的項先報備徵得同意、謹記單測不驗視覺保真 |
+| _(prompt hook)_ | `Stop` | 停止前比對已批准設計與計畫/實作，若有可見元素未經使用者批准就被丟棄或簡化則阻斷 |
+
+`Stop` 檢查是盡力而為——它基於會話 transcript 推理，並不比對算繪像素。
 
 ---
 

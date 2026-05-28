@@ -53,9 +53,8 @@ Then install the plugin from this marketplace:
 
 **Protection & Automation**
 
-- **File Protection Hook** — Prevent Claude from editing sensitive files (`.env`, lock files, etc.). Configure per-project via `.claude/.protect_files.jsonc` — supports exact filename matching and glob patterns (`*`, `**`).
 - **Session Hooks** — Greet on session start, goodbye on session end (via macOS `say` TTS).
-- **Session Logs** — Every tool call is logged to `.claude/session-logs/` with full input data for post-session debugging and audit.
+- **Session Logs** — Every tool call is logged to `.smart/session-logs/` with full input data for post-session debugging and audit.
 
 **Utilities**
 
@@ -213,35 +212,6 @@ The language of the PR title, body, and test plan follows the language used in c
 
 ---
 
-## File Protection
-
-Prevent Claude from editing sensitive files by creating `.claude/.protect_files.jsonc` in your project root:
-
-```jsonc
-// Protected files — Claude Code cannot edit these
-// Exact filenames match precisely; patterns with * or ** use glob matching
-[
-  ".env",
-  "package-lock.json",
-  "pnpm-lock.yaml",
-  "yarn.lock",
-  "*.secret",
-  "config/production/**"
-]
-```
-
-**Matching rules:**
-
-| Pattern | Match type | Example |
-|---|---|---|
-| No wildcards | Exact filename | `.env` blocks `.env` but allows `.env.example` |
-| `*` | Single-level glob | `*.lock` matches `pnpm-lock.yaml` |
-| `**` | Recursive glob | `config/production/**` matches `config/production/db/secret.json` |
-
-The hook intercepts `Edit` and `Write` tool calls via `PreToolUse`. If a protected file is matched, the operation is blocked with an error message.
-
----
-
 ## Bundled Rules
 
 The plugin ships pre-written coding rule files in `rules/`. Activate any rule in your project by symlinking it to `.claude/rules/`:
@@ -321,10 +291,22 @@ The plugin includes hooks that trigger at session boundaries and tool calls:
 |------|---------|--------------|
 | `greet.sh` | `SessionStart` | Plays a welcome message via macOS TTS (`say`) |
 | `goodbye.sh` | `SessionEnd` | Plays a farewell message via macOS TTS (`say`) |
-| `session-logs.py` | `PreToolUse` (all tools) | Logs every tool call's full input to `.claude/session-logs/<date>/<session_id>.json` |
-| `protect-files.py` | `PreToolUse` (Edit/Write) | Blocks edits to protected files (see [File Protection](#file-protection)) |
+| `session-logs.py` | `PreToolUse` (all tools) | Logs every tool call's full input to `.smart/session-logs/<date>/<session_id>.json` |
 
 All hooks use `${CLAUDE_PLUGIN_ROOT}` for path resolution. TTS hooks run in the background (`nohup &`) to avoid blocking Claude Code.
+
+---
+
+## Plan Fidelity Guard
+
+A separate plugin in this marketplace (`plugins/plan-fidelity-guard`), independent of `smart`. It prevents a common failure mode: an approved UI design getting silently simplified when the implementation plan is written.
+
+| Hook | Event | What it does |
+|------|-------|--------------|
+| `plan-guard.py` | `UserPromptSubmit` | When a prompt asks to write an implementation plan, injects a checklist: copy the approved design element-by-element, flag intended omissions for sign-off, and remember unit tests don't verify visual fidelity |
+| _(prompt hook)_ | `Stop` | Before stopping, compares the approved design against the plan/implementation and blocks if any visual element was dropped or simplified without the user's approval |
+
+The `Stop` check is best-effort — it reasons over the session transcript and does not diff rendered pixels.
 
 ---
 

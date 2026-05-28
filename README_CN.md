@@ -53,9 +53,8 @@
 
 **保护与自动化**
 
-- **文件保护 Hook** — 阻止 Claude 编辑敏感文件（`.env`、lock 文件等）。通过项目级 `.claude/.protect_files.jsonc` 配置，支持精确文件名匹配和 glob 模式（`*`、`**`）。
 - **会话 Hook** — 会话开始时问候，结束时告别（通过 macOS `say` TTS 语音播报）。
-- **会话日志** — 每次工具调用的完整输入数据均记录到 `.claude/session-logs/`，便于事后调试和审计。
+- **会话日志** — 每次工具调用的完整输入数据均记录到 `.smart/session-logs/`，便于事后调试和审计。
 
 **实用工具**
 
@@ -213,35 +212,6 @@ PR 标题、正文和测试计划的语言与 commit message 保持一致。
 
 ---
 
-## 文件保护
-
-在项目根目录创建 `.claude/.protect_files.jsonc`，阻止 Claude 编辑敏感文件：
-
-```jsonc
-// 受保护的文件列表 — Claude Code 不可编辑
-// 不含通配符的为精确文件名匹配，含 * 或 ** 的走 glob 模式
-[
-  ".env",
-  "package-lock.json",
-  "pnpm-lock.yaml",
-  "yarn.lock",
-  "*.secret",
-  "config/production/**"
-]
-```
-
-**匹配规则：**
-
-| 模式 | 匹配方式 | 示例 |
-|---|---|---|
-| 无通配符 | 精确文件名 | `.env` 拦截 `.env` 但不影响 `.env.example` |
-| `*` | 单层目录 glob | `*.lock` 匹配 `pnpm-lock.yaml` |
-| `**` | 跨目录递归 | `config/production/**` 匹配 `config/production/db/secret.json` |
-
-该 hook 通过 `PreToolUse` 拦截 `Edit` 和 `Write` 工具调用。若匹配到受保护文件，操作将被阻断并返回错误信息。
-
----
-
 ## 内置规则
 
 插件预置了编码规则文件，存放在 `rules/` 目录下。按需将规则文件软链到项目的 `.claude/rules/` 中即可激活：
@@ -321,10 +291,22 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 |------|---------|------|
 | `greet.sh` | `SessionStart` | 通过 macOS TTS（`say`）播放欢迎语 |
 | `goodbye.sh` | `SessionEnd` | 通过 macOS TTS（`say`）播放告别语 |
-| `session-logs.py` | `PreToolUse`（所有工具） | 将每次工具调用的完整输入记录到 `.claude/session-logs/<日期>/<session_id>.json` |
-| `protect-files.py` | `PreToolUse`（Edit/Write） | 阻止编辑受保护文件（参见[文件保护](#文件保护)） |
+| `session-logs.py` | `PreToolUse`（所有工具） | 将每次工具调用的完整输入记录到 `.smart/session-logs/<日期>/<session_id>.json` |
 
 所有 hooks 通过 `${CLAUDE_PLUGIN_ROOT}` 解析路径。TTS hooks 在后台运行（`nohup &`），不阻塞 Claude Code。
+
+---
+
+## 计划保真守卫
+
+本市场中的独立插件（`plugins/plan-fidelity-guard`），与 `smart` 互不依赖。它用于防止一个常见失误：实现计划在编写时把已批准的 UI 设计悄悄简化掉。
+
+| Hook | 事件 | 功能 |
+|------|------|------|
+| `plan-guard.py` | `UserPromptSubmit` | 当 prompt 要求编写实现计划时，注入一份清单：逐元素照搬已批准的设计、打算省略的项先报备征得同意、谨记单测不验视觉保真 |
+| _(prompt hook)_ | `Stop` | 停止前对比已批准设计与计划/实现，若有可见元素未经用户批准就被丢弃或简化则阻断 |
+
+`Stop` 检查是尽力而为——它基于会话 transcript 推理，并不比对渲染像素。
 
 ---
 
