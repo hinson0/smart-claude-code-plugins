@@ -4,6 +4,7 @@
 .claude/hook-logs/
 .claude/worktrees/
 .claude/session-logs/
+.smart/
 .claude/token-logs/
 .claude/statusline.jsonc
 .claude/statusline.log
