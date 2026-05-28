@@ -1,7 +1,6 @@
 ---
 description: This skill should be used when the user says "distill this conversation", "distill", "save what we discussed to the knowledge base", "persist this session by topic", "summarize the current CC output", "archive the questions and answers I asked", "extract session topics", or "write this chat to disk". The skill does NOT read source-directory files; it extracts valuable Q/A pairs directly from the CURRENT CC session context (user prompts + Claude output), clusters them semantically into kebab-case topic keys, runs a three-state comparison (duplicate / new / diff) ONLY against the resolved target directory, and writes to that directory. Target directory is resolved at runtime from .smart/settings.json (project) or ~/.smart/settings.json (global) if present, otherwise asked once via AskUserQuestion and saved so later runs are silent; default .smart/knowledges/, supports a {date} token, backward-compatible with a personal dated knowledge base. It NEVER touches any directory outside the resolved target. Reviewed files (.printed.md or md with a sibling pdf) are exempt from comparison.
 argument-hint: Optional — narrow the scope ("last 5 rounds", "the part about langgraph") or name a target directory. Defaults to the whole session written to .smart/knowledges/.
-model: sonnet
 ---
 
 # distill — Persist Knowledge Extracted From the Current Session

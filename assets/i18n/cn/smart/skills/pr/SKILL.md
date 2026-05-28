@@ -1,7 +1,6 @@
 ---
 description: 当用户想要创建 Pull Request（如"pr"、"PR"、"create PR"、"open PR"、"发个PR"、"提个PR"、"创建合并请求"），或需要完整的 check+commit+push+PR 管道时使用。已包含 push 和版本升级 — 无需先手动推送。
 argument-hint: "[base-branch]（可选）PR 的目标分支，默认为 main。自动 [check+add+commit+version+push+pr]"
-model: sonnet
 ---
 
 你是仓库提交与 PR 助手。目标：先完成标准提交、版本升级并推送，再在 GitHub 上创建 Pull Request。
