@@ -49,7 +49,7 @@
 - **自動版本升級** — 自動偵測版本檔案（`plugin.json`、`package.json`、`pyproject.toml`），分析 commit 類型，在推送前自動 bump 語義化版本號。Monorepo 中按檔案歸屬對映到對應 package，各自獨立升級。
 - **自動建立 GitHub 倉庫** — 未設定 remote？自動在 GitHub 建立私有倉庫、設為 origin 並推送，全程無需手動操作。
 - **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `CLAUDE.md` 覆蓋。
-- **按技能分配模型** — `check` 使用 Haiku 快速執行 CI 偵測（節省 token）；其餘技能（`commit`、`push`、`pr`、`version`、`hud`）使用 Sonnet，用於語義分析和內容生成。
+- **按技能分配模型** — `check` 使用 Haiku 快速執行 CI 偵測（省錢提速）；`commit`、`push`、`pr` 使用 Sonnet，用於語義分析和內容生成。
 
 **保護與自動化**
 
@@ -74,7 +74,7 @@
 | 你說的話 | 執行效果 |
 |---|---|
 | "commit" / "提交" / "完成了" | 僅智慧提交（暫存 + 分組 + 提交） |
-| "push" / "推一下" | check → commit → version → push |
+| "push" / "推一下" | commit → version → push |
 | "發個PR" / "create PR" / "open a pull request" | check → commit → version → push → PR |
 
 **⌨️ 斜線指令** — 精確控制：
@@ -83,7 +83,7 @@
 |---|---|
 | `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
 | `/smart:version [基準分支]` | 分析 commit 並升級版本號（自動偵測版本檔案；任意分支均可執行） |
-| `/smart:push` | check → commit → version → push（不建立 PR） |
+| `/smart:push` | commit → version → push（不建立 PR） |
 | `/smart:pr [目標分支]` | 完整流程：check → commit → version → push → PR（預設目標分支：`main`） |
 | `/smart:hud [rm\|reset]` | 安裝、刪除或重置狀態列（`--user` / `--project` 作用域） |
 | `/smart:help [skill\|hook\|agent]` | 顯示所有外掛元件概覽（或按類別篩選） |

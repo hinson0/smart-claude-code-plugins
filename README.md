@@ -49,7 +49,7 @@ Then install the plugin from this marketplace:
 - **Auto Version Bump** — Detects version files (`plugin.json`, `package.json`, `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
 - **Auto GitHub Repo Creation** — No remote configured? It creates a private repo on GitHub, sets it as origin, and pushes — all automatically.
 - **Consistent Language** — PR title, summary, and test plan automatically use the same language as commit messages. Defaults to English; overridable via project `CLAUDE.md`.
-- **Per-Skill Model Assignment** — `check` uses Haiku for fast, token-efficient CI detection. All other skills (`commit`, `push`, `pr`, `version`, `hud`) use Sonnet for semantic analysis and content generation.
+- **Per-Skill Model Assignment** — `check` uses Haiku for fast, token-efficient CI detection. The `commit`, `push`, and `pr` skills use Sonnet for semantic analysis and content generation.
 
 **Protection & Automation**
 
@@ -74,7 +74,7 @@ Then install the plugin from this marketplace:
 | What you say | What happens |
 |---|---|
 | "commit" / "save my work" / "done" | Smart commit only (stage + group + commit) |
-| "push" / "push to origin" | check → commit → version → push |
+| "push" / "push to origin" | commit → version → push |
 | "create PR" / "open a pull request" | check → commit → version → push → PR |
 
 **⌨️ Slash commands** — for precise control:
@@ -83,7 +83,7 @@ Then install the plugin from this marketplace:
 |---|---|
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
 | `/smart:version [base]` | Analyze commits and bump version (auto-detects version files; only runs on the base branch) |
-| `/smart:push` | check → commit → version → push (no PR) |
+| `/smart:push` | commit → version → push (no PR) |
 | `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
 | `/smart:hud [rm\|reset]` | Install, remove, or reset statusline (`--user` / `--project` scope) |
 | `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
