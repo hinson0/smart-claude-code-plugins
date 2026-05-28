@@ -58,7 +58,7 @@ Then install the plugin from this marketplace:
 **Utilities**
 
 - **Visual Progress Tracking** — Pipeline phases display as a live task list with pending/active/completed status, timing, and token usage.
-- **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Supports install / remove / reset, with user or project scope.
+- **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Two install levels (minimal / full) plus restore from backup, user scope.
 - **Help Overview** — `/smart:help` dynamically scans and lists all skills, hooks, and agents with descriptions.
 - **Joke Teller Agent** — Tells a programmer joke to lighten the mood during work.
 - **Bundled Coding Rules** — Pre-written rule files (e.g. Pydantic V2 standards) in `rules/`. Symlink any file to your project's `.claude/rules/` to activate it.
@@ -84,7 +84,7 @@ Then install the plugin from this marketplace:
 | `/smart:version [base]` | Analyze commits and bump version (auto-detects version files; only runs on the base branch) |
 | `/smart:push` | commit → version → push (no PR) |
 | `/smart:pr [base]` | Full pipeline: check → commit → version → push → PR (default base: `main`) |
-| `/smart:hud [rm\|reset]` | Install, remove, or reset statusline (`--user` / `--project` scope) |
+| `/smart:hud [0\|1\|2\|reset\|normal\|all]` | Install statusline (`1`/`normal`=minimal, `2`/`all`=full) or restore backup (`0`/`reset`), user scope |
 | `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
 | `/smart:distill [dir]` | Distill the current session into topic-keyed knowledge files (default `.smart/knowledges/`) |
 
@@ -257,10 +257,9 @@ Install a feature-rich statusline with one command:
 
 | Command | Action |
 |---------|--------|
-| `/smart:hud` | Install to user scope (backs up existing statusline automatically) |
-| `/smart:hud --project` | Install to project scope (`.claude/settings.json`, this project only) |
-| `/smart:hud rm` | Remove statusline (auto-detects which scope is installed) |
-| `/smart:hud reset` | Restore your previous statusline from backup |
+| `/smart:hud` · `/smart:hud 2` · `/smart:hud all` | Install full statusline (all 6 lines) to user scope, auto-backup |
+| `/smart:hud 1` · `/smart:hud normal` | Install minimal statusline (session + ctx only) |
+| `/smart:hud 0` · `/smart:hud reset` | Restore your previous statusline from backup |
 
 **Note:** Requires `jq`. The statusline script is macOS-optimized (uses `pmset` for battery, `sysctl` for system info).
 

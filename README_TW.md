@@ -58,7 +58,7 @@
 **實用工具**
 
 - **視覺化進度追蹤** — 管道階段以即時任務清單顯示，包含待執行/執行中/已完成狀態、計時和 token 統計。
-- **HUD / Statusline 安裝器** — 一條指令安裝功能豐富的狀態列，顯示模型、Git 分支、上下文用量、速率限制、系統資源和工具呼叫統計。支援安裝 / 刪除 / 重置，可選 user 或 project 作用域。
+- **HUD / Statusline 安裝器** — 一條指令安裝功能豐富的狀態列，顯示模型、Git 分支、上下文用量、速率限制、系統資源和工具呼叫統計。提供兩個安裝級別（簡化版 / 完整版）及從備份還原，僅 user 作用域。
 - **說明概覽** — `/smart:help` 動態掃描並列出所有技能、hook 和 agent 及其描述。
 - **Joke Teller Agent** — 在合適的時機講個程式設計師笑話，緩解工作壓力。
 - **內建編碼規則** — 預置規則檔案（如 Pydantic V2 標準）存於 `rules/` 目錄，按需軟連結至專案的 `.claude/rules/` 即可啟用。
@@ -84,7 +84,7 @@
 | `/smart:version [基準分支]` | 分析 commit 並升級版本號（自動偵測版本檔案；任意分支均可執行） |
 | `/smart:push` | commit → version → push（不建立 PR） |
 | `/smart:pr [目標分支]` | 完整流程：check → commit → version → push → PR（預設目標分支：`main`） |
-| `/smart:hud [rm\|reset]` | 安裝、刪除或重置狀態列（`--user` / `--project` 作用域） |
+| `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安裝狀態列（`1`/`normal`=簡化版，`2`/`all`=完整版）或還原備份（`0`/`reset`），user 作用域 |
 | `/smart:help [skill\|hook\|agent]` | 顯示所有外掛元件概覽（或按類別篩選） |
 | `/smart:distill [目錄]` | 把當前會話蒸餾成按主題命名的知識檔案（預設 `.smart/knowledges/`） |
 
@@ -257,10 +257,9 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 | 指令 | 操作 |
 |------|------|
-| `/smart:hud` | 安裝到 user 作用域（自動備份既有狀態列） |
-| `/smart:hud --project` | 安裝到 project 作用域（`.claude/settings.json`，僅當前專案） |
-| `/smart:hud rm` | 刪除狀態列（自動偵測已安裝的作用域） |
-| `/smart:hud reset` | 從備份還原之前的狀態列 |
+| `/smart:hud` · `/smart:hud 2` · `/smart:hud all` | 安裝完整版狀態列（全部 6 行）到 user 作用域，自動備份 |
+| `/smart:hud 1` · `/smart:hud normal` | 安裝簡化版狀態列（僅 session + ctx） |
+| `/smart:hud 0` · `/smart:hud reset` | 從備份還原之前的狀態列 |
 
 **注意：** 需要安裝 `jq`。狀態列腳本針對 macOS 最佳化（使用 `pmset` 取得電量、`sysctl` 取得系統資訊）。
 

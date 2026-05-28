@@ -58,7 +58,7 @@
 **实用工具**
 
 - **可视化进度追踪** — 管道阶段以实时任务列表显示，包含待执行/执行中/已完成状态、计时和 token 统计。
-- **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。支持安装 / 删除 / 重置，可选 user 或 project 作用域。
+- **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。提供两个安装级别（简化版 / 完整版）及从备份恢复，仅 user 作用域。
 - **帮助概览** — `/smart:help` 动态扫描并列出所有技能、hook 和 agent 及其描述。
 - **Joke Teller Agent** — 在合适的时机讲个程序员笑话，缓解工作压力。
 - **内置编码规则** — 预置规则文件（如 Pydantic V2 标准）存于 `rules/` 目录，按需软链到项目的 `.claude/rules/` 即可激活。
@@ -84,7 +84,7 @@
 | `/smart:version [基准分支]` | 分析 commit 并升级版本号（自动检测版本文件；任意分支均可运行） |
 | `/smart:push` | commit → version → push（不创建 PR） |
 | `/smart:pr [目标分支]` | 完整流程：check → commit → version → push → PR（默认目标分支：`main`） |
-| `/smart:hud [rm\|reset]` | 安装、移除或重置状态栏（`--user` / `--project` 作用域） |
+| `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安装状态栏（`1`/`normal`=简化版，`2`/`all`=完整版）或恢复备份（`0`/`reset`），user 作用域 |
 | `/smart:help [skill\|hook\|agent]` | 显示所有插件组件概览（或按类别筛选） |
 | `/smart:distill [目录]` | 把当前会话蒸馏成按主题命名的知识文件（默认 `.smart/knowledges/`） |
 
@@ -257,10 +257,9 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 | 命令 | 操作 |
 |------|------|
-| `/smart:hud` | 安装到 user 作用域（自动备份已有状态栏） |
-| `/smart:hud --project` | 安装到 project 作用域（`.claude/settings.json`，仅当前项目） |
-| `/smart:hud rm` | 删除状态栏（自动检测已安装的作用域） |
-| `/smart:hud reset` | 从备份恢复之前的状态栏 |
+| `/smart:hud` · `/smart:hud 2` · `/smart:hud all` | 安装完整版状态栏（全部 6 行）到 user 作用域，自动备份 |
+| `/smart:hud 1` · `/smart:hud normal` | 安装简化版状态栏（仅 session + ctx） |
+| `/smart:hud 0` · `/smart:hud reset` | 从备份恢复之前的状态栏 |
 
 **注意：** 需要安装 `jq`。状态栏脚本针对 macOS 优化（使用 `pmset` 获取电量、`sysctl` 获取系统信息）。
 
