@@ -1,9 +1,0 @@
-{
-  "name": "plan-fidelity-guard",
-  "description": "Guards against silent UI drift between an approved design and the implementation plan. Injects a checklist before planning (UserPromptSubmit) and compares the approved design against the plan before stopping (Stop).",
-  "version": "0.1.0",
-  "author": {
-    "name": "Hinson",
-    "github": "https://github.com/hinson0"
-  }
-}

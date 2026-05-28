@@ -28,7 +28,7 @@ if not triggers.search(prompt):
     sys.exit(0)
 
 print(
-    "[plan-fidelity-guard] You are about to write an implementation plan. "
+    "[plan-guard] You are about to write an implementation plan. "
     "Before drafting:\n"
     "1. Treat any approved design/preview as the SOURCE — copy it element by "
     "element. Reopen it; do not rebuild from memory.\n"

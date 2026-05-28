@@ -13,11 +13,6 @@
       "name": "smart",
       "source": "./plugins/smart",
       "description": "Fail-fast git pipeline plugin with semantic multi-feature commit splitting, local CI auto-detection, and one-command push/PR creation."
-    },
-    {
-      "name": "plan-fidelity-guard",
-      "source": "./plugins/plan-fidelity-guard",
-      "description": "Prevents silent UI drift between an approved design and the implementation plan: injects a checklist before planning and compares the approved design against the plan before stopping."
     }
   ]
 }
