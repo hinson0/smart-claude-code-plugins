@@ -292,21 +292,10 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `greet.sh` | `SessionStart` | 透過 macOS TTS（`say`）播放歡迎語 |
 | `goodbye.sh` | `SessionEnd` | 透過 macOS TTS（`say`）播放告別語 |
 | `session-logs.py` | `PreToolUse`（所有工具） | 將每次工具呼叫的完整輸入記錄到 `.smart/session-logs/<日期>/<session_id>.json` |
+| `plan-guard.py` | `UserPromptSubmit` | 當 prompt 要求編寫實作計畫時，注入一份清單使計畫忠實於已批准的設計 |
+| _(prompt hook)_ | `Stop` | 停止前比對已批准的 UI 設計與計畫/實作，若有元素未經報備就被丟棄則阻斷 |
 
-所有 hooks 透過 `${CLAUDE_PLUGIN_ROOT}` 解析路徑。TTS hooks 在背景執行（`nohup &`），不阻塞 Claude Code。
-
----
-
-## 計畫保真守衛
-
-本市集中的獨立外掛（`plugins/plan-fidelity-guard`），與 `smart` 互不相依。它用於防止一個常見失誤：實作計畫在編寫時把已批准的 UI 設計悄悄簡化掉。
-
-| Hook | 事件 | 功能 |
-|------|------|------|
-| `plan-guard.py` | `UserPromptSubmit` | 當 prompt 要求編寫實作計畫時，注入一份清單：逐元素照搬已批准的設計、打算省略的項先報備徵得同意、謹記單測不驗視覺保真 |
-| _(prompt hook)_ | `Stop` | 停止前比對已批准設計與計畫/實作，若有可見元素未經使用者批准就被丟棄或簡化則阻斷 |
-
-`Stop` 檢查是盡力而為——它基於會話 transcript 推理，並不比對算繪像素。
+所有 hooks 透過 `${CLAUDE_PLUGIN_ROOT}` 解析路徑。TTS hooks 在背景執行（`nohup &`），不阻塞 Claude Code。`plan-guard.py` 與 `Stop` 這一對用於防止已批准設計與實作計畫之間的靜默走樣；`Stop` 檢查為盡力而為（基於 transcript 推理，不比對算繪像素）。
 
 ---
 

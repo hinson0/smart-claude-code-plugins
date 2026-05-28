@@ -292,21 +292,10 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `greet.sh` | `SessionStart` | macOS TTS (`say`)를 통해 환영 메시지 재생 |
 | `goodbye.sh` | `SessionEnd` | macOS TTS (`say`)를 통해 작별 메시지 재생 |
 | `session-logs.py` | `PreToolUse` (모든 도구) | 모든 도구 호출의 전체 입력을 `.smart/session-logs/<날짜>/<session_id>.json`에 기록 |
+| `plan-guard.py` | `UserPromptSubmit` | 프롬프트가 구현 계획 작성을 요청하면 계획이 승인된 디자인에 충실하도록 체크리스트를 주입 |
+| _(prompt hook)_ | `Stop` | 중지 전에 승인된 UI 디자인과 계획/구현을 비교하고, 승인 없이 요소가 누락되면 차단 |
 
-모든 hook은 `${CLAUDE_PLUGIN_ROOT}`를 통해 경로를 해석합니다. TTS hook은 백그라운드에서 실행되어 (`nohup &`) Claude Code를 차단하지 않습니다.
-
----
-
-## 계획 충실도 가드
-
-이 마켓플레이스의 독립 플러그인(`plugins/plan-fidelity-guard`)으로 `smart`와 별개입니다. 흔한 실패를 방지합니다: 구현 계획을 작성할 때 승인된 UI 디자인이 조용히 단순화되는 문제입니다.
-
-| Hook | 이벤트 | 기능 |
-|------|--------|------|
-| `plan-guard.py` | `UserPromptSubmit` | 프롬프트가 구현 계획 작성을 요청하면 체크리스트를 주입합니다: 승인된 디자인을 요소 단위로 그대로 옮기기, 생략하려는 항목은 먼저 사용자 승인 받기, 단위 테스트는 시각적 충실도를 검증하지 않음을 기억하기 |
-| _(prompt hook)_ | `Stop` | 중지 전에 승인된 디자인과 계획/구현을 비교하고, 사용자 승인 없이 시각 요소가 누락되거나 단순화되면 차단합니다 |
-
-`Stop` 검사는 최선의 노력 기반입니다 — 세션 transcript를 바탕으로 추론하며 렌더링된 픽셀을 비교하지는 않습니다.
+모든 hook은 `${CLAUDE_PLUGIN_ROOT}`를 통해 경로를 해석합니다. TTS hook은 백그라운드에서 실행되어 (`nohup &`) Claude Code를 차단하지 않습니다. `plan-guard.py`와 `Stop` 조합은 승인된 디자인과 구현 계획 사이의 조용한 드리프트를 방지합니다. `Stop` 검사는 최선의 노력 기반입니다(transcript를 바탕으로 추론하며 렌더링된 픽셀을 비교하지 않음).
 
 ---
 

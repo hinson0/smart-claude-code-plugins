@@ -292,21 +292,10 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `greet.sh` | `SessionStart` | macOS TTS（`say`）でウェルカムメッセージを再生 |
 | `goodbye.sh` | `SessionEnd` | macOS TTS（`say`）でお別れメッセージを再生 |
 | `session-logs.py` | `PreToolUse`（すべてのツール） | すべてのツール呼び出しの完全な入力を `.smart/session-logs/<日付>/<session_id>.json` に記録 |
+| `plan-guard.py` | `UserPromptSubmit` | プロンプトが実装プランの作成を求めたとき、プランが承認済みデザインに忠実であるようチェックリストを注入 |
+| _(prompt hook)_ | `Stop` | 停止前に承認済み UI デザインとプラン/実装を比較し、承認なしに要素が欠落していればブロック |
 
-すべての hook は `${CLAUDE_PLUGIN_ROOT}` でパスを解決します。TTS hook はバックグラウンドで実行され（`nohup &`）、Claude Code をブロックしません。
-
----
-
-## プラン忠実性ガード
-
-このマーケットプレイス内の独立したプラグイン（`plugins/plan-fidelity-guard`）で、`smart` とは独立しています。よくある失敗を防ぎます：実装プランを書く際に、承認済みの UI デザインが静かに簡略化されてしまう問題です。
-
-| Hook | イベント | 機能 |
-|------|---------|------|
-| `plan-guard.py` | `UserPromptSubmit` | プロンプトが実装プランの作成を求めたとき、チェックリストを注入します：承認済みデザインを要素ごとにそのまま写す、省略するつもりの項目は先にユーザーの承認を得る、単体テストは視覚的忠実性を検証しないことを念頭に置く |
-| _(prompt hook)_ | `Stop` | 停止前に承認済みデザインとプラン/実装を比較し、ユーザーの承認なしに視覚要素が欠落・簡略化されていればブロックします |
-
-`Stop` チェックはベストエフォートです — セッションの transcript に基づいて推論し、レンダリングされたピクセルを比較するわけではありません。
+すべての hook は `${CLAUDE_PLUGIN_ROOT}` でパスを解決します。TTS hook はバックグラウンドで実行され（`nohup &`）、Claude Code をブロックしません。`plan-guard.py` と `Stop` の組み合わせは、承認済みデザインと実装プランの間の静かなドリフトを防ぎます。`Stop` チェックはベストエフォートです（transcript に基づいて推論し、レンダリングされたピクセルは比較しません）。
 
 ---
 
