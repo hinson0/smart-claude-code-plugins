@@ -63,7 +63,7 @@
 - **Joke Teller Agent** — 在合適的時機講個程式設計師笑話，緩解工作壓力。
 - **內建編碼規則** — 預置規則檔案（如 Pydantic V2 標準）存於 `rules/` 目錄，按需軟連結至專案的 `.claude/rules/` 即可啟用。
 - **會話知識蒸餾** — `/smart:distill` 從當前會話擷取有價值的問答對，按主題聚類成 markdown 檔案，落盤到知識庫。目標目錄讀自 `.smart/settings.json`（專案）或 `~/.smart/settings.json`（全域），沒有則用 `AskUserQuestion` 問一次並保存——之後靜默。預設 `.smart/knowledges/`；`{date}` 佔位符支援按日期嵌套的目錄（如 `~/knowledges/md/{date}`）。重複/新增/差分三態比對讓重複蒸餾只追加不重複，已 review 檔案（`.printed.md` 或有同名 PDF）絕不觸碰。
-- **Workflow 模型分層** — `/smart:workflow-budget` 讓 Workflow 腳本更省 token：按難度給每個 `agent()` 分層（機械活用 haiku、軀幹用 sonnet、收口與重要/硬實作用 opus），在 fan-out 前剪枝，並用 schema 壓縮輸出。編寫任何 Workflow 腳本時自動套用。
+- **Workflow 模型分層** — `/smart:wfb` 讓 Workflow 腳本更省 token：按難度給每個 `agent()` 分層（機械活用 haiku、軀幹用 sonnet、收口與重要/硬實作用 opus），在 fan-out 前剪枝，並用 schema 壓縮輸出。編寫任何 Workflow 腳本時自動套用。
 
 ---
 
@@ -88,7 +88,7 @@
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安裝狀態列（`1`/`normal`=簡化版，`2`/`all`=完整版）或還原備份（`0`/`reset`），user 作用域 |
 | `/smart:help [skill\|hook\|agent]` | 顯示所有外掛元件概覽（或按類別篩選） |
 | `/smart:distill [目錄]` | 把當前會話蒸餾成按主題命名的知識檔案（預設 `.smart/knowledges/`） |
-| `/smart:workflow-budget` | 編寫 Workflow 腳本時的省 token、模型分層指導（按難度選 haiku/sonnet/opus） |
+| `/smart:wfb` | 編寫 Workflow 腳本時的省 token、模型分層指導（按難度選 haiku/sonnet/opus） |
 
 ---
 

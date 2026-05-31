@@ -63,7 +63,7 @@ Then install the plugin from this marketplace:
 - **Joke Teller Agent** — Tells a programmer joke to lighten the mood during work.
 - **Bundled Coding Rules** — Pre-written rule files (e.g. Pydantic V2 standards) in `rules/`. Symlink any file to your project's `.claude/rules/` to activate it.
 - **Session Knowledge Distillation** — `/smart:distill` extracts the valuable Q&A from your current session, clusters it into topic-keyed markdown files, and writes them to a knowledge base. The target directory is read from `.smart/settings.json` (project) or `~/.smart/settings.json` (global), or asked once via `AskUserQuestion` and saved — so later runs are silent. Default `.smart/knowledges/`; a `{date}` token enables date-nested dirs like `~/knowledges/md/{date}`. A duplicate/new/diff comparison appends instead of duplicating on re-distill, and reviewed files (`.printed.md` or with a sibling PDF) are never touched.
-- **Workflow Model Tiering** — `/smart:workflow-budget` makes Workflow scripts token-lean: it tiers each `agent()` by difficulty (haiku for mechanical work, sonnet for the body, opus for convergence and important/hard implementation), prunes calls before fan-out, and constrains output with schemas. Applied automatically whenever a Workflow script is being authored.
+- **Workflow Model Tiering** — `/smart:wfb` makes Workflow scripts token-lean: it tiers each `agent()` by difficulty (haiku for mechanical work, sonnet for the body, opus for convergence and important/hard implementation), prunes calls before fan-out, and constrains output with schemas. Applied automatically whenever a Workflow script is being authored.
 
 ---
 
@@ -88,7 +88,7 @@ Then install the plugin from this marketplace:
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | Install statusline (`1`/`normal`=minimal, `2`/`all`=full) or restore backup (`0`/`reset`), user scope |
 | `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
 | `/smart:distill [dir]` | Distill the current session into topic-keyed knowledge files (default `.smart/knowledges/`) |
-| `/smart:workflow-budget` | Token-lean, model-tiered guidance for authoring Workflow scripts (haiku/sonnet/opus by difficulty) |
+| `/smart:wfb` | Token-lean, model-tiered guidance for authoring Workflow scripts (haiku/sonnet/opus by difficulty) |
 
 ---
 
