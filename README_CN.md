@@ -63,6 +63,7 @@
 - **Joke Teller Agent** — 在合适的时机讲个程序员笑话，缓解工作压力。
 - **内置编码规则** — 预置规则文件（如 Pydantic V2 标准）存于 `rules/` 目录，按需软链到项目的 `.claude/rules/` 即可激活。
 - **会话知识蒸馏** — `/smart:distill` 从当前会话抽取有价值的问答对，按主题聚类成 markdown 文件，落盘到知识库。目标目录读自 `.smart/settings.json`（项目）或 `~/.smart/settings.json`（全局），没有则用 `AskUserQuestion` 问一次并保存——之后静默。默认 `.smart/knowledges/`；`{date}` 占位符支持按日期嵌套的目录（如 `~/knowledges/md/{date}`）。重复/新增/差分三态比对让重复蒸馏只追加不重复，已 review 文件（`.printed.md` 或有同名 PDF）绝不触碰。
+- **Workflow 模型分层** — `/smart:workflow-budget` 让 Workflow 脚本更省 token：按难度给每个 `agent()` 分层（机械活用 haiku、躯干用 sonnet、收口与重要/硬实现用 opus），在 fan-out 前剪枝，并用 schema 压缩输出。编写任何 Workflow 脚本时自动应用。
 
 ---
 
@@ -87,6 +88,7 @@
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安装状态栏（`1`/`normal`=简化版，`2`/`all`=完整版）或恢复备份（`0`/`reset`），user 作用域 |
 | `/smart:help [skill\|hook\|agent]` | 显示所有插件组件概览（或按类别筛选） |
 | `/smart:distill [目录]` | 把当前会话蒸馏成按主题命名的知识文件（默认 `.smart/knowledges/`） |
+| `/smart:workflow-budget` | 编写 Workflow 脚本时的省 token、模型分层指导（按难度选 haiku/sonnet/opus） |
 
 ---
 
