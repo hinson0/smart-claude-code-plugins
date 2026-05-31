@@ -3,7 +3,7 @@ description: 当你准备编写、修改或扩大一个 Workflow 脚本（Workfl
 argument-hint: 无需参数。在编写 Workflow 脚本时应用「省 token + 模型分层」指导。
 ---
 
-# Workflow Budget —— 模型分层、省 token 的 Workflow 编写法
+# WFB —— 模型分层、省 token 的 Workflow 编写法
 
 把 token 花在能换来质量的地方，其余一概不花。目标**不是**「处处用最便宜的模型」，而是把每个工作单元匹配到「能把它做好的最小模型」，并且压根不去启动那些不必要的代理。
 

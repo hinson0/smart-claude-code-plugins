@@ -3,7 +3,7 @@ description: This skill should be used whenever you are about to author, edit, o
 argument-hint: No arguments needed. Applies token-lean, model-tiered guidance when authoring Workflow scripts.
 ---
 
-# Workflow Budget — Model-Tiered, Token-Lean Workflow Authoring
+# WFB — Model-Tiered, Token-Lean Workflow Authoring
 
 Author Workflow scripts that spend tokens where they buy quality and nowhere else. The goal is not "use the cheapest model everywhere" — it is to match each unit of work to the smallest model that can do it *well*, and to avoid spawning agents you don't need at all.
 
