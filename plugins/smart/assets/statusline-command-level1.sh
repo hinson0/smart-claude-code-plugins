@@ -1,14 +1,28 @@
 #!/bin/bash
-# Claude Code statusLine command — level 1 (minimal)
+# Claude Code statusLine command — level 1 (minimal, cross-platform: macOS + Linux/WSL/Ubuntu)
 #
 # Layout:
 #   line 1: @ session-id  |  model@version  |  $cost
 #   line 3: ctx-bar+tokens+cache  |  rate-limits(reset countdown)  |  session-duration  |  agent
 
+# Ensure ~/.local/bin is in PATH (for jq and other user tools)
+export PATH="$HOME/.local/bin:$PATH"
+
 input=$(cat)
 
 # Save raw JSON for context capture (used by smart:token-log skill)
 echo "$input" > "$HOME/.claude/.statusline-latest.json" 2>/dev/null
+
+# ══════════════════════════════════════════════════════════
+# 0. OS Detection
+# ══════════════════════════════════════════════════════════
+OS=$(uname -s)
+IS_MACOS=false
+IS_LINUX=false
+case "$OS" in
+  Darwin) IS_MACOS=true ;;
+  Linux)  IS_LINUX=true ;;
+esac
 
 # ══════════════════════════════════════════════════════════
 # 1. Extract Claude data from JSON
@@ -34,15 +48,22 @@ total_cost=$(echo "$input"     | jq -r '.cost.total_cost_usd // empty')
 model_short=$(echo "$model" | sed 's/^Claude //')
 
 # ══════════════════════════════════════════════════════════
-# 2. Session duration (calculated from transcript file birth time)
+# 2. Session duration (cross-platform: stat for file timestamp)
 # ══════════════════════════════════════════════════════════
 session_duration=""
 if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
-  birth_ts=$(stat -f %B "$transcript_path" 2>/dev/null || echo "")
-  if [ -z "$birth_ts" ] || [ "$birth_ts" = "0" ]; then
-    birth_ts=$(stat -f %m "$transcript_path" 2>/dev/null || echo "")
+  if $IS_MACOS; then
+    birth_ts=$(stat -f %B "$transcript_path" 2>/dev/null || echo "")
+    if [ -z "$birth_ts" ] || [ "$birth_ts" = "0" ]; then
+      birth_ts=$(stat -f %m "$transcript_path" 2>/dev/null || echo "")
+    fi
+  elif $IS_LINUX; then
+    birth_ts=$(stat -c %W "$transcript_path" 2>/dev/null || echo "")
+    if [ -z "$birth_ts" ] || [ "$birth_ts" = "0" ]; then
+      birth_ts=$(stat -c %Y "$transcript_path" 2>/dev/null || echo "")
+    fi
   fi
-  if [ -n "$birth_ts" ]; then
+  if [ -n "$birth_ts" ] && [ "$birth_ts" != "0" ]; then
     now_ts=$(date +%s)
     elapsed=$(( now_ts - birth_ts ))
     if [ "$elapsed" -lt 0 ]; then elapsed=0; fi

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Claude Code statusLine command — enhanced
+# Claude Code statusLine command — enhanced (cross-platform: macOS + Linux/WSL/Ubuntu)
 #
 # Layout:
 #   line 1: @ session-id  |  model@version  |  $cost
@@ -8,48 +8,25 @@
 #   line 4: CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  local-IP
 #   line 5: tool-call-stats
 #   line 6: output-style  |  vim-mode  (optional)
-#
-# Statusline JSON fields (piped to stdin by Claude Code):
-#   session_id                — unique session identifier
-#   session_name              — user-assigned session name (if set)
-#   transcript_path           — path to conversation log (.jsonl)
-#   cwd                       — current working directory (= workspace.current_dir)
-#   model.id                  — model identifier (e.g. "claude-opus-4-6[1m]")
-#   model.display_name        — model display name (e.g. "Opus 4.6 (1M context)")
-#   workspace.current_dir     — current working directory
-#   workspace.project_dir     — directory where Claude Code was launched (immutable)
-#   workspace.added_dirs      — additional directories added to workspace
-#   version                   — Claude Code version
-#   output_style.name         — current output style name
-#   cost.total_cost_usd       — total session cost (USD)
-#   cost.total_duration_ms    — wall-clock time since session start (ms)
-#   cost.total_api_duration_ms — time waiting for API responses (ms)
-#   cost.total_lines_added    — cumulative lines added
-#   cost.total_lines_removed  — cumulative lines removed
-#   context_window.total_input_tokens   — cumulative input tokens across session
-#   context_window.total_output_tokens  — cumulative output tokens across session
-#   context_window.context_window_size  — max context window (tokens; 200K default, 1M extended)
-#   context_window.current_usage.input_tokens                — input tokens in current context
-#   context_window.current_usage.output_tokens               — output tokens this generation
-#   context_window.current_usage.cache_creation_input_tokens — tokens written to cache
-#   context_window.current_usage.cache_read_input_tokens     — tokens read from cache
-#   context_window.used_percentage      — context usage % (input tokens only)
-#   context_window.remaining_percentage — remaining context %
-#   exceeds_200k_tokens       — whether latest API total tokens > 200K (fixed threshold)
-#   rate_limits.five_hour.used_percentage — 5h rolling window usage %
-#   rate_limits.five_hour.resets_at       — 5h limit reset (Unix timestamp)
-#   rate_limits.seven_day.used_percentage — 7d rolling window usage %
-#   rate_limits.seven_day.resets_at       — 7d limit reset (Unix timestamp)
-#   Conditional fields (present only when applicable):
-#   vim.mode                  — current vim mode (when vim mode enabled)
-#   agent.name                — agent name (when running with --agent)
-#   worktree.name             — worktree name (when in --worktree session)
-#   worktree.branch           — worktree branch name
+
+# Ensure ~/.local/bin is in PATH (for jq and other user tools)
+export PATH="$HOME/.local/bin:$PATH"
 
 input=$(cat)
 
 # Save raw JSON for context capture (used by smart:token-log skill)
 echo "$input" > "$HOME/.claude/.statusline-latest.json" 2>/dev/null
+
+# ══════════════════════════════════════════════════════════
+# 0. OS Detection
+# ══════════════════════════════════════════════════════════
+OS=$(uname -s)
+IS_MACOS=false
+IS_LINUX=false
+case "$OS" in
+  Darwin) IS_MACOS=true ;;
+  Linux)  IS_LINUX=true ;;
+esac
 
 # ══════════════════════════════════════════════════════════
 # 1. Extract Claude data from JSON
@@ -144,33 +121,66 @@ if [ -n "$cwd" ] && GIT_OPTIONAL_LOCKS=0 git -C "$cwd" rev-parse --git-dir >/dev
 fi
 
 # ══════════════════════════════════════════════════════════
-# 3. System info (macOS)
+# 3. System info (cross-platform: macOS + Linux)
 # ══════════════════════════════════════════════════════════
 
-# -- CPU (1-min load / cores) → approximate percentage
-cpu_cores=$(sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
-load1=$(sysctl -n vm.loadavg 2>/dev/null | awk '{print $2}')
+# -- CPU cores
+if $IS_MACOS; then
+  cpu_cores=$(sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
+elif $IS_LINUX; then
+  cpu_cores=$(nproc 2>/dev/null || echo 1)
+else
+  cpu_cores=1
+fi
+
+# -- CPU load (1-min average)
+if $IS_MACOS; then
+  load1=$(sysctl -n vm.loadavg 2>/dev/null | awk '{print $2}')
+elif $IS_LINUX; then
+  load1=$(awk '{print $1}' /proc/loadavg 2>/dev/null || echo "")
+else
+  load1=""
+fi
 cpu_pct=$(awk -v l="$load1" -v c="$cpu_cores" \
-  'BEGIN { v = l/c*100; if(v>100) v=100; printf "%.0f", v }' 2>/dev/null || echo "?")
+  'BEGIN { if(l==""||c==0) print "?"; else { v=l/c*100; if(v>100) v=100; printf "%.0f", v } }' 2>/dev/null || echo "?")
 
-# -- Memory (used / total, GB)
-mem_info=$(vm_stat 2>/dev/null)
-page_size=$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)
-mem_total_bytes=$(sysctl -n hw.memsize 2>/dev/null || echo 0)
-mem_total_gb=$(awk -v b="$mem_total_bytes" 'BEGIN { printf "%.0f", b/1073741824 }')
+# -- Memory
+if $IS_MACOS; then
+  page_size=$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)
+  mem_total_bytes=$(sysctl -n hw.memsize 2>/dev/null || echo 0)
+  mem_total_gb=$(awk -v b="$mem_total_bytes" 'BEGIN { printf "%.0f", b/1073741824 }')
+  mem_info=$(vm_stat 2>/dev/null)
+  pages_free=$(echo "$mem_info"     | awk '/Pages free/     {gsub(/\./,"",$3); print $3+0}')
+  pages_spec=$(echo "$mem_info"     | awk '/Pages speculative/ {gsub(/\./,"",$3); print $3+0}')
+  pages_inact=$(echo "$mem_info"    | awk '/Pages inactive/  {gsub(/\./,"",$3); print $3+0}')
+  mem_avail_gb=$(awk -v f="$pages_free" -v s="$pages_spec" -v i="$pages_inact" \
+    -v ps="$page_size" \
+    'BEGIN { printf "%.1f", (f+s+i)*ps/1073741824 }' 2>/dev/null || echo "?")
+  mem_used_gb=$(awk -v t="$mem_total_gb" -v a="$mem_avail_gb" \
+    'BEGIN { printf "%.1f", t-a }' 2>/dev/null || echo "?")
+  mem_pct=$(awk -v t="$mem_total_bytes" -v a="$mem_avail_gb" \
+    'BEGIN { if(t>0) printf "%.0f", (1-a*1073741824/t)*100; else print "?" }' 2>/dev/null || echo "?")
+elif $IS_LINUX; then
+  mem_total_kb=$(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+  mem_avail_kb=$(awk '/MemAvailable/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+  mem_total_gb=$(awk -v b="$mem_total_kb" 'BEGIN { printf "%.0f", b/1048576 }')
+  if [ "$mem_avail_kb" -gt 0 ] 2>/dev/null; then
+    mem_used_gb=$(awk -v t="$mem_total_kb" -v a="$mem_avail_kb" 'BEGIN { printf "%.1f", (t-a)/1048576 }')
+    mem_pct=$(awk -v t="$mem_total_kb" -v a="$mem_avail_kb" 'BEGIN { if(t>0) printf "%.0f", (1-a/t)*100; else print "?" }')
+  else
+    # Fallback: use MemFree + Buffers + Cached
+    mem_free_kb=$(awk '/MemFree/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+    mem_buf_kb=$(awk '/Buffers/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+    mem_cache_kb=$(awk '/^Cached/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+    mem_avail_kb=$(( mem_free_kb + mem_buf_kb + mem_cache_kb ))
+    mem_used_gb=$(awk -v t="$mem_total_kb" -v a="$mem_avail_kb" 'BEGIN { printf "%.1f", (t-a)/1048576 }')
+    mem_pct=$(awk -v t="$mem_total_kb" -v a="$mem_avail_kb" 'BEGIN { if(t>0) printf "%.0f", (1-a/t)*100; else print "?" }')
+  fi
+else
+  mem_total_gb="?"; mem_used_gb="?"; mem_pct="?"
+fi
 
-pages_free=$(echo "$mem_info"     | awk '/Pages free/     {gsub(/\./,"",$3); print $3+0}')
-pages_spec=$(echo "$mem_info"     | awk '/Pages speculative/ {gsub(/\./,"",$3); print $3+0}')
-pages_inact=$(echo "$mem_info"    | awk '/Pages inactive/  {gsub(/\./,"",$3); print $3+0}')
-mem_avail_gb=$(awk -v f="$pages_free" -v s="$pages_spec" -v i="$pages_inact" \
-  -v ps="$page_size" \
-  'BEGIN { printf "%.1f", (f+s+i)*ps/1073741824 }' 2>/dev/null || echo "?")
-mem_used_gb=$(awk -v t="$mem_total_gb" -v a="$mem_avail_gb" \
-  'BEGIN { printf "%.1f", t-a }' 2>/dev/null || echo "?")
-mem_pct=$(awk -v t="$mem_total_bytes" -v a="$mem_avail_gb" \
-  'BEGIN { if(t>0) printf "%.0f", (1-a*1073741824/t)*100; else print "?" }' 2>/dev/null || echo "?")
-
-# -- Disk (volume containing cwd, used %)
+# -- Disk (volume containing cwd)
 if [ -n "$cwd" ]; then
   disk_info=$(df -h "$cwd" 2>/dev/null | tail -1)
   disk_used=$(echo "$disk_info" | awk '{print $3}')
@@ -180,42 +190,80 @@ else
   disk_used="?"; disk_total="?"; disk_pct="?"
 fi
 
-# -- Uptime (compact)
+# -- Uptime (compact, works on both macOS and Linux)
 uptime_str=$(uptime 2>/dev/null | awk -F'up ' '{print $2}' | awk -F',' '{print $1}' \
   | sed 's/^ *//' | sed 's/  */ /g')
 
-# -- Battery (macOS pmset)
+# -- Battery
 battery_str=""
-batt_raw=$(pmset -g batt 2>/dev/null | grep -E '[0-9]+%')
-if [ -n "$batt_raw" ]; then
-  batt_pct=$(echo "$batt_raw" | grep -oE '[0-9]+%' | head -1 | tr -d '%')
-  batt_status=$(echo "$batt_raw" | grep -oE '(charging|discharging|charged|AC attached)' | head -1)
-  if [ -n "$batt_pct" ]; then
-    if echo "$batt_status" | grep -qi 'charg'; then
-      battery_str="~${batt_pct}%"
-    else
-      battery_str="${batt_pct}%bat"
+if $IS_MACOS; then
+  batt_raw=$(pmset -g batt 2>/dev/null | grep -E '[0-9]+%')
+  if [ -n "$batt_raw" ]; then
+    batt_pct=$(echo "$batt_raw" | grep -oE '[0-9]+%' | head -1 | tr -d '%')
+    batt_status=$(echo "$batt_raw" | grep -oE '(charging|discharging|charged|AC attached)' | head -1)
+    if [ -n "$batt_pct" ]; then
+      if echo "$batt_status" | grep -qi 'charg'; then
+        battery_str="~${batt_pct}%"
+      else
+        battery_str="${batt_pct}%bat"
+      fi
     fi
   fi
+elif $IS_LINUX; then
+  # Try standard Linux battery paths (works on laptops, WSL on laptops)
+  for bat_path in /sys/class/power_supply/BAT0 /sys/class/power_supply/BAT1; do
+    if [ -f "$bat_path/capacity" ]; then
+      batt_pct=$(cat "$bat_path/capacity" 2>/dev/null)
+      batt_status=$(cat "$bat_path/status" 2>/dev/null)
+      if [ -n "$batt_pct" ]; then
+        if echo "$batt_status" | grep -qi 'charg'; then
+          battery_str="~${batt_pct}%"
+        elif echo "$batt_status" | grep -qi 'full'; then
+          battery_str="~${batt_pct}%"
+        else
+          battery_str="${batt_pct}%bat"
+        fi
+      fi
+      break
+    fi
+  done
 fi
 
 # -- Local IP (first non-loopback IPv4)
-local_ip=$(ipconfig getifaddr en0 2>/dev/null \
-  || ipconfig getifaddr en1 2>/dev/null \
-  || echo "")
+local_ip=""
+if $IS_MACOS; then
+  local_ip=$(ipconfig getifaddr en0 2>/dev/null \
+    || ipconfig getifaddr en1 2>/dev/null \
+    || echo "")
+elif $IS_LINUX; then
+  # Try hostname -I first (simplest), then fall back to ip command
+  local_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+  if [ -z "$local_ip" ]; then
+    local_ip=$(ip -4 addr show 2>/dev/null \
+      | grep -oP '(?<=inet\s)\d+(\.\d+){3}' \
+      | grep -v '127\.0\.0\.1' \
+      | head -1)
+  fi
+fi
 
 # ══════════════════════════════════════════════════════════
-# 4. Session duration (calculated from transcript file birth time)
+# 4. Session duration (cross-platform: stat for file timestamp)
 # ══════════════════════════════════════════════════════════
 session_duration=""
 if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
-  # macOS: stat -f %B gets file birth time in seconds
-  birth_ts=$(stat -f %B "$transcript_path" 2>/dev/null || echo "")
-  if [ -z "$birth_ts" ] || [ "$birth_ts" = "0" ]; then
-    # fallback: use file modification time
-    birth_ts=$(stat -f %m "$transcript_path" 2>/dev/null || echo "")
+  if $IS_MACOS; then
+    birth_ts=$(stat -f %B "$transcript_path" 2>/dev/null || echo "")
+    if [ -z "$birth_ts" ] || [ "$birth_ts" = "0" ]; then
+      birth_ts=$(stat -f %m "$transcript_path" 2>/dev/null || echo "")
+    fi
+  elif $IS_LINUX; then
+    # %W = birth time (often 0 on ext4), %Y = modification time
+    birth_ts=$(stat -c %W "$transcript_path" 2>/dev/null || echo "")
+    if [ -z "$birth_ts" ] || [ "$birth_ts" = "0" ]; then
+      birth_ts=$(stat -c %Y "$transcript_path" 2>/dev/null || echo "")
+    fi
   fi
-  if [ -n "$birth_ts" ]; then
+  if [ -n "$birth_ts" ] && [ "$birth_ts" != "0" ]; then
     now_ts=$(date +%s)
     elapsed=$(( now_ts - birth_ts ))
     if [ "$elapsed" -lt 0 ]; then elapsed=0; fi
@@ -317,11 +365,9 @@ fmt_tok() {
 }
 
 # ══════════════════════════════════════════════════════════
-# line 1: @ session-id  |  model@version
-# line 2: ~/cwd  |  ⎇ branch  |  commit-time  |  worktree  |  battery
+# line 1: @ session-id  |  model@version  |  $cost
 # ══════════════════════════════════════════════════════════
 
-# line 1: @ session-id | model@version
 if [ -n "$session_name" ]; then
   line1="$(printf "${DIM}@ %s${RESET}" "$session_name")"
 elif [ -n "$session_id" ]; then
@@ -347,7 +393,9 @@ if [ -n "$total_cost" ] && [ "$total_cost" != "empty" ]; then
   line1="${line1}${SEP}${VSEP}${SEP}$(printf "${LGREEN}%s${RESET}" "$cost_fmt")"
 fi
 
-# line 2: ~/cwd | ⎇ branch | commit: time | wt:worktree | battery
+# ══════════════════════════════════════════════════════════
+# line 2: ~/cwd  |  ⎇ branch  |  commit-time  |  worktree  |  battery
+# ══════════════════════════════════════════════════════════
 line2="$(printf "${LBLUE}%s${RESET}" "$short_cwd")"
 
 if [ -n "$branch" ]; then
@@ -385,13 +433,11 @@ if [ -n "$used" ]; then
   used_int=$(printf '%.0f' "$used")
   bar=$(build_bar "$used_int" 12)
   bar_color=$(pct_color "$used_int")
-  # show used% and remaining%
   ctx_str="$(printf "ctx ${bar_color}%s${RESET} ${bar_color}%d%%${RESET}" "$bar" "$used_int")"
   if [ -n "$remaining" ]; then
     rem_int=$(printf '%.0f' "$remaining")
     ctx_str="${ctx_str}$(printf "${DIM}/%d%%${RESET}" "$rem_int")"
   fi
-  # show context window size in K
   if [ -n "$ctx_size" ] && [ "$ctx_size" != "empty" ] && [ "$ctx_size" -gt 0 ] 2>/dev/null; then
     ctx_size_k=$(awk -v s="$ctx_size" 'BEGIN { printf "%gK", s/1000 }')
     ctx_str="${ctx_str}$(printf " ${DIM}[%s]${RESET}" "$ctx_size_k")"
@@ -472,10 +518,7 @@ fi
 
 # ══════════════════════════════════════════════════════════
 # line 5: tool call stats
-# line 6: output style  |  vim mode  (optional)
 # ══════════════════════════════════════════════════════════
-
-# line 5: tool call stats (parsed from transcript, always shown)
 bash_count=0
 skill_count=0
 agent_count=0
@@ -488,7 +531,9 @@ if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
 fi
 line5="Bash:${bash_count} Skill:${skill_count} Agent:${agent_count} Edit:${edit_count}"
 
-# line 6: output style | vim mode
+# ══════════════════════════════════════════════════════════
+# line 6: output style  |  vim mode  (optional)
+# ══════════════════════════════════════════════════════════
 line6=""
 
 if [ -n "$style" ] && [ "$style" != "default" ] && [ "$style" != "Default" ]; then
