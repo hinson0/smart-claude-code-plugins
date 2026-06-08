@@ -1,4 +1,5 @@
 ---
+name: version
 description: This skill should be used when the user says "bump version", "update version", "release", "new version", "version bump", "prepare release", "increment version", or when preparing a release. Also triggers proactively in the push pipeline on any branch. Supports plugin.json, package.json (including monorepo), pyproject.toml, and app.json (Expo/React Native).
 argument-hint: "[base-branch] — defaults to main"
 ---
@@ -24,7 +25,7 @@ Use `git ls-files` to automatically respect `.gitignore` without hardcoding any 
 {
   git ls-files
   git ls-files --others --exclude-standard
-} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.claude-plugin/plugin\.json$'
+} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.codex-plugin/plugin\.json$'
 ```
 
 Filter: keep only files that contain a `"version"` (JSON) or `version =` (TOML) field. Discard the rest.
@@ -77,7 +78,7 @@ A single commit may map to **multiple** version files if it changed files across
 For each version file with associated commits:
 
 1. Read current version:
-   - **JSON** (`plugin.json`, `package.json`): read root-level `"version"` field.
+- **JSON** (`.codex-plugin/plugin.json`, `package.json`): read root-level `"version"` field.
    - **Expo** (`app.json`): read `expo.version` (nested under the `"expo"` key).
    - **TOML** (`pyproject.toml`): read `version` under `[project]`. If absent, check `[tool.poetry]`.
 

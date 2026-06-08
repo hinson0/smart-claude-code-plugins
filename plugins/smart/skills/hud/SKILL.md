@@ -1,4 +1,5 @@
 ---
+name: hud
 description: This skill should be used when the user says "hud", "statusline", "install statusline", "setup statusline", "configure statusline", "reset statusline", "restore statusline", or wants to install or restore the smart plugin's statusline.
 argument-hint: "[0|1|2|reset|normal|all] (0/reset=restore backup, 1/normal=minimal, 2/all=full, default=2)"
 ---

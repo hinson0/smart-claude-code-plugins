@@ -1,4 +1,5 @@
 ---
+name: op
 description: 当用户说"analyze"、"优化插件"、"禁用无用插件"、"节省上下文"、"减少上下文占用"、"我需要哪些插件"、"清理插件"、"聚焦上下文"、"精简插件"，或想要检测项目类型并禁用无关插件以节省上下文窗口空间时，应使用此技能。通过 /smart:op 显式调用。
 argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 ---
@@ -30,7 +31,8 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 | `*.sln`、`*.csproj`                                                  | dotnet                                     |
 | `build.gradle`、`pom.xml`                                            | java                                       |
 | `pubspec.yaml`                                                       | flutter                                    |
-| `.claude-plugin/plugin.json` 或子目录 `*/.claude-plugin/plugin.json` | claude-plugin                              |
+| `.codex-plugin/plugin.json`、`.agents/plugins/marketplace.json` 或子目录 `*/.codex-plugin/plugin.json` | codex-plugin |
+| `.claude-plugin/plugin.json` 或子目录 `*/.claude-plugin/plugin.json` | claude-plugin |
 
 **1b) 框架检测** — 若 `package.json` 存在，读取 `dependencies` 和 `devDependencies` 键以识别框架（react、vue、next、svelte、angular、react-native、express 等）。将每个检测到的框架作为额外类型标签添加。
 
@@ -83,7 +85,7 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 | frontend-design   | 建议禁用         | 前端设计 — 未检测到 Web 前端                     |
 | playwright        | 建议禁用         | 浏览器测试 — 未检测到 Web 项目                   |
 | ui-ux-pro-max     | 建议禁用         | UI/UX 设计 — 未检测到前端                        |
-| plugin-dev        | 建议禁用         | 插件开发 — 非 Claude Code 插件仓库               |
+| plugin-dev        | 建议禁用         | 插件开发 — 非 Codex 或 Claude Code 插件仓库      |
 ```
 
 然后使用 AskUserQuestion 确认：
@@ -116,7 +118,7 @@ argument-hint: 无需参数。自动检测项目类型并推荐插件变更。
 
 - **混合类型的 Monorepo**：若同时存在 Python 和 TypeScript 标志，保留与任一类型相关的插件。
 - **空/新仓库**：无标志文件 → 无法确定类型 → 不推荐任何变更。
-- **同时是开发项目的插件仓库**：若同时存在 `.claude-plugin/plugin.json` 和语言标志，同时保留插件开发工具和语言工具。
+- **同时是开发项目的插件仓库**：若同时存在 Codex/Claude 插件标记和语言标志，同时保留插件开发工具和语言工具。
 
 ## 附加资源
 

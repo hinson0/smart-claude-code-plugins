@@ -1,4 +1,5 @@
 ---
+name: push
 description: Use when the user wants to push code to remote (e.g. "push", "push to origin"), or wants the full commit+push pipeline. Not for creating PRs — use smart:pr instead. Includes automatic version bump before push.
 argument-hint: No arguments needed. Auto [add+commit+version+push]
 ---

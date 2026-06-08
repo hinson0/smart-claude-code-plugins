@@ -1,4 +1,5 @@
 ---
+name: wfb
 description: This skill should be used whenever you are about to author, edit, or scale a Workflow script (the Workflow tool / multi-agent orchestration), or when the user says a workflow "burns too many tokens", "is too expensive", asks to "tier models", "use haiku/sonnet/opus per task", "make the workflow cheaper", "reduce workflow cost", "model layering / 模型分层", or wants fan-out / pipeline agents to run cost-efficiently. Apply it BEFORE writing agent() calls so each subagent runs on the right model tier and the script prunes work before spawning. Use it even when the user only says "write a workflow for X" — cost-tiering should be the default, not an afterthought.
 argument-hint: No arguments needed. Applies token-lean, model-tiered guidance when authoring Workflow scripts.
 ---

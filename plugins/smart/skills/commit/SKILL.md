@@ -1,4 +1,5 @@
 ---
+name: commit
 description: This skill should be used when the user wants to commit staged or unstaged changes (e.g. "commit", "save my work", "done", "make a commit"). Performs only the commit operation — no CI checks, no version bump, no push.
 argument-hint: No arguments needed. Automatically identifies single or multiple features based on files and performs grouped commits.
 ---
@@ -77,13 +78,13 @@ For each group determined in step 3, generate one commit message.
 
 **Format priority (highest to lowest)**:
 
-1. Explicit format defined in the project's `CLAUDE.md` / `CLAUDE.local.md`
+1. Explicit format defined in the project's `AGENTS.md` / `CLAUDE.md` / `CLAUDE.local.md`
 2. Format inferred from recent `git log` commits (if the project consistently uses a style, follow it)
 3. Default format below (Conventional Commits)
 
 **Language**: Determine the language using the following priority chain:
 
-1. **CLAUDE.md / CLAUDE.local.md explicit rule** — if the project file specifies a language for git commit messages (e.g., "commit messages in Chinese"), use that language and stop here.
+1. **AGENTS.md / CLAUDE.md / CLAUDE.local.md explicit rule** — if the project file specifies a language for git commit messages (e.g., "commit messages in Chinese"), use that language and stop here.
 2. **Infer from `git log`** — examine the recent commit messages already read in step 1. If all recent commits share the same language consistently, use that language.
 3. **Cannot determine language** — if recent commits contain messages in multiple languages, or there is no commit history to infer from (new repository), first call `ToolSearch` with query `select:AskUserQuestion` to load the tool schema, then call `AskUserQuestion` to ask: "Commit messages in this repo use mixed languages (or no history exists). Which language should I use for this commit? (Default: English)"
 

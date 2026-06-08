@@ -33,9 +33,9 @@ These plugins are specialized. Recommend disabling when the project type does no
 | `ui-ux-pro-max` | UI/UX design work needed | react, vue, nextjs, svelte, angular, react-native, flutter, html |
 | `playwright` | Browser testing needed | react, vue, nextjs, svelte, angular, html, web |
 | `supabase` | Supabase is a dependency | (check package.json/requirements for "supabase") |
-| `plugin-dev` | Claude Code plugin repo | claude-plugin |
-| `skill-creator` | Claude Code plugin repo | claude-plugin |
-| `superpowers` | Claude Code plugin repo | claude-plugin |
+| `plugin-dev` | Codex or Claude Code plugin repo | codex-plugin, claude-plugin |
+| `skill-creator` | Codex or Claude Code plugin repo | codex-plugin, claude-plugin |
+| `superpowers` | Codex or Claude Code plugin repo | codex-plugin, claude-plugin |
 
 ## Project Type Detection
 
@@ -58,6 +58,9 @@ These plugins are specialized. Recommend disabling when the project type does no
 | `mix.exs` | elixir |
 | `deno.json` or `deno.jsonc` | deno |
 | `bun.lockb` | bun (also add javascript) |
+| `.agents/plugins/marketplace.json` | codex-plugin |
+| `.codex-plugin/plugin.json` | codex-plugin |
+| `*/.codex-plugin/plugin.json` (child dirs) | codex-plugin |
 | `.claude-plugin/plugin.json` | claude-plugin |
 | `*/.claude-plugin/plugin.json` (child dirs) | claude-plugin |
 

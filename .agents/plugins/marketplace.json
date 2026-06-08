@@ -1,0 +1,20 @@
+{
+  "name": "smart",
+  "interface": {
+    "displayName": "Smart"
+  },
+  "plugins": [
+    {
+      "name": "smart",
+      "source": {
+        "source": "local",
+        "path": "./plugins/smart"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

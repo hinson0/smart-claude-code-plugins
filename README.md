@@ -1,4 +1,4 @@
-# smart-claude-code-plugins
+# smart-codex-plugin
 
 <div align="center">
 
@@ -14,7 +14,7 @@
 >
 > Or use slash commands: `/smart:pr`, `/smart:push`, `/smart:commit`.
 
-A Claude Code plugin that takes over the moment you finish writing code. Just say what you want — it runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps. Just say `push` — it auto-splits multiple features, generates commit messages, and pushes:
+A Codex-format plugin that takes over the moment you finish writing code. Just say what you want — it runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps. Just say `push` — it auto-splits multiple features, generates commit messages, and pushes:
 
 ![demo](./assets/imgs/en.png)
 
@@ -24,16 +24,18 @@ A Claude Code plugin that takes over the moment you finish writing code. Just sa
 
 **1. Install the plugin** _(recommended)_
 
-In Claude Code, register the marketplace first:
+Clone the repository, then register it as a local Codex marketplace:
 
-```
-/plugin marketplace add hinson0/smart-claude-code-plugins
+```bash
+git clone https://github.com/hinson0/smart-claude-code-plugins.git
+cd smart-claude-code-plugins
+codex plugin marketplace add "$PWD"
 ```
 
-Then install the plugin from this marketplace:
+Then install the plugin from the `smart` marketplace:
 
-```
-/plugin install smart@smart-claude-code-plugins
+```bash
+codex plugin add smart@smart
 ```
 
 ---
@@ -45,10 +47,10 @@ Then install the plugin from this marketplace:
 - **Fail-Fast Pipeline** — Any step fails, everything stops immediately. No partial pushes or broken PRs.
 - **Auto CI Detection** — Reads `.github/workflows/*.yml` and runs matching checks locally (ruff, pytest, mypy, eslint, tsc, vitest, jest, go test, turbo, and more). Auto-detects package manager from lock files.
 - **Two-Phase Smart Commit Grouping** — Phase 1 hard-splits by type (feat vs fix vs refactor), Phase 2 semantically splits within the same type by purpose. No unrelated changes sneak into a single commit.
-- **Conventional Commits** — All commit messages automatically follow `<type>(<scope>): <description>` format. Respects project `CLAUDE.md` overrides and existing `git log` style.
-- **Auto Version Bump** — Detects version files (`plugin.json`, `package.json`, `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
+- **Conventional Commits** — All commit messages automatically follow `<type>(<scope>): <description>` format. Respects project `AGENTS.md` / `CLAUDE.md` overrides and existing `git log` style.
+- **Auto Version Bump** — Detects version files (`.codex-plugin/plugin.json`, `package.json`, `pyproject.toml`), analyzes commit types, and bumps semantic version before push. In monorepos, maps changed files to their owning package and bumps each independently.
 - **Auto GitHub Repo Creation** — No remote configured? It creates a private repo on GitHub, sets it as origin, and pushes — all automatically.
-- **Consistent Language** — PR title, summary, and test plan automatically use the same language as commit messages. Defaults to English; overridable via project `CLAUDE.md`.
+- **Consistent Language** — PR title, summary, and test plan automatically use the same language as commit messages. Defaults to English; overridable via project `AGENTS.md` / `CLAUDE.md`.
 
 **Protection & Automation**
 
@@ -147,7 +149,7 @@ The `scope` field describes *where* the change happened — it does not affect g
 
 **Commit message generation priority:**
 
-1. Project `CLAUDE.md` — if it specifies a commit format, that takes precedence
+1. Project `AGENTS.md` / `CLAUDE.md` — if it specifies a commit format, that takes precedence
 2. `git log` style — if existing commits follow a consistent style, it's matched
 3. Default — Conventional Commits: `<type>(<scope>): <description>`
 
@@ -295,13 +297,13 @@ The plugin includes hooks that trigger at session boundaries and tool calls:
 | `plan-guard.py` | `UserPromptSubmit` | When a prompt asks to write an implementation plan, injects a checklist to keep the plan faithful to the approved design |
 | _(prompt hook)_ | `Stop` | Before stopping, compares the approved UI design against the plan/implementation and blocks if any element was dropped without sign-off |
 
-All hooks use `${CLAUDE_PLUGIN_ROOT}` for path resolution. TTS hooks run in the background (`nohup &`) to avoid blocking Claude Code. The `plan-guard.py` / `Stop` pair guards against silent UI drift between an approved design and the implementation plan; the `Stop` check is best-effort (it reasons over the transcript, not rendered pixels).
+The bundled hook config uses `${CLAUDE_PLUGIN_ROOT}` for path resolution in Claude-compatible hosts. TTS hooks run in the background (`nohup &`) to avoid blocking the host process. The `plan-guard.py` / `Stop` pair guards against silent UI drift between an approved design and the implementation plan; the `Stop` check is best-effort (it reasons over the transcript, not rendered pixels).
 
 ---
 
 ## Requirements
 
-- [Claude Code](https://claude.ai/code) CLI
+- Codex CLI with plugin support
 - `git`
 - [`gh` CLI](https://cli.github.com) — for push (auto-create remote) and PR creation
 - `jq` — for HUD statusline only (optional otherwise)

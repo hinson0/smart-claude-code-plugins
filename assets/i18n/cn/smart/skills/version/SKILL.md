@@ -1,4 +1,5 @@
 ---
+name: version
 description: 当用户提到"升级版本"、"更新版本号"、"发布"、"新版本"、"版本升级"、"准备发布"、"递增版本"时触发。在 push 管道中也会主动触发，支持任意分支执行。支持 plugin.json、package.json（含 monorepo）和 pyproject.toml。
 argument-hint: "[目标分支] — 默认为 main"
 ---
@@ -24,7 +25,7 @@ argument-hint: "[目标分支] — 默认为 main"
 {
   git ls-files
   git ls-files --others --exclude-standard
-} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.claude-plugin/plugin\.json$'
+} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.codex-plugin/plugin\.json$'
 ```
 
 过滤：仅保留包含 `"version"`（JSON）或 `version =`（TOML）字段的文件，丢弃其余。
@@ -79,7 +80,7 @@ git log <BASE_BRANCH>..HEAD --name-only --format="COMMIT:%H" | grep -v '^$'
 对每个有关联 commit 的版本文件：
 
 1. 读取当前版本：
-   - **JSON**（`plugin.json`、`package.json`）：读取 `"version"` 字段。
+   - **JSON**（`.codex-plugin/plugin.json`、`package.json`）：读取根级 `"version"` 字段。
    - **TOML**（`pyproject.toml`）：读取 `[project]` 节下的 `version`。若未找到，检查 `[tool.poetry]`。
 
 2. 按 Conventional Commits 格式（`<type>[!][(scope)]: <desc>`）分类每个 commit：

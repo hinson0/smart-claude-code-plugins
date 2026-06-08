@@ -1,4 +1,5 @@
 ---
+name: op
 description: This skill should be used when the user says "analyze","optimize plugins", "disable unused plugins", "save context", "reduce context usage", "which plugins do I need", "clean up plugins", "focus context", "trim plugins", or wants to detect the project type and disable irrelevant plugins to save context window space. Invoked explicitly via /smart:op.
 argument-hint: No arguments needed. Automatically detects project type and recommends plugin changes.
 ---
@@ -30,7 +31,8 @@ Quick reference:
 | `*.sln`, `*.csproj`                                                  | dotnet                                                |
 | `build.gradle`, `pom.xml`                                            | java                                                  |
 | `pubspec.yaml`                                                       | flutter                                               |
-| `.claude-plugin/plugin.json` or child `*/.claude-plugin/plugin.json` | claude-plugin                                         |
+| `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, or child `*/.codex-plugin/plugin.json` | codex-plugin |
+| `.claude-plugin/plugin.json` or child `*/.claude-plugin/plugin.json` | claude-plugin |
 
 **1b) Framework detection** — if `package.json` exists, read `dependencies` and `devDependencies` keys to identify frameworks (react, vue, next, svelte, angular, react-native, express, etc.). Add each detected framework as an additional type tag.
 
@@ -83,7 +85,7 @@ Project type: python
 | frontend-design   | Recommend disable| Frontend design — no web frontend detected   |
 | playwright        | Recommend disable| Browser testing — no web project detected     |
 | ui-ux-pro-max     | Recommend disable| UI/UX design — no frontend detected           |
-| plugin-dev        | Recommend disable| Plugin dev — not a Claude Code plugin repo    |
+| plugin-dev        | Recommend disable| Plugin dev — not a Codex or Claude Code plugin repo |
 ```
 
 Then use AskUserQuestion to confirm:
@@ -116,7 +118,7 @@ Display a final summary:
 
 - **Monorepo with mixed types**: If both Python and TypeScript indicators exist, keep plugins relevant to either type.
 - **Empty/new repo**: No indicator files → cannot determine type → do not recommend any changes.
-- **Plugin repo that is also a dev project**: If both `.claude-plugin/plugin.json` and language indicators exist, keep both plugin-dev tools and language tools.
+- **Plugin repo that is also a dev project**: If both Codex/Claude plugin markers and language indicators exist, keep both plugin-dev tools and language tools.
 
 ## Additional Resources
 

@@ -1,0 +1,39 @@
+{
+  "name": "smart",
+  "version": "3.18.0",
+  "description": "Fail-fast git workflow plugin with smart check, commit, version bump, push, PR, statusline, and session distillation skills.",
+  "author": {
+    "name": "Hinson",
+    "email": "hinson0@qq.com",
+    "url": "https://github.com/hinson0"
+  },
+  "homepage": "https://github.com/hinson0/smart-claude-code-plugins",
+  "repository": "https://github.com/hinson0/smart-claude-code-plugins",
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "workflow",
+    "commit",
+    "pull-request",
+    "automation"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Smart",
+    "shortDescription": "Automate git checks, commits, pushes, and PRs.",
+    "longDescription": "Smart adds fail-fast git workflow skills for local checks, semantic commit splitting, version bumps, pushes, pull requests, statusline setup, and session knowledge distillation.",
+    "developerName": "Hinson",
+    "category": "Productivity",
+    "capabilities": [
+      "Automation",
+      "Git",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Commit my current changes.",
+      "Push my work and create a PR.",
+      "Install the smart statusline."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

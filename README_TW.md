@@ -1,4 +1,4 @@
-# smart-claude-code-plugins
+# smart-codex-plugin
 
 <div align="center">
 
@@ -14,7 +14,7 @@
 >
 > 也可以用斜線指令：`/smart:pr`、`/smart:push`、`/smart:commit`。
 
-一個為 Claude Code 設計的外掛。程式碼寫完之後，說一句話就行——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。一句 `push`，自動拆分多 feature、產生 commit message 並推送，效果如下：
+一個 Codex 格式外掛。程式碼寫完之後，說一句話就行——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。一句 `push`，自動拆分多 feature、產生 commit message 並推送，效果如下：
 
 ![demo](./assets/imgs/tw.png)
 
@@ -24,16 +24,18 @@
 
 **1. 安裝外掛**（推薦）
 
-先在 Claude Code 中註冊外掛市場：
+先克隆倉庫，然後將它註冊為本機 Codex 外掛市場：
 
-```
-/plugin marketplace add hinson0/smart-claude-code-plugins
+```bash
+git clone https://github.com/hinson0/smart-claude-code-plugins.git
+cd smart-claude-code-plugins
+codex plugin marketplace add "$PWD"
 ```
 
-然後從該市場安裝外掛：
+然後從 `smart` 市場安裝外掛：
 
-```
-/plugin install smart@smart-claude-code-plugins
+```bash
+codex plugin add smart@smart
 ```
 
 ---
@@ -45,10 +47,10 @@
 - **Fail-Fast 管線** — 任意步驟失敗立即停止，不會出現殘缺推送或錯誤 PR。
 - **自動 CI 偵測** — 讀取 `.github/workflows/*.yml`，在本機執行對應檢查（ruff、pytest、mypy、eslint、tsc、vitest、jest、go test、turbo 等）。自動從 lock 檔案偵測套件管理器。
 - **兩階段智慧提交分組** — 第一階段按 type 硬分割（feat vs fix vs refactor），第二階段按目的對同類 type 進行語義分割。杜絕無關變更混入同一次提交。
-- **Conventional Commits** — 所有 commit message 自動遵循 `<type>(<scope>): <description>` 格式。優先尊重專案 `CLAUDE.md` 設定和既有 `git log` 風格。
-- **自動版本升級** — 自動偵測版本檔案（`plugin.json`、`package.json`、`pyproject.toml`），分析 commit 類型，在推送前自動 bump 語義化版本號。Monorepo 中按檔案歸屬對映到對應 package，各自獨立升級。
+- **Conventional Commits** — 所有 commit message 自動遵循 `<type>(<scope>): <description>` 格式。優先尊重專案 `AGENTS.md` / `CLAUDE.md` 設定和既有 `git log` 風格。
+- **自動版本升級** — 自動偵測版本檔案（`.codex-plugin/plugin.json`、`package.json`、`pyproject.toml`），分析 commit 類型，在推送前自動 bump 語義化版本號。Monorepo 中按檔案歸屬對映到對應 package，各自獨立升級。
 - **自動建立 GitHub 倉庫** — 未設定 remote？自動在 GitHub 建立私有倉庫、設為 origin 並推送，全程無需手動操作。
-- **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `CLAUDE.md` 覆蓋。
+- **語言一致性** — PR 標題、摘要和測試計畫自動與 commit message 使用相同語言。預設英文，可透過專案 `AGENTS.md` / `CLAUDE.md` 覆蓋。
 
 **保護與自動化**
 
@@ -147,7 +149,7 @@
 
 **Commit message 產生優先順序：**
 
-1. 專案 `CLAUDE.md` — 若指定了 commit 格式，優先使用
+1. 專案 `AGENTS.md` / `CLAUDE.md` — 若指定了 commit 格式，優先使用
 2. `git log` 風格 — 若既有提交遵循一致風格，自動配對
 3. 預設 — Conventional Commits：`<type>(<scope>): <description>`
 
@@ -295,13 +297,13 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `plan-guard.py` | `UserPromptSubmit` | 當 prompt 要求編寫實作計畫時，注入一份清單使計畫忠實於已批准的設計 |
 | _(prompt hook)_ | `Stop` | 停止前比對已批准的 UI 設計與計畫/實作，若有元素未經報備就被丟棄則阻斷 |
 
-所有 hooks 透過 `${CLAUDE_PLUGIN_ROOT}` 解析路徑。TTS hooks 在背景執行（`nohup &`），不阻塞 Claude Code。`plan-guard.py` 與 `Stop` 這一對用於防止已批准設計與實作計畫之間的靜默走樣；`Stop` 檢查為盡力而為（基於 transcript 推理，不比對算繪像素）。
+內置 hook 配置在 Claude 相容宿主中透過 `${CLAUDE_PLUGIN_ROOT}` 解析路徑。TTS hooks 在背景執行（`nohup &`），不阻塞宿主進程。`plan-guard.py` 與 `Stop` 這一對用於防止已批准設計與實作計畫之間的靜默走樣；`Stop` 檢查為盡力而為（基於 transcript 推理，不比對算繪像素）。
 
 ---
 
 ## 前置需求
 
-- [Claude Code](https://claude.ai/code) CLI
+- 支援外掛的 Codex CLI
 - `git`
 - [`gh` CLI](https://cli.github.com) — 用於推送（自動建立 remote）和 PR 建立
 - `jq` — 僅 HUD 狀態列需要（其他功能無需）

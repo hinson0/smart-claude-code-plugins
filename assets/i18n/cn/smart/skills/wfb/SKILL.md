@@ -1,4 +1,5 @@
 ---
+name: wfb
 description: 当你准备编写、修改或扩大一个 Workflow 脚本（Workflow 工具 / 多代理编排），或用户说某个 workflow「太烧 token」「太贵」、要求「模型分层」「按任务用 haiku/sonnet/opus」「让 workflow 更省」「降低 workflow 成本」「model layering」，或希望 fan-out / pipeline 代理更省成本运行时，都应使用本技能。在写 agent() 调用之前就应用它，让每个子代理跑在正确的模型档位上、并让脚本在 fan-out 之前先剪枝。即使用户只说「给 X 写个 workflow」也要用——成本分层应是默认动作，而非事后补救。
 argument-hint: 无需参数。在编写 Workflow 脚本时应用「省 token + 模型分层」指导。
 ---

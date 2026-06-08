@@ -33,9 +33,9 @@
 | `ui-ux-pro-max` | 需要 UI/UX 设计工作 | react, vue, nextjs, svelte, angular, react-native, flutter, html |
 | `playwright` | 需要浏览器测试 | react, vue, nextjs, svelte, angular, html, web |
 | `supabase` | Supabase 是项目依赖 | （检��� package.json/requirements 中是否有 "supabase"） |
-| `plugin-dev` | Claude Code 插件仓库 | claude-plugin |
-| `skill-creator` | Claude Code 插件仓库 | claude-plugin |
-| `superpowers` | Claude Code 插件仓库 | claude-plugin |
+| `plugin-dev` | Codex 或 Claude Code 插件仓库 | codex-plugin, claude-plugin |
+| `skill-creator` | Codex 或 Claude Code 插件仓库 | codex-plugin, claude-plugin |
+| `superpowers` | Codex 或 Claude Code 插件仓库 | codex-plugin, claude-plugin |
 
 ## 项目类型检测
 
@@ -58,6 +58,9 @@
 | `mix.exs` | elixir |
 | `deno.json` 或 `deno.jsonc` | deno |
 | `bun.lockb` | bun（同时添加 javascript） |
+| `.agents/plugins/marketplace.json` | codex-plugin |
+| `.codex-plugin/plugin.json` | codex-plugin |
+| `*/.codex-plugin/plugin.json`（子目录） | codex-plugin |
 | `.claude-plugin/plugin.json` | claude-plugin |
 | `*/.claude-plugin/plugin.json`（子目录） | claude-plugin |
 

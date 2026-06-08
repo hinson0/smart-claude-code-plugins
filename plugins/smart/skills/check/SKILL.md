@@ -1,4 +1,5 @@
 ---
+name: check
 description: Auto-detect project CI configuration, extract and run corresponding check commands locally (generic, no fixed directory structure dependency)
 argument-hint: No arguments needed, automatically infers check method from .github/workflows/*.yml
 ---

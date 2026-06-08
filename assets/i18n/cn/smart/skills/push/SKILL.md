@@ -1,4 +1,5 @@
 ---
+name: push
 description: 当用户想要推送代码到远程（如"push"、"推一下"、"推到远程"），或需要完整的 commit+push 管道时使用。不用于创建 PR — 请使用 smart:pr。推送前会自动进行版本升级。
 argument-hint: 无需参数。自动 [add+commit+version+push]
 ---

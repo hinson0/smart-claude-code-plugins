@@ -1,4 +1,5 @@
 ---
+name: hud
 description: 当用户说"hud"、"statusline"、"安装 statusline"、"配置 statusline"、"恢复 statusline"，或需要安装、恢复 smart 插件的 statusline 时使用此技能。
 argument-hint: "[0|1|2|reset|normal|all]（0/reset=恢复备份，1/normal=简化版，2/all=完整版，默认=2）"
 ---

@@ -1,4 +1,5 @@
 ---
+name: commit
 description: 当用户想要提交已暂存或未暂存的改动（如"commit"、"提交"、"保存改动"、"完成了"、"make a commit"）时使用。仅执行提交操作——不做 CI 检测、不做 version bump、不做 push。
 argument-hint: 无需参数。自动识别单个或多个 feature，按 feature 分组提交。
 ---
@@ -77,13 +78,13 @@ chore: add prettierrc configuration
 
 **格式优先级（从高到低）**：
 
-1. 项目 `CLAUDE.md` / `CLAUDE.local.md` 中的显式格式定义
+1. 项目 `AGENTS.md` / `CLAUDE.md` / `CLAUDE.local.md` 中的显式格式定义
 2. 从 `git log` 近期 commit 推断的格式（如项目一直使用某种风格则延续）
 3. 下述默认格式（Conventional Commits）
 
 **语言**：按以下优先级链依次判断：
 
-1. **CLAUDE.md / CLAUDE.local.md 显式规定** — 若项目文件中明确指定了 commit message 的语言（如"commit message 用中文"），直接使用该语言，停止判断。
+1. **AGENTS.md / CLAUDE.md / CLAUDE.local.md 显式规定** — 若项目文件中明确指定了 commit message 的语言（如"commit message 用中文"），直接使用该语言，停止判断。
 2. **从 `git log` 推断** — 检查步骤 1 中已读取的近期 commit message 语言。若所有近期 commit 语言一致，则使用该语言。
 3. **无法确定语言** — 若近期 commit message 存在多种语言，或仓库没有任何提交历史（新仓库），先调用 `ToolSearch`（query: `select:AskUserQuestion`）加载工具 schema，再调用 `AskUserQuestion` 询问用户："该仓库的 commit message 存在多种语言（或暂无历史记录），本次提交应使用哪种语言？（默认：英文）"
 

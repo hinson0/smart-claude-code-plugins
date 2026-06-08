@@ -1,4 +1,5 @@
 ---
+name: distill
 description: This skill should be used when the user says "distill this conversation", "distill", "save what we discussed to the knowledge base", "persist this session by topic", "summarize the current CC output", "archive the questions and answers I asked", "extract session topics", or "write this chat to disk". The skill does NOT read source-directory files; it extracts valuable Q/A pairs directly from the CURRENT CC session context (user prompts + Claude output), clusters them semantically into kebab-case topic keys, runs a three-state comparison (duplicate / new / diff) ONLY against the resolved target directory, and writes to that directory. Target directory is resolved at runtime from .smart/settings.json (project) or ~/.smart/settings.json (global) if present, otherwise asked once via AskUserQuestion and saved so later runs are silent; default .smart/knowledges/, supports a {date} token, backward-compatible with a personal dated knowledge base. It NEVER touches any directory outside the resolved target. Reviewed files (.printed.md or md with a sibling pdf) are exempt from comparison.
 argument-hint: Optional — narrow the scope ("last 5 rounds", "the part about langgraph") or name a target directory. Defaults to the whole session written to .smart/knowledges/.
 ---
@@ -230,7 +231,7 @@ When unsure, keep by default and annotate `kept-uncertain` in the summary.
 
 ## Hard Constraint on the Target Directory
 
-The output directory is fixed by Step 0 resolution and is the single source of truth for this run. All reads and writes confine to `<target-dir>`; the skill never walks up to its parent or into sibling directories. When `<target-dir>` is the personal dated knowledge base (`~/knowledges/md/{date}/`), the date is fixed at resolution time and cannot be overridden afterward — consistent with the global CLAUDE.md convention.
+The output directory is fixed by Step 0 resolution and is the single source of truth for this run. All reads and writes confine to `<target-dir>`; the skill never walks up to its parent or into sibling directories. When `<target-dir>` is the personal dated knowledge base (`~/knowledges/md/{date}/`), the date is fixed at resolution time and cannot be overridden afterward — consistent with the global AGENTS.md / CLAUDE.md convention.
 
 ## Additional Resources
 

@@ -1,4 +1,5 @@
 ---
+name: pr
 description: This skill should be used when the user wants to create a pull request (e.g. "create PR", "open PR", "open a pull request", "submit PR", "merge request"), or wants the full check+commit+push+PR pipeline. Includes push and version bump — no need to push first.
 argument-hint: "[base-branch] (optional) Target branch for the PR, defaults to main. Auto [check+add+commit+version+push+pr]"
 ---
@@ -45,7 +46,7 @@ Execution steps (must follow in strict order, no skipping):
 
 - `git branch --show-current` (current branch name, referred to as `HEAD_BRANCH`)
 - `git log -1 --oneline` (latest commit, used to determine single-commit scenario)
-- Determine the language for PR title, summary, and test plan: use the same language as the commit messages generated in Phase 2 (the commit skill's language rules are the single source of truth). If Phase 2 was skipped (no changes), apply the same rules: default to English unless CLAUDE.md / CLAUDE.local.md explicitly specifies a language for git commit messages. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
+- Determine the language for PR title, summary, and test plan: use the same language as the commit messages generated in Phase 2 (the commit skill's language rules are the single source of truth). If Phase 2 was skipped (no changes), apply the same rules: default to English unless AGENTS.md / CLAUDE.md / CLAUDE.local.md explicitly specifies a language for git commit messages. Section headers (## Summary, ## Commits, ## Test Plan) always stay in English, and commit messages are never translated.
 
 2. Determine the target branch (base branch):
 
