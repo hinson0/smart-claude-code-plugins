@@ -9,8 +9,18 @@
 #   line 5: tool-call-stats
 #   line 6: output-style  |  vim-mode  (optional)
 
-# Ensure ~/.local/bin is in PATH (for jq and other user tools)
-export PATH="$HOME/.local/bin:$PATH"
+# Ensure common binary locations are in PATH.
+# jq lives in different places per platform/installer:
+#   ~/.local/bin (pip/manual) · /opt/homebrew/bin (macOS arm brew) · /usr/local/bin (macOS intel brew)
+#   /usr/bin (apt/dnf/pacman) · /snap/bin (snap). Claude Code's statusLine subprocess often has a minimal PATH.
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/snap/bin:$PATH"
+
+# Hard dependency: jq. Every field below is parsed from JSON via jq; without it the whole
+# statusline collapses to a couple of /proc fields. Fail with one actionable line instead.
+if ! command -v jq >/dev/null 2>&1; then
+  printf '\033[38;5;166m⚠ statusline: jq not found\033[0m \033[2m— install it: Linux "sudo apt install jq" (or dnf/pacman/apk) · macOS "brew install jq"\033[0m\n'
+  exit 0
+fi
 
 input=$(cat)
 

@@ -14,7 +14,7 @@
 >
 > 也可以用斜杠命令：`/smart:pr`、`/smart:push`、`/smart:commit`。
 
-一个 Codex 格式插件。代码写完之后，说一句话就行——它自动检查、提交、推送，并向 `main` 分支创建 Pull Request，无需任何额外操作。一句 `push`，自动拆分多 feature、生成 commit message 并推送，效果如下：
+一个同时支持 **Claude Code** 和 **Codex** 的插件。代码写完之后，说一句话就行——它自动检查、提交、推送，并向 `main` 分支创建 Pull Request，无需任何额外操作。一句 `push`，自动拆分多 feature、生成 commit message 并推送，效果如下：
 
 ![demo](./assets/imgs/cn.png)
 
@@ -22,19 +22,27 @@
 
 ## 快速开始
 
-**1. 安装插件**（推荐）
+插件**同时内置两套清单**（`.claude-plugin/` 给 Claude Code，`.codex-plugin/` 给 Codex），在任一宿主里都能原生安装。按你的宿主选择：
 
-先克隆仓库，然后将它注册为本地 Codex 插件市场：
+### Claude Code
+
+添加市场，然后安装插件——在 Claude Code 内执行：
+
+```
+/plugin marketplace add hinson0/smart-claude-code-plugins
+/plugin install smart@smart
+```
+
+> 已经本地克隆了？把市场指向你的克隆目录即可：`/plugin marketplace add /path/to/smart-claude-code-plugins`。安装后重启会话，让 skills、hooks 和 statusline 生效。
+
+### Codex
+
+先克隆仓库，注册为本地市场，再安装：
 
 ```bash
 git clone https://github.com/hinson0/smart-claude-code-plugins.git
 cd smart-claude-code-plugins
 codex plugin marketplace add "$PWD"
-```
-
-然后从 `smart` 市场安装插件：
-
-```bash
 codex plugin add smart@smart
 ```
 
@@ -265,7 +273,7 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `/smart:hud 1` · `/smart:hud normal` | 安装简化版状态栏（仅 session + ctx） |
 | `/smart:hud 0` · `/smart:hud reset` | 从备份恢复之前的状态栏 |
 
-**注意：** 需要安装 `jq`。状态栏脚本针对 macOS 优化（使用 `pmset` 获取电量、`sysctl` 获取系统信息）。
+**注意：** 跨平台（macOS + Linux/WSL/Ubuntu）—— 自动检测操作系统，电量、CPU、内存、IP 各取对应命令。需要 `jq`；缺失时 `/smart:hud` 会自动安装（apt/dnf/pacman/apk/brew）。
 
 ---
 
@@ -303,7 +311,7 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 ## 前置要求
 
-- 支持插件的 Codex CLI
+- **Claude Code** 或 **Codex**（支持插件）—— 插件内置两套清单，在任一宿主都能原生运行
 - `git`
 - [`gh` CLI](https://cli.github.com) — 用于推送（自动创建 remote）和 PR 创建
 - `jq` — 仅 HUD 状态栏需要（其他功能无需）

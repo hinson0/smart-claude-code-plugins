@@ -14,7 +14,7 @@
 >
 > Or use slash commands: `/smart:pr`, `/smart:push`, `/smart:commit`.
 
-A Codex-format plugin that takes over the moment you finish writing code. Just say what you want — it runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps. Just say `push` — it auto-splits multiple features, generates commit messages, and pushes:
+A plugin for **Claude Code** and **Codex** that takes over the moment you finish writing code. Just say what you want — it runs checks, commits, pushes, and opens a PR to `main`. Zero extra steps. Just say `push` — it auto-splits multiple features, generates commit messages, and pushes:
 
 ![demo](./assets/imgs/en.png)
 
@@ -22,19 +22,27 @@ A Codex-format plugin that takes over the moment you finish writing code. Just s
 
 ## Quick Start
 
-**1. Install the plugin** _(recommended)_
+The plugin ships **both manifests** (`.claude-plugin/` for Claude Code and `.codex-plugin/` for Codex), so it installs natively in either host. Pick yours:
 
-Clone the repository, then register it as a local Codex marketplace:
+### Claude Code
+
+Add the marketplace, then install the plugin — run these inside Claude Code:
+
+```
+/plugin marketplace add hinson0/smart-claude-code-plugins
+/plugin install smart@smart
+```
+
+> Already cloned locally? Point the marketplace at your clone instead: `/plugin marketplace add /path/to/smart-claude-code-plugins`. After installing, restart the session so skills, hooks, and the statusline load.
+
+### Codex
+
+Clone the repository, register it as a local marketplace, then install:
 
 ```bash
 git clone https://github.com/hinson0/smart-claude-code-plugins.git
 cd smart-claude-code-plugins
 codex plugin marketplace add "$PWD"
-```
-
-Then install the plugin from the `smart` marketplace:
-
-```bash
 codex plugin add smart@smart
 ```
 
@@ -265,7 +273,7 @@ Install a feature-rich statusline with one command:
 | `/smart:hud 1` · `/smart:hud normal` | Install minimal statusline (session + ctx only) |
 | `/smart:hud 0` · `/smart:hud reset` | Restore your previous statusline from backup |
 
-**Note:** Requires `jq`. The statusline script is macOS-optimized (uses `pmset` for battery, `sysctl` for system info).
+**Note:** Cross-platform (macOS + Linux/WSL/Ubuntu) — auto-detects the OS and picks the right tools for battery, CPU, memory, and IP. Requires `jq`; if it's missing, `/smart:hud` auto-installs it (apt/dnf/pacman/apk/brew).
 
 ---
 
@@ -303,7 +311,7 @@ The bundled hook config uses `${CLAUDE_PLUGIN_ROOT}` for path resolution in Clau
 
 ## Requirements
 
-- Codex CLI with plugin support
+- **Claude Code** or **Codex** (with plugin support) — the plugin ships both manifests and runs natively in either
 - `git`
 - [`gh` CLI](https://cli.github.com) — for push (auto-create remote) and PR creation
 - `jq` — for HUD statusline only (optional otherwise)

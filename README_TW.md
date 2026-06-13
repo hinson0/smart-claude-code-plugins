@@ -14,7 +14,7 @@
 >
 > 也可以用斜線指令：`/smart:pr`、`/smart:push`、`/smart:commit`。
 
-一個 Codex 格式外掛。程式碼寫完之後，說一句話就行——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。一句 `push`，自動拆分多 feature、產生 commit message 並推送，效果如下：
+一個同時支援 **Claude Code** 和 **Codex** 的外掛。程式碼寫完之後，說一句話就行——它自動檢查、提交、推送，並向 `main` 分支建立 Pull Request，無需任何額外操作。一句 `push`，自動拆分多 feature、產生 commit message 並推送，效果如下：
 
 ![demo](./assets/imgs/tw.png)
 
@@ -22,19 +22,27 @@
 
 ## 快速開始
 
-**1. 安裝外掛**（推薦）
+外掛**同時內建兩套清單**（`.claude-plugin/` 給 Claude Code，`.codex-plugin/` 給 Codex），在任一宿主裡都能原生安裝。依你的宿主選擇：
 
-先克隆倉庫，然後將它註冊為本機 Codex 外掛市場：
+### Claude Code
+
+新增市場，然後安裝外掛——在 Claude Code 內執行：
+
+```
+/plugin marketplace add hinson0/smart-claude-code-plugins
+/plugin install smart@smart
+```
+
+> 已經在本機克隆了？把市場指向你的克隆目錄即可：`/plugin marketplace add /path/to/smart-claude-code-plugins`。安裝後重啟工作階段，讓 skills、hooks 和 statusline 生效。
+
+### Codex
+
+先克隆倉庫，註冊為本機市場，再安裝：
 
 ```bash
 git clone https://github.com/hinson0/smart-claude-code-plugins.git
 cd smart-claude-code-plugins
 codex plugin marketplace add "$PWD"
-```
-
-然後從 `smart` 市場安裝外掛：
-
-```bash
 codex plugin add smart@smart
 ```
 
@@ -265,7 +273,7 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `/smart:hud 1` · `/smart:hud normal` | 安裝簡化版狀態列（僅 session + ctx） |
 | `/smart:hud 0` · `/smart:hud reset` | 從備份還原之前的狀態列 |
 
-**注意：** 需要安裝 `jq`。狀態列腳本針對 macOS 最佳化（使用 `pmset` 取得電量、`sysctl` 取得系統資訊）。
+**注意：** 跨平台（macOS + Linux/WSL/Ubuntu）—— 自動偵測作業系統，電量、CPU、記憶體、IP 各取對應指令。需要 `jq`；缺少時 `/smart:hud` 會自動安裝（apt/dnf/pacman/apk/brew）。
 
 ---
 
@@ -303,7 +311,7 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 ## 前置需求
 
-- 支援外掛的 Codex CLI
+- **Claude Code** 或 **Codex**（支援外掛）—— 外掛內建兩套清單，在任一宿主都能原生執行
 - `git`
 - [`gh` CLI](https://cli.github.com) — 用於推送（自動建立 remote）和 PR 建立
 - `jq` — 僅 HUD 狀態列需要（其他功能無需）

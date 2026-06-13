@@ -25,8 +25,22 @@ Arguments are case-insensitive, and each level accepts either the number or its 
 - **Backup script**: `~/.claude/statusline-command.sh.bak`
 - **Settings file**: `~/.claude/settings.json`
 
+## Preflight: ensure jq (required, run first for any install)
+
+The statusline parses Claude's JSON with `jq`. If `jq` is missing, almost every field renders blank — this is the #1 cause of "statusline shows only partial info on Linux/WSL" (macOS usually has jq via Homebrew, Linux often does not).
+
+1. Check availability: `command -v jq`. If found, skip to the install action.
+2. If missing, auto-install by detecting the platform's package manager (run via Bash):
+   - macOS (`uname -s` = Darwin) with `brew`: `brew install jq`
+   - Linux with `apt-get`: `sudo apt-get update && sudo apt-get install -y jq`
+   - Linux with `dnf`: `sudo dnf install -y jq`
+   - Linux with `pacman`: `sudo pacman -S --noconfirm jq`
+   - Linux with `apk`: `sudo apk add jq`
+3. Re-verify with `command -v jq`. If now present, continue. If install failed (no package manager, no sudo, network error), do NOT abort — warn the user with the exact manual command for their platform and continue (the script itself prints a one-line `jq not found` hint until resolved).
+
 ## Action: install-level1 / install-level2
 
+0. Run **Preflight: ensure jq** above first.
 1. Read the appropriate source script from the plugin's `assets/` directory:
    - Level 1 → `statusline-command-level1.sh`
    - Level 2 → `statusline-command.sh`

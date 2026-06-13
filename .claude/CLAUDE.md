@@ -8,9 +8,15 @@ Codex 格式插件，自动化 commit → push → PR 流程（push 内含 versi
 
 ## 项目结构
 
+> **双格式并存（铁律）**：本插件同时支持 Codex 和 Claude Code 两个宿主，二者读各自的清单文件，互不冲突，**任何一方都不可删**：
+> - Codex：`.agents/plugins/marketplace.json` + `plugins/smart/.codex-plugin/plugin.json`
+> - Claude Code：`.claude-plugin/marketplace.json` + `plugins/smart/.claude-plugin/plugin.json`（CC 用干净 semver，不带 `+codex.*` build 元数据；其余组件 skills/hooks/agents 由 CC 按约定自动发现）
+> 两套 plugin.json 的主版本号必须一致。
+
 ```
 根目录
-├── .agents/plugins/marketplace.json # Codex repo/team marketplace 注册文件（指向 plugins/smart）
+├── .agents/plugins/marketplace.json # Codex marketplace 注册文件（指向 plugins/smart）
+├── .claude-plugin/marketplace.json  # Claude Code marketplace 注册文件（指向 plugins/smart）
 ├── assets/                          # i18n/ 多语言镜像 + imgs/ 截图资源
 ├── README.md / README_CN/TW/KO/JA.md # 多语言用户文档
 └── docs/                            # 设计文档（gitignored，不提交）
@@ -36,8 +42,9 @@ assets/i18n/cn/smart/             # CN 镜像目录（仅供阅读，结构与 p
     ├── token-log/SKILL.md
     └── version/SKILL.md
 
-plugins/smart/                    # EN 主插件目录（被 Codex 实际加载）
+plugins/smart/                    # EN 主插件目录（被 Codex 和 Claude Code 同时加载）
 ├── .codex-plugin/plugin.json     # Codex 插件元数据
+├── .claude-plugin/plugin.json    # Claude Code 插件元数据（清单文件，缺失则 CC 无法加载插件）
 ├── agents/                       # EN agents
 ├── assets/
 │   └── statusline-command.sh     # 打包的 statusline 脚本
