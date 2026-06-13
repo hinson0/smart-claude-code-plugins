@@ -37,14 +37,19 @@ Add the marketplace, then install the plugin — run these inside Claude Code:
 
 ### Codex
 
-Clone the repository, register it as a local marketplace, then install:
+The friendliest way is right inside a Codex session — no clone needed:
 
-```bash
-git clone https://github.com/hinson0/smart-claude-code-plugins.git
-cd smart-claude-code-plugins
-codex plugin marketplace add "$PWD"
-codex plugin add smart@smart
-```
+1. Run `/plugins`
+2. Select **[Add Marketplace]**
+3. Paste the source — `hinson0/smart-claude-code-plugins` (owner/repo) or the full git URL — and press Enter
+4. Open the **Smart** marketplace, then install the **smart** plugin
+
+> Prefer the CLI? It fetches straight from Git — no clone needed:
+>
+> ```bash
+> codex plugin marketplace add hinson0/smart-claude-code-plugins
+> codex plugin add smart@smart
+> ```
 
 ---
 

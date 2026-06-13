@@ -37,14 +37,19 @@
 
 ### Codex
 
-先克隆倉庫，註冊為本機市場，再安裝：
+最友好的方式是在 Codex session 內直接新增，無需克隆：
 
-```bash
-git clone https://github.com/hinson0/smart-claude-code-plugins.git
-cd smart-claude-code-plugins
-codex plugin marketplace add "$PWD"
-codex plugin add smart@smart
-```
+1. 執行 `/plugins`
+2. 選擇 **[Add Marketplace]**
+3. 貼上來源——`hinson0/smart-claude-code-plugins`（owner/repo）或完整 git URL——按 Enter 確認
+4. 開啟 **Smart** 市場，安裝 **smart** 外掛
+
+> 喜歡命令列？它會直接從 Git 拉取，無需克隆：
+>
+> ```bash
+> codex plugin marketplace add hinson0/smart-claude-code-plugins
+> codex plugin add smart@smart
+> ```
 
 ---
 

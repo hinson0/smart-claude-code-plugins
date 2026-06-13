@@ -37,14 +37,19 @@
 
 ### Codex
 
-リポジトリを clone し、ローカルマーケットプレイスとして登録してからインストールします：
+いちばん手軽なのは Codex セッション内で直接追加する方法です — clone 不要：
 
-```bash
-git clone https://github.com/hinson0/smart-claude-code-plugins.git
-cd smart-claude-code-plugins
-codex plugin marketplace add "$PWD"
-codex plugin add smart@smart
-```
+1. `/plugins` を実行
+2. **[Add Marketplace]** を選択
+3. ソースを貼り付け — `hinson0/smart-claude-code-plugins`（owner/repo）または完全な git URL — して Enter
+4. **Smart** マーケットプレイスを開き、**smart** プラグインをインストール
+
+> CLI が好みですか？Git から直接取得するので clone は不要です：
+>
+> ```bash
+> codex plugin marketplace add hinson0/smart-claude-code-plugins
+> codex plugin add smart@smart
+> ```
 
 ---
 
