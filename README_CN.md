@@ -79,6 +79,7 @@
 - **内置编码规则** — 预置规则文件（如 Pydantic V2 标准）存于 `rules/` 目录，按需软链到项目的 `.claude/rules/` 即可激活。
 - **会话知识蒸馏** — `/smart:distill` 从当前会话抽取有价值的问答对，按主题聚类成 markdown 文件，落盘到知识库。目标目录读自 `.smart/settings.json`（项目）或 `~/.smart/settings.json`（全局），没有则用 `AskUserQuestion` 问一次并保存——之后静默。默认 `.smart/knowledges/`；`{date}` 占位符支持按日期嵌套的目录（如 `~/knowledges/md/{date}`）。重复/新增/差分三态比对让重复蒸馏只追加不重复，已 review 文件（`.printed.md` 或有同名 PDF）绝不触碰。
 - **Workflow 模型分层** — `/smart:wfb` 让 Workflow 脚本更省 token：按难度给每个 `agent()` 分层（机械活用 haiku、躯干用 sonnet、收口与重要/硬实现用 opus），在 fan-out 前剪枝，并用 schema 压缩输出。编写任何 Workflow 脚本时自动应用。
+- **剪贴板截图上传** — `/smart:sendshot` 安装一个跨平台的 `sendshot` shell 函数：抓取剪贴板图片，通过 `scp` 上传到远程主机（如 EC2），随后打印并把远程路径回写剪贴板。支持 WSL（PowerShell 读 Windows 剪贴板）和 macOS（`pngpaste`/`osascript`）。配置——主机、密钥、远程目录——位于 `~/.smart/settings.json`，运行时读取，所以换主机无需重装；远程目录用 `mkdir -p` 自动创建。
 
 ---
 
@@ -104,6 +105,7 @@
 | `/smart:help [skill\|hook\|agent]` | 显示所有插件组件概览（或按类别筛选） |
 | `/smart:distill [目录]` | 把当前会话蒸馏成按主题命名的知识文件（默认 `.smart/knowledges/`） |
 | `/smart:wfb` | 编写 Workflow 脚本时的省 token、模型分层指导（按难度选 haiku/sonnet/opus） |
+| `/smart:sendshot [install\|config\|uninstall]` | 安装跨平台 `sendshot` 函数（剪贴板图片 → `scp` 到远程 → 复制远程路径）；配置在 `~/.smart/settings.json` |
 
 ---
 

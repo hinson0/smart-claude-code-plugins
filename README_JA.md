@@ -79,6 +79,7 @@
 - **組み込みコーディングルール** — 事前に用意されたルールファイル（例：Pydantic V2 標準）が `rules/` に格納されています。プロジェクトの `.claude/rules/` にシンボリックリンクを作成するだけで有効化できます。
 - **セッション知識蒸留** — `/smart:distill` は現在のセッションから価値ある Q&A を抽出し、トピック別の markdown ファイルにクラスタリングして知識ベースに書き出します。対象ディレクトリは `.smart/settings.json`（プロジェクト）または `~/.smart/settings.json`（グローバル）から読み取り、なければ `AskUserQuestion` で一度だけ尋ねて保存します — 以降の実行は静かです。デフォルト `.smart/knowledges/`；`{date}` トークンで `~/knowledges/md/{date}` のような日付ネストディレクトリに対応。重複/新規/差分の比較により再蒸留時は重複せず追記され、レビュー済みファイル（`.printed.md` または同名 PDF 付き）には一切触れません。
 - **Workflow モデル階層化** — `/smart:wfb` は Workflow スクリプトを省 token にします：各 `agent()` を難易度で階層化し（機械的な作業は haiku、本体は sonnet、収束と重要/難しい実装は opus）、fan-out の前に呼び出しを剪定し、schema で出力を制約します。Workflow スクリプトを書くたびに自動的に適用されます。
+- **クリップボードスクリーンショットアップローダー** — `/smart:sendshot` はクロスプラットフォームの `sendshot` shell 関数をインストールします：クリップボードの画像をキャプチャし、`scp` でリモートホスト（例：EC2）にアップロードして、リモートパスを出力しクリップボードに再コピーします。WSL（PowerShell で Windows クリップボードを読む）と macOS（`pngpaste`/`osascript`）に対応。設定 — ホスト、鍵、リモートディレクトリ — は `~/.smart/settings.json` にあり実行時に読むため、ホストを変えても再インストール不要です。リモートディレクトリは `mkdir -p` で自動作成されます。
 
 ---
 
@@ -104,6 +105,7 @@
 | `/smart:help [skill\|hook\|agent]` | 全プラグインコンポーネントの概要表示（カテゴリ別フィルタも可能） |
 | `/smart:distill [ディレクトリ]` | 現在のセッションをトピック別の知識ファイルに蒸留（デフォルト `.smart/knowledges/`） |
 | `/smart:wfb` | Workflow スクリプト作成のための省 token・モデル階層化ガイド（難易度別に haiku/sonnet/opus） |
+| `/smart:sendshot [install\|config\|uninstall]` | クロスプラットフォーム `sendshot` 関数をインストール（クリップボード画像 → `scp` でリモート → リモートパスをコピー）；設定は `~/.smart/settings.json` |
 
 ---
 

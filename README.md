@@ -79,6 +79,7 @@ The friendliest way is right inside a Codex session — no clone needed:
 - **Bundled Coding Rules** — Pre-written rule files (e.g. Pydantic V2 standards) in `rules/`. Symlink any file to your project's `.claude/rules/` to activate it.
 - **Session Knowledge Distillation** — `/smart:distill` extracts the valuable Q&A from your current session, clusters it into topic-keyed markdown files, and writes them to a knowledge base. The target directory is read from `.smart/settings.json` (project) or `~/.smart/settings.json` (global), or asked once via `AskUserQuestion` and saved — so later runs are silent. Default `.smart/knowledges/`; a `{date}` token enables date-nested dirs like `~/knowledges/md/{date}`. A duplicate/new/diff comparison appends instead of duplicating on re-distill, and reviewed files (`.printed.md` or with a sibling PDF) are never touched.
 - **Workflow Model Tiering** — `/smart:wfb` makes Workflow scripts token-lean: it tiers each `agent()` by difficulty (haiku for mechanical work, sonnet for the body, opus for convergence and important/hard implementation), prunes calls before fan-out, and constrains output with schemas. Applied automatically whenever a Workflow script is being authored.
+- **Clipboard Screenshot Uploader** — `/smart:sendshot` installs a cross-platform `sendshot` shell function that captures the clipboard image and uploads it to a remote host (e.g. EC2) over `scp`, then prints and re-copies the remote path. Works on WSL (Windows clipboard via PowerShell) and macOS (`pngpaste`/`osascript`). Config — host, key, remote dir — lives in `~/.smart/settings.json` and is read at runtime, so changing the host never needs a reinstall; the remote dir is auto-created via `mkdir -p`.
 
 ---
 
@@ -104,6 +105,7 @@ The friendliest way is right inside a Codex session — no clone needed:
 | `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
 | `/smart:distill [dir]` | Distill the current session into topic-keyed knowledge files (default `.smart/knowledges/`) |
 | `/smart:wfb` | Token-lean, model-tiered guidance for authoring Workflow scripts (haiku/sonnet/opus by difficulty) |
+| `/smart:sendshot [install\|config\|uninstall]` | Install the cross-platform `sendshot` function (clipboard image → `scp` to remote → copy remote path); config in `~/.smart/settings.json` |
 
 ---
 

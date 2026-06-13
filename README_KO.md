@@ -79,6 +79,7 @@
 - **내장 코딩 규칙** — 사전 작성된 규칙 파일(예: Pydantic V2 표준)이 `rules/`에 저장됩니다. 프로젝트의 `.claude/rules/`에 심볼릭 링크를 생성하면 활성화됩니다.
 - **세션 지식 증류** — `/smart:distill`은 현재 세션에서 가치 있는 Q&A를 추출하고 주제별 markdown 파일로 클러스터링하여 지식 베이스에 기록합니다. 대상 디렉터리는 `.smart/settings.json`(프로젝트) 또는 `~/.smart/settings.json`(전역)에서 읽으며, 없으면 `AskUserQuestion`으로 한 번만 묻고 저장합니다 — 이후 실행은 조용합니다. 기본값 `.smart/knowledges/`; `{date}` 토큰으로 `~/knowledges/md/{date}` 같은 날짜 중첩 디렉터리를 지원합니다. 중복/신규/차분 비교로 재증류 시 중복 없이 추가되며, 검토 완료 파일(`.printed.md` 또는 동일 이름 PDF 동반)은 절대 건드리지 않습니다.
 - **Workflow 모델 계층화** — `/smart:wfb`는 Workflow 스크립트를 토큰 절약형으로 만듭니다: 각 `agent()`를 난이도별로 계층화하고(기계적 작업은 haiku, 본체는 sonnet, 수렴 및 중요/어려운 구현은 opus), fan-out 전에 호출을 가지치기하며, schema로 출력을 제약합니다. Workflow 스크립트를 작성할 때마다 자동 적용됩니다.
+- **클립보드 스크린샷 업로더** — `/smart:sendshot`은 크로스플랫폼 `sendshot` shell 함수를 설치합니다: 클립보드 이미지를 캡처해 `scp`로 원격 호스트(예: EC2)에 업로드한 뒤 원격 경로를 출력하고 클립보드에 다시 복사합니다. WSL(PowerShell로 Windows 클립보드 읽기)과 macOS(`pngpaste`/`osascript`)를 지원합니다. 설정 — 호스트, 키, 원격 디렉터리 — 은 `~/.smart/settings.json`에 있으며 런타임에 읽으므로 호스트를 바꿔도 재설치가 필요 없습니다. 원격 디렉터리는 `mkdir -p`로 자동 생성됩니다.
 
 ---
 
@@ -104,6 +105,7 @@
 | `/smart:help [skill\|hook\|agent]` | 모든 플러그인 컴포넌트 개요 표시 (또는 카테고리별 필터) |
 | `/smart:distill [디렉터리]` | 현재 세션을 주제별 지식 파일로 증류 (기본값 `.smart/knowledges/`) |
 | `/smart:wfb` | Workflow 스크립트 작성을 위한 토큰 절약·모델 계층화 가이드(난이도별 haiku/sonnet/opus) |
+| `/smart:sendshot [install\|config\|uninstall]` | 크로스플랫폼 `sendshot` 함수 설치(클립보드 이미지 → `scp`로 원격 전송 → 원격 경로 복사); 설정은 `~/.smart/settings.json` |
 
 ---
 
