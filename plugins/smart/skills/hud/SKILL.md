@@ -19,8 +19,8 @@ Arguments are case-insensitive, and each level accepts either the number or its 
 
 ## Paths (user scope only)
 
-- **Source script level 1**: `${CLAUDE_PLUGIN_ROOT}/assets/statusline-command-level1.sh`
-- **Source script level 2**: `${CLAUDE_PLUGIN_ROOT}/assets/statusline-command.sh`
+- **Source script level 1**: `${CLAUDE_PLUGIN_ROOT}/skills/hud/scripts/statusline-command-level1.sh`
+- **Source script level 2**: `${CLAUDE_PLUGIN_ROOT}/skills/hud/scripts/statusline-command.sh`
 - **Target script**: `~/.claude/statusline-command.sh`
 - **Backup script**: `~/.claude/statusline-command.sh.bak`
 - **Settings file**: `~/.claude/settings.json`
@@ -41,7 +41,7 @@ The statusline parses Claude's JSON with `jq`. If `jq` is missing, almost every 
 ## Action: install-level1 / install-level2
 
 0. Run **Preflight: ensure jq** above first.
-1. Read the appropriate source script from the plugin's `assets/` directory:
+1. Read the appropriate source script from the plugin's `skills/hud/scripts/` directory:
    - Level 1 → `statusline-command-level1.sh`
    - Level 2 → `statusline-command.sh`
 2. If the target script already exists, back it up:

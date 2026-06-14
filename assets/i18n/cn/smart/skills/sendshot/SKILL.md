@@ -10,16 +10,16 @@ argument-hint: "[install|config|uninstall]（空=先配置再安装）"
 
 ## 判定动作
 
-| 参数         | 动作        | 说明                                       |
-| ------------ | ----------- | ------------------------------------------ |
-| `config`     | `config`    | 仅写入/更新 `sendshot` 配置，不安装        |
-| `uninstall`  | `uninstall` | 从 shell rc 中移除函数块                   |
-| `install`    | `install`   | 仅安装函数（配置须已存在）                 |
-| _(空)_       | `config` 再 `install` | 默认：先配置，再安装             |
+| 参数        | 动作                  | 说明                                |
+| ----------- | --------------------- | ----------------------------------- |
+| `config`    | `config`              | 仅写入/更新 `sendshot` 配置，不安装 |
+| `uninstall` | `uninstall`           | 从 shell rc 中移除函数块            |
+| `install`   | `install`             | 仅安装函数（配置须已存在）          |
+| _(空)_      | `config` 再 `install` | 默认：先配置，再安装                |
 
 ## 路径
 
-- **函数源文件**：`${CLAUDE_PLUGIN_ROOT}/assets/sendshot.sh`
+- **函数源文件**：`${CLAUDE_PLUGIN_ROOT}/skills/sendshot/scripts/sendshot.sh`
 - **配置文件**：`~/.smart/settings.json`（仅全局——`sendshot` 是全局 shell 函数）
 - **Shell rc**：zsh 用 `~/.zshrc`，bash 用 `~/.bashrc`（从 `$SHELL` 检测；默认 `~/.zshrc`）
 - **标记块**（在 rc 中包裹函数）：
@@ -62,7 +62,7 @@ argument-hint: "[install|config|uninstall]（空=先配置再安装）"
 ## 动作：install
 
 0. 先跑上面的**前置检查：确保 jq**。
-1. 从 `${CLAUDE_PLUGIN_ROOT}/assets/sendshot.sh` 读取函数源文件。
+1. 从 `${CLAUDE_PLUGIN_ROOT}/skills/sendshot/scripts/sendshot.sh` 读取函数源文件。
 2. 检测 shell rc：zsh → `~/.zshrc`，bash → `~/.bashrc`（来自 `$SHELL`）；默认 `~/.zshrc`。不存在则创建。
 3. 读取 rc。若已存在 `# >>> smart sendshot >>>` … `# <<< smart sendshot <<<` 块，则替换它（幂等重装）；否则在文件末尾追加新块。块即标记行包裹函数源文件原文。用 Edit 工具替换已有块；用 Edit/Write 追加新块——绝不破坏 rc 的其他内容。
 4. 报告成功：
@@ -82,6 +82,6 @@ argument-hint: "[install|config|uninstall]（空=先配置再安装）"
 - 配置**仅全局**（`~/.smart/settings.json`）—— 不要为 sendshot 写项目级 `.smart/settings.json`。
 - `settings.json` 和 rc 的改动一律用 Edit 工具；绝不整体覆盖文件。
 - 不要把配置值烤进 rc —— 函数在运行时从 `~/.smart/settings.json` 读取。
-- 从 `assets/sendshot.sh` 原样安装函数；不要内联手改的副本。
+- 从 `skills/sendshot/scripts/sendshot.sh` 原样安装函数；不要内联手改的副本。
 - 若平台既非 WSL 也非 macOS，仍可安装（函数自带守卫），但提醒用户它只在 WSL/macOS 上运行。
 - 输出语言与用户对话语言一致。

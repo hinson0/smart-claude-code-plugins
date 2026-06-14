@@ -10,16 +10,16 @@ Supported platforms: **WSL/Ubuntu** (reads the Windows clipboard via PowerShell)
 
 ## Determine Action
 
-| Argument      | Action      | Description                                            |
-| ------------- | ----------- | ----------------------------------------------------- |
-| `config`      | `config`    | Only write/update the `sendshot` config, no install   |
-| `uninstall`   | `uninstall` | Remove the function block from the shell rc           |
-| `install`     | `install`   | Only install the function (config must already exist) |
-| _(empty)_     | `config` then `install` | Default: configure, then install         |
+| Argument    | Action                  | Description                                           |
+| ----------- | ----------------------- | ----------------------------------------------------- |
+| `config`    | `config`                | Only write/update the `sendshot` config, no install   |
+| `uninstall` | `uninstall`             | Remove the function block from the shell rc           |
+| `install`   | `install`               | Only install the function (config must already exist) |
+| _(empty)_   | `config` then `install` | Default: configure, then install                      |
 
 ## Paths
 
-- **Function source**: `${CLAUDE_PLUGIN_ROOT}/assets/sendshot.sh`
+- **Function source**: `${CLAUDE_PLUGIN_ROOT}/skills/sendshot/scripts/sendshot.sh`
 - **Config file**: `~/.smart/settings.json` (global scope only — `sendshot` is a global shell function)
 - **Shell rc**: `~/.zshrc` for zsh, `~/.bashrc` for bash (detect from `$SHELL`; default to `~/.zshrc`)
 - **Marker block** wrapping the function in the rc:
@@ -62,7 +62,7 @@ On **macOS only**, also recommend `pngpaste` for reliable clipboard image reads:
 ## Action: install
 
 0. Run **Preflight: ensure jq** above first.
-1. Read the function source from `${CLAUDE_PLUGIN_ROOT}/assets/sendshot.sh`.
+1. Read the function source from `${CLAUDE_PLUGIN_ROOT}/skills/sendshot/scripts/sendshot.sh`.
 2. Detect the shell rc: zsh → `~/.zshrc`, bash → `~/.bashrc` (from `$SHELL`); default `~/.zshrc`. Create the rc if absent.
 3. Read the rc. If a `# >>> smart sendshot >>>` … `# <<< smart sendshot <<<` block already exists, replace it (idempotent reinstall). Otherwise append a new block at the end. The block is the marker lines wrapping the function source verbatim. Use the Edit tool to replace an existing block; use Edit/Write to append a new one — never clobber unrelated rc content.
 4. Report success:
@@ -82,6 +82,6 @@ On **macOS only**, also recommend `pngpaste` for reliable clipboard image reads:
 - Config is **global only** (`~/.smart/settings.json`) — do not write project-level `.smart/settings.json` for sendshot.
 - Always use the Edit tool for `settings.json` and rc changes; never overwrite the whole file.
 - Do NOT bake config values into the rc — the function reads them at runtime from `~/.smart/settings.json`.
-- Install the function verbatim from `assets/sendshot.sh`; do not inline a hand-edited copy.
+- Install the function verbatim from `skills/sendshot/scripts/sendshot.sh`; do not inline a hand-edited copy.
 - If the platform is neither WSL nor macOS, still install (the function self-guards), but warn the user it only runs on WSL/macOS.
 - Output in the same language as the user's conversation.
