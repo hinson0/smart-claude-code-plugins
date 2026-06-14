@@ -9,9 +9,10 @@ Codex 格式插件，自动化 commit → push → PR 流程（push 内含 versi
 ## 项目结构
 
 > **双格式并存（铁律）**：本插件同时支持 Codex 和 Claude Code 两个宿主，二者读各自的清单文件，互不冲突，**任何一方都不可删**：
+>
 > - Codex：`.agents/plugins/marketplace.json` + `plugins/smart/.codex-plugin/plugin.json`
 > - Claude Code：`.claude-plugin/marketplace.json` + `plugins/smart/.claude-plugin/plugin.json`（CC 用干净 semver，不带 `+codex.*` build 元数据；其余组件 skills/hooks/agents 由 CC 按约定自动发现）
-> 两套 plugin.json 的主版本号必须一致。
+>   两套 plugin.json 的主版本号必须一致。
 
 ```
 根目录
@@ -23,8 +24,6 @@ Codex 格式插件，自动化 commit → push → PR 流程（push 内含 versi
 
 assets/i18n/cn/smart/             # CN 镜像目录（仅供阅读，结构与 plugins/smart/ 对称）
 ├── agents/                       # CN agents（中文版，仅供参考）
-├── assets/
-│   └── statusline-command.sh
 ├── hooks/
 │   ├── hooks.json
 │   ├── greet.sh / goodbye.sh     # 会话开始/结束 hook
@@ -46,14 +45,12 @@ plugins/smart/                    # EN 主插件目录（被 Codex 和 Claude Co
 ├── .codex-plugin/plugin.json     # Codex 插件元数据
 ├── .claude-plugin/plugin.json    # Claude Code 插件元数据（清单文件，缺失则 CC 无法加载插件）
 ├── agents/                       # EN agents
-├── assets/
-│   └── statusline-command.sh     # 打包的 statusline 脚本
 ├── hooks/
 │   ├── hooks.json                # hook 配置
 │   ├── greet.sh / goodbye.sh     # 会话开始/结束 hook
 │   ├── session-logs.py           # hook 输入日志（PreToolUse）
 │   └── plan-guard.py             # 计划保真守卫（UserPromptSubmit + Stop）
-└── skills/                       # EN skills
+└── skills/                       # EN skills（按 Agent Skills 规范，脚本在各自 scripts/ 子目录）
     ├── check/SKILL.md
     ├── commit/SKILL.md
     ├── distill/                   # 会话知识蒸馏（SKILL.md + references/）
@@ -62,6 +59,7 @@ plugins/smart/                    # EN 主插件目录（被 Codex 和 Claude Co
     ├── op/SKILL.md
     ├── pr/SKILL.md
     ├── push/SKILL.md
+    ├── sendshot/SKILL.md
     ├── token-log/SKILL.md
     └── version/SKILL.md
 ```
