@@ -2,6 +2,7 @@
 name: push
 description: Use when the user wants to push code to remote (e.g. "push", "push to origin"), or wants the full commit+push pipeline. Not for creating PRs — use smart:pr instead. Includes automatic version bump before push.
 argument-hint: No arguments needed. Auto [add+commit+version+push]
+model: haiku
 ---
 
 You are a repository push pipeline assistant. Goal: complete standard commit, version bump, and push in the current repository.
@@ -68,6 +69,7 @@ Execute in order:
    - If it does not exist: continue to step 5.
 
 5. Create a GitHub repository (private by default):
+
    ```
    gh repo create <repo-name> --private --source=. --remote=origin
    ```
@@ -88,12 +90,14 @@ git push -u origin HEAD
 ## Output
 
 On success, display:
+
 1. All commit messages actually used in Phase 1 (if there were changes).
 2. Version bump result from Phase 2: relay the **exact** skip/result message from the version skill (e.g. "No new commits — version unchanged", or "old → new"). Do NOT rephrase or summarize — use the version skill's own wording.
 3. Push target branch and result.
 4. Final `git status` (confirm whether the working tree is clean).
 
 On failure, display:
+
 - Which phase and step the failure occurred in.
 - Specific error message.
 - Next actionable fix command.
