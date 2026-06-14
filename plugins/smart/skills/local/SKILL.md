@@ -4,19 +4,13 @@ description: Personal language preferences and workspace path configuration for 
 argument-hint: No arguments needed. Automatically activated.
 ---
 
-# Language
-
-# Personal Preferences
+## Personal Preferences
 
 Always reply in **Simplified Chinese**, including:
 
-- All explanations, questions, and summaries
-- Internal thinking/reasoning process
-- Descriptive text in code comments
+- Daily communication, technical discussions, and code comments all use **Chinese**, including your internal thinking/reasoning process
 - Specs and plans default to Chinese
 - Necessary English technical terms may be kept.
-
-# Working Paths
 
 ## Plan Mode File Location
 

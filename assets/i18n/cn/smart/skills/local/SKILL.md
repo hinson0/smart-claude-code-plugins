@@ -1,16 +1,16 @@
-# 语言
+---
+name: local
+description: Personal language preferences and workspace path configuration for Claude Code sessions. All replies must use Simplified Chinese, with English technical terms preserved when necessary. Plan Mode files are stored under .claude/plans/.
+argument-hint: No arguments needed. Automatically activated.
+---
 
-# 个人偏好
+## 个人偏好
 
 全程使用**简体中文**回复，包括：
 
-- 所有解释、提问、总结
-- 内部 thinking/reasoning 过程
-- 代码注释中的说明文字
+- 日常沟通、技术讨论、注释解释均使用**中文**。包括你的内部 thinking/reasoning 过程
 - 生成 spec / plan 默认使用中文
 - 必要的英文技术词可以保留。
-
-# 工作路径
 
 ## Plan Mode 文件位置
 
