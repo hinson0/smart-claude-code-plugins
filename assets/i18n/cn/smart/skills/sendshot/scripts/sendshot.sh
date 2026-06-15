@@ -9,14 +9,18 @@ sendshot() {
     return 1
   fi
 
-  # 定位 jq：优先 PATH，再退回常见安装位置（ZLE widget 运行时 PATH 可能被
+  # 定位 jq：优先已知安装位置，再退回 PATH（ZLE widget 运行时 PATH 可能被
   # 精简，裸 `jq` 未必可解析）。
-  local JQ
-  JQ="$(command -v jq 2>/dev/null)"
-  [ -z "$JQ" ] && [ -x /usr/bin/jq ] && JQ=/usr/bin/jq
-  [ -z "$JQ" ] && [ -x "$HOME/.local/bin/jq" ] && JQ="$HOME/.local/bin/jq"
-  if [ -z "$JQ" ]; then
-    echo "sendshot: 需要 jq 但未安装" >&2
+  local JQ=""
+  if [ -x "/usr/bin/jq" ]; then
+    JQ="/usr/bin/jq"
+  elif [ -x "$HOME/.local/bin/jq" ]; then
+    JQ="$HOME/.local/bin/jq"
+  elif command -v jq >/dev/null 2>&1; then
+    JQ="$(command -v jq)"
+  else
+    echo "sendshot: 需要 jq 但未找到" >&2
+    echo "sendshot: 已检查 /usr/bin/jq、$HOME/.local/bin/jq 和 PATH" >&2
     return 1
   fi
 

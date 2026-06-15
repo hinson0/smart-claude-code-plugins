@@ -9,14 +9,18 @@ sendshot() {
     return 1
   fi
 
-  # Locate jq: prefer PATH, fall back to common install locations (the ZLE
-  # widget can run with a trimmed PATH where a bare `jq` is not resolvable).
-  local JQ
-  JQ="$(command -v jq 2>/dev/null)"
-  [ -z "$JQ" ] && [ -x /usr/bin/jq ] && JQ=/usr/bin/jq
-  [ -z "$JQ" ] && [ -x "$HOME/.local/bin/jq" ] && JQ="$HOME/.local/bin/jq"
-  if [ -z "$JQ" ]; then
-    echo "sendshot: jq is required but not installed" >&2
+  # Locate jq: prefer the known install locations, then fall back to PATH (the
+  # ZLE widget can run with a trimmed PATH where a bare `jq` is not resolvable).
+  local JQ=""
+  if [ -x "/usr/bin/jq" ]; then
+    JQ="/usr/bin/jq"
+  elif [ -x "$HOME/.local/bin/jq" ]; then
+    JQ="$HOME/.local/bin/jq"
+  elif command -v jq >/dev/null 2>&1; then
+    JQ="$(command -v jq)"
+  else
+    echo "sendshot: jq is required but not found" >&2
+    echo "sendshot: checked /usr/bin/jq, $HOME/.local/bin/jq, and PATH" >&2
     return 1
   fi
 
