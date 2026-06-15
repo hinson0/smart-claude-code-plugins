@@ -1,22 +1,30 @@
 # 抓取剪贴板图片并通过 scp 上传到远程主机（如 EC2），随后打印并把远程路径
 # 回写剪贴板。跨平台：WSL（Windows 剪贴板）和 macOS。配置在运行时从
-# ~/.smart/settings.json（.sendshot）读取。
+# ~/.smart/settings.json（.sendshot）读取。zsh 下 Ctrl+G 可在任意提示符处
+# 直接触发，无需输入命令（见文件底部的 widget）。
 sendshot() {
   local CFG="$HOME/.smart/settings.json"
   if [ ! -f "$CFG" ]; then
     echo "sendshot: 未找到配置 $CFG（运行 /smart:sendshot 进行配置）" >&2
     return 1
   fi
-  if ! command -v jq >/dev/null 2>&1; then
+
+  # 定位 jq：优先 PATH，再退回常见安装位置（ZLE widget 运行时 PATH 可能被
+  # 精简，裸 `jq` 未必可解析）。
+  local JQ
+  JQ="$(command -v jq 2>/dev/null)"
+  [ -z "$JQ" ] && [ -x /usr/bin/jq ] && JQ=/usr/bin/jq
+  [ -z "$JQ" ] && [ -x "$HOME/.local/bin/jq" ] && JQ="$HOME/.local/bin/jq"
+  if [ -z "$JQ" ]; then
     echo "sendshot: 需要 jq 但未安装" >&2
     return 1
   fi
 
   local REMOTE_USER REMOTE_HOST KEY REMOTE_DIR
-  REMOTE_USER=$(jq -r '.sendshot.remote_user // "ubuntu"' "$CFG")
-  REMOTE_HOST=$(jq -r '.sendshot.remote_host // empty' "$CFG")
-  KEY=$(jq -r '.sendshot.key // empty' "$CFG")
-  REMOTE_DIR=$(jq -r '.sendshot.remote_dir // "~/tmp_images"' "$CFG")
+  REMOTE_USER=$("$JQ" -r '.sendshot.remote_user // "ubuntu"' "$CFG")
+  REMOTE_HOST=$("$JQ" -r '.sendshot.remote_host // empty' "$CFG")
+  KEY=$("$JQ" -r '.sendshot.key // empty' "$CFG")
+  REMOTE_DIR=$("$JQ" -r '.sendshot.remote_dir // "~/tmp_images"' "$CFG")
   # 展开 key 路径开头的 ~（jq 原样返回）。
   KEY="${KEY/#\~/$HOME}"
 
@@ -38,7 +46,7 @@ Add-Type -AssemblyName System.Drawing;
 \$img = [System.Windows.Forms.Clipboard]::GetImage();
 if (\$null -eq \$img) { Write-Error 'Clipboard does not contain an image.'; exit 1; }
 \$img.Save('$WIN_FILE', [System.Drawing.Imaging.ImageFormat]::Png);
-" || { echo "sendshot: Windows 剪贴板中没有图片" >&2; return 1; }
+" >/dev/null 2>&1 || { echo "sendshot: Windows 剪贴板中没有图片" >&2; return 1; }
   elif [ "$(uname -s)" = "Darwin" ]; then
     # macOS：优先 pngpaste；否则退回 osascript 读取 «class PNGf»。
     if command -v pngpaste >/dev/null 2>&1; then
@@ -58,11 +66,10 @@ if (\$null -eq \$img) { Write-Error 'Clipboard does not contain an image.'; exit
   fi
 
   # --- 上传（远程目录自动创建）并报告远程路径 ---
-  ssh -i "$KEY" "$REMOTE_USER@$REMOTE_HOST" "mkdir -p $REMOTE_DIR" || { echo "sendshot: ssh mkdir 失败" >&2; return 1; }
-  scp -i "$KEY" "$FILE" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/" || { echo "sendshot: scp 失败" >&2; return 1; }
+  ssh -i "$KEY" "$REMOTE_USER@$REMOTE_HOST" "mkdir -p $REMOTE_DIR" >/dev/null || { echo "sendshot: ssh mkdir 失败" >&2; return 1; }
+  scp -q -i "$KEY" "$FILE" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/" || { echo "sendshot: scp 失败" >&2; return 1; }
 
   local REMOTE_PATH="$REMOTE_DIR/$(basename "$FILE")"
-  echo "$REMOTE_PATH"
 
   # 把远程路径回写剪贴板，方便直接粘贴。
   if command -v clip.exe >/dev/null 2>&1; then
@@ -70,4 +77,28 @@ if (\$null -eq \$img) { Write-Error 'Clipboard does not contain an image.'; exit
   elif command -v pbcopy >/dev/null 2>&1; then
     printf '%s' "$REMOTE_PATH" | pbcopy
   fi
+
+  printf '%s\n' "$REMOTE_PATH"
 }
+
+# 仅 zsh：把 Ctrl+G 绑定为在任意提示符处直接运行 sendshot，无需输入命令。
+# 该守卫使其在 bash 下保持惰性（bash 没有 zle/bindkey）。远程路径照常被
+# 打印并复制到剪贴板。
+if [ -n "$ZSH_VERSION" ]; then
+  sendshot_insert_widget() {
+    local output
+    zle -I
+    print -r -- ""
+    print -r -- "sendshot: uploading clipboard image..."
+    output="$(sendshot)" || {
+      print -r -- "sendshot: failed"
+      zle redisplay
+      return 1
+    }
+    print -r -- "sendshot: uploaded -> ${output##*$'\n'}"
+    print -r -- "sendshot: copied to clipboard"
+    zle redisplay
+  }
+  zle -N sendshot_insert_widget
+  bindkey '^G' sendshot_insert_widget
+fi

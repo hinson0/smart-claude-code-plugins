@@ -1,22 +1,30 @@
 # Capture a clipboard image and upload it to a remote host (e.g. EC2) over scp,
 # then print and re-copy the remote path. Cross-platform: WSL (Windows clipboard)
 # and macOS. Config is read at runtime from ~/.smart/settings.json (.sendshot).
+# In zsh, Ctrl+G runs it from any prompt without typing it (see widget below).
 sendshot() {
   local CFG="$HOME/.smart/settings.json"
   if [ ! -f "$CFG" ]; then
     echo "sendshot: config not found at $CFG (run /smart:sendshot to set it up)" >&2
     return 1
   fi
-  if ! command -v jq >/dev/null 2>&1; then
+
+  # Locate jq: prefer PATH, fall back to common install locations (the ZLE
+  # widget can run with a trimmed PATH where a bare `jq` is not resolvable).
+  local JQ
+  JQ="$(command -v jq 2>/dev/null)"
+  [ -z "$JQ" ] && [ -x /usr/bin/jq ] && JQ=/usr/bin/jq
+  [ -z "$JQ" ] && [ -x "$HOME/.local/bin/jq" ] && JQ="$HOME/.local/bin/jq"
+  if [ -z "$JQ" ]; then
     echo "sendshot: jq is required but not installed" >&2
     return 1
   fi
 
   local REMOTE_USER REMOTE_HOST KEY REMOTE_DIR
-  REMOTE_USER=$(jq -r '.sendshot.remote_user // "ubuntu"' "$CFG")
-  REMOTE_HOST=$(jq -r '.sendshot.remote_host // empty' "$CFG")
-  KEY=$(jq -r '.sendshot.key // empty' "$CFG")
-  REMOTE_DIR=$(jq -r '.sendshot.remote_dir // "~/tmp_images"' "$CFG")
+  REMOTE_USER=$("$JQ" -r '.sendshot.remote_user // "ubuntu"' "$CFG")
+  REMOTE_HOST=$("$JQ" -r '.sendshot.remote_host // empty' "$CFG")
+  KEY=$("$JQ" -r '.sendshot.key // empty' "$CFG")
+  REMOTE_DIR=$("$JQ" -r '.sendshot.remote_dir // "~/tmp_images"' "$CFG")
   # Expand a leading ~ in the key path (jq returns it literally).
   KEY="${KEY/#\~/$HOME}"
 
@@ -38,7 +46,7 @@ Add-Type -AssemblyName System.Drawing;
 \$img = [System.Windows.Forms.Clipboard]::GetImage();
 if (\$null -eq \$img) { Write-Error 'Clipboard does not contain an image.'; exit 1; }
 \$img.Save('$WIN_FILE', [System.Drawing.Imaging.ImageFormat]::Png);
-" || { echo "sendshot: no image in Windows clipboard" >&2; return 1; }
+" >/dev/null 2>&1 || { echo "sendshot: no image in Windows clipboard" >&2; return 1; }
   elif [ "$(uname -s)" = "Darwin" ]; then
     # macOS: prefer pngpaste; fall back to osascript reading «class PNGf».
     if command -v pngpaste >/dev/null 2>&1; then
@@ -58,11 +66,10 @@ if (\$null -eq \$img) { Write-Error 'Clipboard does not contain an image.'; exit
   fi
 
   # --- Upload (remote dir auto-created) and report the remote path ---
-  ssh -i "$KEY" "$REMOTE_USER@$REMOTE_HOST" "mkdir -p $REMOTE_DIR" || { echo "sendshot: ssh mkdir failed" >&2; return 1; }
-  scp -i "$KEY" "$FILE" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/" || { echo "sendshot: scp failed" >&2; return 1; }
+  ssh -i "$KEY" "$REMOTE_USER@$REMOTE_HOST" "mkdir -p $REMOTE_DIR" >/dev/null || { echo "sendshot: ssh mkdir failed" >&2; return 1; }
+  scp -q -i "$KEY" "$FILE" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/" || { echo "sendshot: scp failed" >&2; return 1; }
 
   local REMOTE_PATH="$REMOTE_DIR/$(basename "$FILE")"
-  echo "$REMOTE_PATH"
 
   # Copy the remote path back to the clipboard for easy pasting.
   if command -v clip.exe >/dev/null 2>&1; then
@@ -70,4 +77,28 @@ if (\$null -eq \$img) { Write-Error 'Clipboard does not contain an image.'; exit
   elif command -v pbcopy >/dev/null 2>&1; then
     printf '%s' "$REMOTE_PATH" | pbcopy
   fi
+
+  printf '%s\n' "$REMOTE_PATH"
 }
+
+# zsh only: bind Ctrl+G to run sendshot from any prompt without typing it.
+# The widget guard keeps this inert under bash, where `zle`/`bindkey` do not
+# exist. The remote path is printed and copied to the clipboard as usual.
+if [ -n "$ZSH_VERSION" ]; then
+  sendshot_insert_widget() {
+    local output
+    zle -I
+    print -r -- ""
+    print -r -- "sendshot: uploading clipboard image..."
+    output="$(sendshot)" || {
+      print -r -- "sendshot: failed"
+      zle redisplay
+      return 1
+    }
+    print -r -- "sendshot: uploaded -> ${output##*$'\n'}"
+    print -r -- "sendshot: copied to clipboard"
+    zle redisplay
+  }
+  zle -N sendshot_insert_widget
+  bindkey '^G' sendshot_insert_widget
+fi

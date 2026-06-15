@@ -8,6 +8,8 @@ argument-hint: "[install|config|uninstall]（空=先配置再安装）"
 
 支持平台：**WSL/Ubuntu**（通过 PowerShell 读 Windows 剪贴板）和 **macOS**（用 `pngpaste` 读剪贴板，退回 `osascript`）。其他平台在运行时被拒绝。
 
+在 **zsh** 下，函数块还会把 **`Ctrl+G`** 绑定到一个 ZLE widget（`sendshot_insert_widget`），让用户在任意提示符处无需输入命令即可触发 sendshot。该 widget 由 `$ZSH_VERSION` 判断守卫，因此装进 bash 时保持惰性。
+
 ## 判定动作
 
 | 参数        | 动作                  | 说明                                |
@@ -69,7 +71,7 @@ argument-hint: "[install|config|uninstall]（空=先配置再安装）"
    - 确认函数安装进了哪个 rc 文件
    - 提示用户运行 `source <rc>`（或开新 shell）以激活
    - 提醒配置在 `~/.smart/settings.json` —— 编辑即时生效，无需重装
-   - 一句用法：复制一张图片到剪贴板，运行 `sendshot`，远程路径会被打印并复制到剪贴板
+   - 一句用法：复制一张图片到剪贴板，运行 `sendshot`（或在 zsh 下按 **`Ctrl+G`**），远程路径会被打印并复制到剪贴板
 
 ## 动作：uninstall
 

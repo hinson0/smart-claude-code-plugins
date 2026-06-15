@@ -8,6 +8,8 @@ Install a cross-platform `sendshot` shell function that captures the clipboard i
 
 Supported platforms: **WSL/Ubuntu** (reads the Windows clipboard via PowerShell) and **macOS** (reads the clipboard via `pngpaste`, falling back to `osascript`). Any other platform is rejected at runtime.
 
+Under **zsh**, the function block also binds **`Ctrl+G`** to a ZLE widget (`sendshot_insert_widget`) so the user can fire sendshot from any prompt without typing the command. The widget is guarded behind a `$ZSH_VERSION` check, so it stays inert when installed into bash.
+
 ## Determine Action
 
 | Argument    | Action                  | Description                                           |
@@ -69,7 +71,7 @@ On **macOS only**, also recommend `pngpaste` for reliable clipboard image reads:
    - Confirm the function was installed into which rc file
    - Tell the user to run `source <rc>` (or open a new shell) to activate it
    - Remind them config lives in `~/.smart/settings.json` → editing it takes effect immediately, no reinstall
-   - One-line usage: copy an image to the clipboard, run `sendshot`, the remote path is printed and copied to the clipboard
+   - One-line usage: copy an image to the clipboard, run `sendshot` (or press **`Ctrl+G`** in zsh), the remote path is printed and copied to the clipboard
 
 ## Action: uninstall
 
