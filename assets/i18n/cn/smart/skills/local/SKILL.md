@@ -1,6 +1,6 @@
 ---
 name: local
-description: Personal local config for Claude Code sessions. Trigger on /smart:local, or when the user says "create CLAUDE.local.md", "setup local memory", "local preferences", "git-ignore my local claude file", or wants a per-project personal memory file that is never committed. Bootstraps a git-ignored `.claude/CLAUDE.local.md` in the current project, seeded with the personal preferences below, and ensures it is git-ignored. The personal preferences also apply on their own: always reply in Simplified Chinese, store Plan Mode files under `.claude/plans/`.
+description: 'Personal local config for Claude Code sessions. Trigger on /smart:local, or when the user says "create CLAUDE.local.md", "setup local memory", "local preferences", "git-ignore my local claude file", or wants a per-project personal memory file that is never committed. Bootstraps a git-ignored `.claude/CLAUDE.local.md` in the current project, seeded with the personal preferences below, and ensures it is git-ignored. The personal preferences also apply on their own: always reply in Simplified Chinese, store Plan Mode files under `.claude/plans/`.'
 argument-hint: "（无参数 —— 创建一个被 git 忽略的 .claude/CLAUDE.local.md）"
 ---
 
