@@ -21,14 +21,26 @@ Three core commitments:
 
 ## Step 0 — Resolve the Target Directory
 
-The target directory is resolved **once** at the start, and every read/write for this run is confined to it. The goal is to ask **at most once ever**: a saved setting is read first, and a first-time choice is persisted so later runs are silent.
+The target directory is resolved **once** at the start, and every read/write for this run is confined to it. The goal is to settle the local-vs-global question explicitly the first time, then stay silent: a saved **local** setting is read first, and any first-time choice is persisted to `.smart/settings.json` so later runs never re-ask.
 
 Resolution precedence (stop at the first hit):
 
-1. **Explicit path in the invocation** — the user named a directory (e.g. "distill to docs/kb", "distill into ~/knowledges/md/2026-05-28"). Use it verbatim.
-2. **Project setting** — read `.smart/settings.json`; if it has a `knowledges_dir`, use that.
-3. **Global setting** — read `~/.smart/settings.json`; if it has a `knowledges_dir`, use that.
-4. **Ask** — nothing above resolved a path → call `AskUserQuestion` (header `Target dir`, question `Which directory should distilled knowledge be written to?`):
+1. **Explicit path in the invocation** — the user named a directory (e.g. "distill to docs/kb", "distill into ~/knowledges/md/2026-05-28"). Use it verbatim and skip the rest.
+2. **Local project setting** — read `.smart/settings.json` in the current working directory; if it has a `knowledges_dir`, use it and skip the rest. This is the warm path: once configured, the skill never asks again.
+3. **No local setting → ask (never adopt the global config silently).** When there is no local `.smart/settings.json` (or it lacks `knowledges_dir`), surface the choice with `AskUserQuestion` instead of falling through. What you offer depends on whether a global config exists:
+
+   **3a — A global config exists** (`~/.smart/settings.json` has a `knowledges_dir`; call its raw value `G`). Offer global-vs-local in **one** question (header `Settings source`, question `No local .smart/settings.json — use the global knowledge base or set up a local one?`):
+
+   | Option | Resolves to | On pick |
+   |--------|-------------|---------|
+   | (Recommended) Use global (`G`) | `G` | Copy the **raw** global value into a new local `.smart/settings.json` (`{"knowledges_dir": "G"}`) — a fixed local snapshot, so this project is pinned and never re-asks |
+   | Local · `.smart/knowledges/` | `.smart/knowledges/` | Persist to local `.smart/settings.json` |
+   | Local · `~/knowledges/md/{date}/` | dated personal KB | Persist to local `.smart/settings.json` |
+   | Other (local) | a path the user types | Persist to local `.smart/settings.json` |
+
+   "Use global" copies `G` **verbatim** — keep any `{date}` token un-substituted so it stays a daily template. Because it is a snapshot, later edits to `~/.smart/settings.json` do not change this project.
+
+   **3b — Neither local nor global exists.** Both missing still asks (don't guess) — present the directory picker directly (header `Target dir`, question `No settings.json found (local or global) — where should distilled knowledge be written?`):
 
    | Option | Path | Meaning |
    |--------|------|---------|
@@ -36,7 +48,7 @@ Resolution precedence (stop at the first hit):
    | Personal KB | `~/knowledges/md/{date}/` | Personal dated knowledge base (backward-compatible prior convention) |
    | Other | (custom) | Any path the user types |
 
-   After the user picks, **persist** the choice to `.smart/settings.json` (project scope) as `{"knowledges_dir": "<chosen path>"}`, so future runs skip the question. In the Step 6 report, state where it was saved and note that moving it to `~/.smart/settings.json` makes it a global default for every project.
+   After any pick in 3a/3b, **persist** the resolved value to the local `.smart/settings.json` as `{"knowledges_dir": "<chosen path>"}`, so future runs skip the question. In the Step 6 report, state where it was saved and — when a local file was written — note that moving it to `~/.smart/settings.json` makes it a global default for every project.
 
 **Path tokens and normalization** (applied to the resolved value, from whichever source):
 
@@ -47,7 +59,7 @@ Resolution precedence (stop at the first hit):
 
 Once resolved, treat the directory as `<target-dir>` throughout. The path is fixed for this run and is not re-asked or overridden later.
 
-**`settings.json` format** — a single key; read it with the Read tool. Ignore the file silently if missing or malformed (fall through to the next precedence step):
+**`settings.json` format** — a single key; read it with the Read tool. Ignore a file silently if missing or malformed (fall through per the precedence above):
 
 ```json
 { "knowledges_dir": "~/knowledges/md/{date}" }

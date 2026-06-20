@@ -21,14 +21,26 @@ argument-hint: 可选 —— 收窄范围（如"最近 5 轮"、"关于 langgrap
 
 ## Step 0 — 解析目标目录
 
-目标目录在开始时**解析一次**,本次运行的所有读写都限定在该目录内。目标是**最多只问一次**:先读已保存的设置,首次选择落盘后,后续运行就静默读取。
+目标目录在开始时**解析一次**,本次运行的所有读写都限定在该目录内。目标是首次使用时显式问清「本地 vs 全局」,之后保持静默:先读已保存的**本地**设置,首次选择落盘到 `.smart/settings.json` 后,后续运行不再询问。
 
 解析优先级(命中即停):
 
-1. **调用时显式带路径** —— 用户指明了目录(如"distill 到 docs/kb"、"distill 到 ~/knowledges/md/2026-05-28"),直接照用。
-2. **项目设置** —— 读 `.smart/settings.json`,若含 `knowledges_dir` 则用它。
-3. **全局设置** —— 读 `~/.smart/settings.json`,若含 `knowledges_dir` 则用它。
-4. **询问** —— 以上都没解析出路径 → 调用 `AskUserQuestion`(header 用 `目标目录`,问题用 `提炼出的知识落盘到哪个目录?`):
+1. **调用时显式带路径** —— 用户指明了目录(如"distill 到 docs/kb"、"distill 到 ~/knowledges/md/2026-05-28"),直接照用,跳过其余步骤。
+2. **本地项目设置** —— 读当前工作目录的 `.smart/settings.json`,若含 `knowledges_dir` 则用它并跳过其余步骤。这是热路径:一旦配置过,后续不再询问。
+3. **本地无设置 → 询问(绝不静默采用全局)。** 当本地 `.smart/settings.json` 不存在(或缺 `knowledges_dir`)时,**不要**静默回退到全局,而是用 `AskUserQuestion` 把选择交给用户。具体提供什么,取决于全局配置是否存在:
+
+   **3a —— 存在全局配置**(`~/.smart/settings.json` 含 `knowledges_dir`,设其原始值为 `G`)。用**一个**问题同时给出「读全局 / 建本地」(header 用 `配置来源`,问题用 `本地没有 .smart/settings.json —— 用全局知识库,还是新建一个本地配置?`):
+
+   | 选项 | 解析为 | 选中后 |
+   |------|--------|--------|
+   | (推荐) 用全局(`G`) | `G` | 把全局的**原始值**复制进新建的本地 `.smart/settings.json`(`{"knowledges_dir": "G"}`)—— 固定本地快照,本项目就此锁定,不再询问 |
+   | 本地 · `.smart/knowledges/` | `.smart/knowledges/` | 落盘到本地 `.smart/settings.json` |
+   | 本地 · `~/knowledges/md/{date}/` | 当日个人库 | 落盘到本地 `.smart/settings.json` |
+   | 其他(本地) | 用户输入的路径 | 落盘到本地 `.smart/settings.json` |
+
+   选「用全局」时**原样**复制 `G` —— 保留 `{date}` 占位符不替换,使其仍是每日模板。因为是快照,日后改 `~/.smart/settings.json` 不影响本项目。
+
+   **3b —— 本地、全局都不存在。** 两者皆无仍要询问(不臆测)—— 直接给出目录选择器(header 用 `目标目录`,问题用 `本地和全局都没有 settings.json —— 提炼出的知识落盘到哪个目录?`):
 
    | 选项 | 路径 | 含义 |
    |------|------|------|
@@ -36,7 +48,7 @@ argument-hint: 可选 —— 收窄范围（如"最近 5 轮"、"关于 langgrap
    | 个人库 | `~/knowledges/md/{date}/` | 个人当日知识库(向后兼容的旧约定) |
    | 其他 | (自定义) | 用户输入的任意路径 |
 
-   用户选定后,**持久化**该选择到 `.smart/settings.json`(项目级),写为 `{"knowledges_dir": "<所选路径>"}`,让后续运行跳过询问。在 Step 6 报告里说明保存位置,并提示:把它移到 `~/.smart/settings.json` 即成为所有项目通用的全局默认。
+   3a/3b 任一选择后,**持久化**解析出的值到本地 `.smart/settings.json`,写为 `{"knowledges_dir": "<所选路径>"}`,让后续运行跳过询问。在 Step 6 报告里说明保存位置,并在写了本地文件时提示:把它移到 `~/.smart/settings.json` 即成为所有项目通用的全局默认。
 
 **路径占位符与归一化**(对任意来源解析出的值都适用):
 
@@ -47,7 +59,7 @@ argument-hint: 可选 —— 收窄范围（如"最近 5 轮"、"关于 langgrap
 
 解析完成后,全程以 `<目标目录>` 称之。该路径本次运行固定,不再二次询问或覆盖。
 
-**`settings.json` 格式** —— 单一键,用 Read 工具读取。文件缺失或格式错误则静默忽略(落到下一优先级):
+**`settings.json` 格式** —— 单一键,用 Read 工具读取。文件缺失或格式错误则静默忽略(按上面的优先级回退):
 
 ```json
 { "knowledges_dir": "~/knowledges/md/{date}" }
