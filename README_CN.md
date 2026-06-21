@@ -77,7 +77,7 @@
 - **帮助概览** — `/smart:help` 动态扫描并列出所有技能、hook 和 agent 及其描述。
 - **Joke Teller Agent** — 在合适的时机讲个程序员笑话，缓解工作压力。
 - **内置编码规则** — 预置规则文件（如 Pydantic V2 标准）存于 `rules/` 目录，按需软链到项目的 `.claude/rules/` 即可激活。
-- **会话知识蒸馏** — `/smart:distill` 从当前会话抽取有价值的问答对，按主题聚类成 markdown 文件，落盘到知识库。目标目录读自本地 `.smart/settings.json`；若本地缺失，则用 `AskUserQuestion` 询问是复用全局 `~/.smart/settings.json` 还是新建本地配置——两者都没有时再问落盘目录——随后把选择保存到本地，之后静默。默认 `.smart/knowledges/`；`{date}` 占位符支持按日期嵌套的目录（如 `~/knowledges/md/{date}`）。重复/新增/差分三态比对让重复蒸馏只追加不重复，已 review 文件（`.printed.md` 或有同名 PDF）绝不触碰。
+- **会话知识蒸馏** — `/smart:distill` 从当前会话抽取有价值的问答对，按主题聚类成 markdown 文件，落盘到知识库。目标目录读自本地 `.smart/settings.json`；若本地缺失，则用 `AskUserQuestion` 询问是复用全局 `~/.smart/settings.json` 还是新建本地配置——两者都没有时再问落盘目录——随后把选择保存到本地，之后静默。目录询问留在主会话；繁重的抽取与落盘随后在后台 **fork** 中进行，主上下文只收到一份精简总结。默认 `.smart/knowledges/`；`{date}` 占位符支持按日期嵌套的目录（如 `~/knowledges/md/{date}`）。重复/新增/差分三态比对让重复蒸馏只追加不重复，已 review 文件（`.printed.md` 或有同名 PDF）绝不触碰。
 - **Workflow 模型分层** — `/smart:wfb` 让 Workflow 脚本更省 token：按难度给每个 `agent()` 分层（机械活用 haiku、躯干用 sonnet、收口与重要/硬实现用 opus），在 fan-out 前剪枝，并用 schema 压缩输出。编写任何 Workflow 脚本时自动应用。
 - **剪贴板截图上传** — `/smart:sendshot` 安装一个跨平台的 `sendshot` shell 函数：抓取剪贴板图片，通过 `scp` 上传到远程主机（如 EC2），随后打印并把远程路径回写剪贴板。支持 WSL（PowerShell 读 Windows 剪贴板）和 macOS（`pngpaste`/`osascript`）。zsh 下还会把 **`Ctrl+G`** 绑定为在任意提示符处触发 sendshot。配置——主机、密钥、远程目录——位于 `~/.smart/settings.json`，运行时读取，所以换主机无需重装；远程目录用 `mkdir -p` 自动创建。
 
