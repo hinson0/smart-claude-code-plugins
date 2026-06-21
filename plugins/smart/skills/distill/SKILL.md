@@ -65,6 +65,18 @@ Once resolved, treat the directory as `<target-dir>` throughout. The path is fix
 { "knowledges_dir": "~/knowledges/md/{date}" }
 ```
 
+## Delegate the Heavy Work to a Background Fork
+
+Step 0 — resolving `<target-dir>`, including any `AskUserQuestion` — runs **inline in the main session**, because interactive prompts belong with the user. Everything after it (scanning `<target-dir>`, the three-state comparison, reading existing files, writing) is the token-heavy part. Hand that to a **background fork** so the main context stays clean and receives only the final summary.
+
+Once `<target-dir>` is fixed, spawn a fork with the Agent tool (`subagent_type: fork`). A fork inherits this whole conversation — so the worker can read the session it needs to distill — while its own reads, diffs, and writes stay out of the main context; only its final message comes back. Hand it a task like:
+
+> You are the distillation worker, running as a fork. `<target-dir>` is already resolved to `<resolved path>` — do not re-resolve it or call `AskUserQuestion`. Distill the conversation you have inherited per the distill skill's **Scope Iron Law**, **Reviewed-File Exemption**, and **Steps 1–6** (all visible above in this conversation). Confine every read and write to `<target-dir>`. Do the work yourself — do **not** delegate again. Return only the Step 6 summary report.
+
+Then relay the fork's summary to the user as the skill's result. If forks are unavailable (older Claude Code without fork support), run Steps 1–6 inline instead — the instructions are identical, only the context isolation is lost.
+
+Everything below is what the fork carries out.
+
 ## Scope Iron Law
 
 - ✅ Compare only against files **directly inside** `<target-dir>`
