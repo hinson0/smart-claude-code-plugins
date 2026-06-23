@@ -86,22 +86,19 @@ if (\$null -eq \$img) { Write-Error 'Clipboard does not contain an image.'; exit
 }
 
 # 仅 zsh：把 Ctrl+G 绑定为在任意提示符处直接运行 sendshot，无需输入命令。
-# 该守卫使其在 bash 下保持惰性（bash 没有 zle/bindkey）。远程路径照常被
-# 打印并复制到剪贴板。
+# 该守卫使其在 bash 下保持惰性（bash 没有 zle/bindkey）。远程路径显示在
+# ZLE 消息区并复制到剪贴板。
 if [ -n "$ZSH_VERSION" ]; then
   sendshot_insert_widget() {
+    # 把进度显示到 ZLE 的消息区（提示符下方）。直接用 `print` 会在 widget
+    # 返回时被（多行）提示符重画覆盖；`zle -M` 渲染在独立区域不会被覆盖，
+    # 因此路径会一直可见，方便你切换窗口去粘贴。
+    zle -M "sendshot: uploading clipboard image..."
+    zle -R
     local output
-    zle -I
-    print -r -- ""
-    print -r -- "sendshot: uploading clipboard image..."
-    output="$(sendshot)" || {
-      print -r -- "sendshot: failed"
-      zle redisplay
-      return 1
-    }
-    print -r -- "sendshot: uploaded -> ${output##*$'\n'}"
-    print -r -- "sendshot: copied to clipboard"
-    zle redisplay
+    output="$(sendshot)" || { zle -M "sendshot: failed (no image in clipboard?)"; return 1; }
+    zle -M "sendshot: ✓ uploaded & copied to clipboard
+${output##*$'\n'}"
   }
   zle -N sendshot_insert_widget
   bindkey '^G' sendshot_insert_widget

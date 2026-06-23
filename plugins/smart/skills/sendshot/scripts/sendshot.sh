@@ -87,21 +87,19 @@ if (\$null -eq \$img) { Write-Error 'Clipboard does not contain an image.'; exit
 
 # zsh only: bind Ctrl+G to run sendshot from any prompt without typing it.
 # The widget guard keeps this inert under bash, where `zle`/`bindkey` do not
-# exist. The remote path is printed and copied to the clipboard as usual.
+# exist. The remote path is shown in ZLE's message area and copied to the clipboard.
 if [ -n "$ZSH_VERSION" ]; then
   sendshot_insert_widget() {
+    # Show progress in ZLE's message area (below the prompt). Plain `print`
+    # gets clobbered by the (multi-line) prompt redraw on widget return; `zle -M`
+    # renders in a separate region that survives the redraw, so the path stays
+    # visible while you switch windows to paste it.
+    zle -M "sendshot: uploading clipboard image..."
+    zle -R
     local output
-    zle -I
-    print -r -- ""
-    print -r -- "sendshot: uploading clipboard image..."
-    output="$(sendshot)" || {
-      print -r -- "sendshot: failed"
-      zle redisplay
-      return 1
-    }
-    print -r -- "sendshot: uploaded -> ${output##*$'\n'}"
-    print -r -- "sendshot: copied to clipboard"
-    zle redisplay
+    output="$(sendshot)" || { zle -M "sendshot: failed (no image in clipboard?)"; return 1; }
+    zle -M "sendshot: ✓ uploaded & copied to clipboard
+${output##*$'\n'}"
   }
   zle -N sendshot_insert_widget
   bindkey '^G' sendshot_insert_widget
