@@ -6,10 +6,11 @@ argument-hint: "（无参数 —— 创建一个被 git 忽略的 .claude/CLAUDE
 
 ## 个人偏好（始终生效）
 
-全程使用**简体中文**回复，包括：
+全程使用**简体中文**回复（必须遵守），包括：
 
-- 日常沟通、技术讨论、注释解释均使用**中文**，包括你的内部 thinking/reasoning 过程
-- 生成 spec / plan 默认使用中文
+- 所有 Claude Code 要输出的解释、提问、总结，以及其内部 thinking/reasoning 过程
+- 日常沟通、技术讨论、注释解释、spec / plan 默认使用中文
+- 调用技能（skill）时的标题、步骤说明、提问等，即使模板是英文也必须翻译成中文输出
 - 必要的英文技术词可以保留。
 
 Claude Code Plan Mode 的计划文件保存在**当前项目目录内**：
@@ -33,7 +34,8 @@ Claude Code Plan Mode 的计划文件保存在**当前项目目录内**：
 Per-project notes for this machine/person. Not committed.
 
 ## Language
-- Reply in Simplified Chinese; keep necessary English technical terms.
+- Reply in Simplified Chinese (hard requirement); keep necessary English technical terms.
+- Translate skill (slash-command) output — titles, steps, prompts — into Chinese even when the template is English.
 - Plan Mode files: `.claude/plans/YYYY_MM_DD_HH_mm-<name>.md`
 
 ## Local context

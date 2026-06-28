@@ -6,10 +6,11 @@ argument-hint: "(no args — bootstraps a git-ignored .claude/CLAUDE.local.md)"
 
 ## Personal Preferences (always apply)
 
-Always reply in **Simplified Chinese**, including:
+Reply in **Simplified Chinese** throughout (a hard requirement), including:
 
-- Daily communication, technical discussions, and code comments all use **Chinese**, including the internal thinking/reasoning process
-- Specs and plans default to Chinese
+- All explanations, questions, and summaries Claude Code produces, plus its internal thinking/reasoning process
+- Daily communication, technical discussions, code comments, specs, and plans
+- Skill (slash-command) output — titles, step descriptions, and prompts — translated into Chinese even when the skill's template is written in English
 - Necessary English technical terms may be kept.
 
 Claude Code Plan Mode plan files are stored in the **current project directory**:
@@ -33,7 +34,8 @@ When this skill is invoked explicitly (`/smart:local`), set up a per-project per
 Per-project notes for this machine/person. Not committed.
 
 ## Language
-- Reply in Simplified Chinese; keep necessary English technical terms.
+- Reply in Simplified Chinese (hard requirement); keep necessary English technical terms.
+- Translate skill (slash-command) output — titles, steps, prompts — into Chinese even when the template is English.
 - Plan Mode files: `.claude/plans/YYYY_MM_DD_HH_mm-<name>.md`
 
 ## Local context
