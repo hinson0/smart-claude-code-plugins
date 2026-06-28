@@ -33,7 +33,7 @@ Resolution precedence (stop at the first hit):
 
    | Option | Resolves to | On pick |
    |--------|-------------|---------|
-   | (Recommended) Use global (`G`) | `G` | Copy the **raw** global value into a new local `.smart/settings.json` (`{"knowledges_dir": "G"}`) — a fixed local snapshot, so this project is pinned and never re-asks |
+   | (Recommended) Use global (`G`) | `G` | Copy the **raw** global value into the local `.smart/settings.json` as `knowledges_dir` (merge-safe: create the file if absent, else set just that key and keep the rest) — a fixed local snapshot, so this project is pinned and never re-asks |
    | Local · `.smart/knowledges/` | `.smart/knowledges/` | Persist to local `.smart/settings.json` |
    | Local · `~/knowledges/md/{date}/` | dated personal KB | Persist to local `.smart/settings.json` |
    | Other (local) | a path the user types | Persist to local `.smart/settings.json` |
@@ -48,7 +48,7 @@ Resolution precedence (stop at the first hit):
    | Personal KB | `~/knowledges/md/{date}/` | Personal dated knowledge base (backward-compatible prior convention) |
    | Other | (custom) | Any path the user types |
 
-   After any pick in 3a/3b, **persist** the resolved value to the local `.smart/settings.json` as `{"knowledges_dir": "<chosen path>"}`, so future runs skip the question. In the Step 6 report, state where it was saved and — when a local file was written — note that moving it to `~/.smart/settings.json` makes it a global default for every project.
+   After any pick in 3a/3b, **persist** the resolved value to the local `.smart/settings.json` by setting its `knowledges_dir` key — **read-modify-write**, preserving any other keys already in the file (e.g. `learning` / `learning_ratios` owned by `/smart:learning`); never overwrite the whole file with a single-key object. So future runs skip the question. In the Step 6 report, state where it was saved and — when a local file was written — note that moving it to `~/.smart/settings.json` makes it a global default for every project.
 
 **Path tokens and normalization** (applied to the resolved value, from whichever source):
 
@@ -59,7 +59,7 @@ Resolution precedence (stop at the first hit):
 
 Once resolved, treat the directory as `<target-dir>` throughout. The path is fixed for this run and is not re-asked or overridden later.
 
-**`settings.json` format** — a single key; read it with the Read tool. Ignore a file silently if missing or malformed (fall through per the precedence above):
+**`settings.json` format** — distill owns the `knowledges_dir` key; read it with the Read tool. Other keys may share this file (e.g. `learning` / `learning_ratios` from `/smart:learning`), so always **read-modify-write** and preserve keys you do not own — never replace the whole file with a single-key object. Ignore a file silently if missing or malformed (fall through per the precedence above):
 
 ```json
 { "knowledges_dir": "~/knowledges/md/{date}" }

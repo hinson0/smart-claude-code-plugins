@@ -33,7 +33,7 @@ argument-hint: 可选 —— 收窄范围（如"最近 5 轮"、"关于 langgrap
 
    | 选项 | 解析为 | 选中后 |
    |------|--------|--------|
-   | (推荐) 用全局(`G`) | `G` | 把全局的**原始值**复制进新建的本地 `.smart/settings.json`(`{"knowledges_dir": "G"}`)—— 固定本地快照,本项目就此锁定,不再询问 |
+   | (推荐) 用全局(`G`) | `G` | 把全局的**原始值**写入本地 `.smart/settings.json` 的 `knowledges_dir` 键(merge-safe:文件不存在则新建,存在则只设这一个键、保留其余)—— 固定本地快照,本项目就此锁定,不再询问 |
    | 本地 · `.smart/knowledges/` | `.smart/knowledges/` | 落盘到本地 `.smart/settings.json` |
    | 本地 · `~/knowledges/md/{date}/` | 当日个人库 | 落盘到本地 `.smart/settings.json` |
    | 其他(本地) | 用户输入的路径 | 落盘到本地 `.smart/settings.json` |
@@ -48,7 +48,7 @@ argument-hint: 可选 —— 收窄范围（如"最近 5 轮"、"关于 langgrap
    | 个人库 | `~/knowledges/md/{date}/` | 个人当日知识库(向后兼容的旧约定) |
    | 其他 | (自定义) | 用户输入的任意路径 |
 
-   3a/3b 任一选择后,**持久化**解析出的值到本地 `.smart/settings.json`,写为 `{"knowledges_dir": "<所选路径>"}`,让后续运行跳过询问。在 Step 6 报告里说明保存位置,并在写了本地文件时提示:把它移到 `~/.smart/settings.json` 即成为所有项目通用的全局默认。
+   3a/3b 任一选择后,**持久化**解析出的值到本地 `.smart/settings.json`,做法是设置它的 `knowledges_dir` 键 —— **读-改-写**,保留文件中已有的其他键(如 `/smart:learning` 拥有的 `learning` / `learning_ratios`);绝不用单键对象整文件覆盖。让后续运行跳过询问。在 Step 6 报告里说明保存位置,并在写了本地文件时提示:把它移到 `~/.smart/settings.json` 即成为所有项目通用的全局默认。
 
 **路径占位符与归一化**(对任意来源解析出的值都适用):
 
@@ -59,7 +59,7 @@ argument-hint: 可选 —— 收窄范围（如"最近 5 轮"、"关于 langgrap
 
 解析完成后,全程以 `<目标目录>` 称之。该路径本次运行固定,不再二次询问或覆盖。
 
-**`settings.json` 格式** —— 单一键,用 Read 工具读取。文件缺失或格式错误则静默忽略(按上面的优先级回退):
+**`settings.json` 格式** —— distill 拥有 `knowledges_dir` 键,用 Read 工具读取。该文件可能被其他键共用(如 `/smart:learning` 的 `learning` / `learning_ratios`),因此务必**读-改-写**、保留不属于自己的键 —— 绝不用单键对象整文件替换。文件缺失或格式错误则静默忽略(按上面的优先级回退):
 
 ```json
 { "knowledges_dir": "~/knowledges/md/{date}" }
