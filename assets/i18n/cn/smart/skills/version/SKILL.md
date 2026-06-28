@@ -25,7 +25,7 @@ argument-hint: "[目标分支] — 默认为 main"
 {
   git ls-files
   git ls-files --others --exclude-standard
-} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.codex-plugin/plugin\.json$'
+} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.codex-plugin/plugin\.json$|\.claude-plugin/plugin\.json$'
 ```
 
 过滤：仅保留包含 `"version"`（JSON）或 `version =`（TOML）字段的文件，丢弃其余。
@@ -68,7 +68,7 @@ git log <BASE_BRANCH>..HEAD --name-only --format="COMMIT:%H" | grep -v '^$'
 对每个变更文件，沿目录树向上查找最近的版本文件：
 
 - 在每一级目录，检查 `VERSION_FILES` 中是否有文件位于该目录（按目录前缀匹配）。
-- 第一个（最近的）匹配即为该变更文件的**所有者**。
+- 含一个或多个版本文件的最近一级目录即为该变更文件的所有者。若该级目录同时有**多个**清单——例如双宿主插件在同一插件目录下同时有 `.codex-plugin/plugin.json` 和 `.claude-plugin/plugin.json`——则它们**全部**是所有者，一并升级。
 - 若在所有祖先目录中都未找到版本文件，该文件**无归属**——跳过。
 
 记录映射关系：`版本文件 → [触及其作用域的 commit 列表]`
@@ -80,7 +80,7 @@ git log <BASE_BRANCH>..HEAD --name-only --format="COMMIT:%H" | grep -v '^$'
 对每个有关联 commit 的版本文件：
 
 1. 读取当前版本：
-   - **JSON**（`.codex-plugin/plugin.json`、`package.json`）：读取根级 `"version"` 字段。
+   - **JSON**（`.codex-plugin/plugin.json`、`.claude-plugin/plugin.json`、`package.json`）：读取根级 `"version"` 字段。若值带 SemVer 构建元数据（`<a.b.c>+codex.<时间戳>`），只按 `a.b.c` 核心部分计算升级——`+…` 后缀不参与版本运算。
    - **TOML**（`pyproject.toml`）：读取 `[project]` 节下的 `version`。若未找到，检查 `[tool.poetry]`。
 
 2. 按 Conventional Commits 格式（`<type>[!][(scope)]: <desc>`）分类每个 commit：
@@ -100,7 +100,9 @@ git log <BASE_BRANCH>..HEAD --name-only --format="COMMIT:%H" | grep -v '^$'
 
 使用 Edit 工具更新每个版本文件的 `version` 字段：
 
-- **JSON**：`"version": "<new_version>"`
+- **JSON**（`plugin.json`、`package.json`）：匹配并替换根级 `"version": "<old_version>"`。插件清单有两条规则：
+  - **构建元数据** —— 若旧值为 `<a.b.c>+codex.<时间戳>`，写为 `<新核心>+codex.<刷新后的时间戳>`（用 `date +%Y%m%d%H%M%S` 重新生成）；干净清单（如 `.claude-plugin/plugin.json`）保持纯 `<新核心>`，无后缀。
+  - **双清单同步** —— 当插件同时有 `.codex-plugin/` 和 `.claude-plugin/` 两份清单，把它们升到**同一**核心版本；二者主版本必须始终一致。
 - **TOML**：`version = "<new_version>"`
 
 ### 7) 提交版本变更
@@ -108,7 +110,8 @@ git log <BASE_BRANCH>..HEAD --name-only --format="COMMIT:%H" | grep -v '^$'
 暂存所有修改的版本文件，创建**一个** commit：
 
 - 单个版本文件——主题：`chore(version): bump version to <new_version>`
-- 多个版本文件——主题：`chore(version): bump versions`，body 逐一列出升级详情。
+- 同一插件的两份宿主清单（Codex + Claude Code）共享一个核心版本——视为单个版本：主题用 `chore(version): bump version to <new_version>`。
+- 确属不同版本文件（不同的包）——主题：`chore(version): bump versions`，body 逐一列出升级详情。
 
 ```bash
 git add <所有修改的 VERSION_FILES>
@@ -139,3 +142,4 @@ EOF
 - 不执行 push — push 由 push/PR 流程或用户自行处理。
 - 若未检测到版本文件或无新 commit，不做任何操作。
 - 不同包的变更绝不混淆——每个版本文件仅基于触及其作用域的 commit 进行升级。
+- 双宿主插件（`.codex-plugin/plugin.json` + `.claude-plugin/plugin.json`）是一个逻辑版本：始终把两份升到同一核心版本，仅刷新 Codex 的 `+codex.<时间戳>` 构建元数据。

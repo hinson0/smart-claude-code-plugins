@@ -25,7 +25,7 @@ Use `git ls-files` to automatically respect `.gitignore` without hardcoding any 
 {
   git ls-files
   git ls-files --others --exclude-standard
-} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.codex-plugin/plugin\.json$'
+} 2>/dev/null | sort -u | grep -E '(^|/)package\.json$|(^|/)pyproject\.toml$|(^|/)app\.json$|\.codex-plugin/plugin\.json$|\.claude-plugin/plugin\.json$'
 ```
 
 Filter: keep only files that contain a `"version"` (JSON) or `version =` (TOML) field. Discard the rest.
@@ -66,7 +66,7 @@ Parse the output: lines starting with `COMMIT:` are commit hashes; subsequent no
 For each changed file, walk up the directory tree to find the nearest version file:
 
 - At each level, check if any `VERSION_FILES` entry resides in that directory (match by directory prefix).
-- The first (closest) match is the **owner** of that changed file.
+- The closest level that holds one or more version files owns the changed file. If that level holds **several** manifests — e.g. a dual-host plugin with both `.codex-plugin/plugin.json` and `.claude-plugin/plugin.json` under the same plugin dir — **all of them** own the file and are bumped together.
 - If no version file is found in any ancestor, the file is **unowned** — skip it.
 
 Record the mapping: `version_file → [list of commits that touched its scope]`
@@ -78,7 +78,7 @@ A single commit may map to **multiple** version files if it changed files across
 For each version file with associated commits:
 
 1. Read current version:
-- **JSON** (`.codex-plugin/plugin.json`, `package.json`): read root-level `"version"` field.
+- **JSON** (`.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `package.json`): read root-level `"version"` field. If the value carries SemVer build metadata (`<a.b.c>+codex.<timestamp>`), bump from the `a.b.c` core only — the `+…` suffix never affects the version math.
    - **Expo** (`app.json`): read `expo.version` (nested under the `"expo"` key).
    - **TOML** (`pyproject.toml`): read `version` under `[project]`. If absent, check `[tool.poetry]`.
 
@@ -99,7 +99,9 @@ For each version file with associated commits:
 
 Update the `version` field in each version file using the Edit tool:
 
-- **JSON** (`plugin.json`, `package.json`): match and replace root-level `"version": "<old_version>"`.
+- **JSON** (`plugin.json`, `package.json`): match and replace the root-level `"version": "<old_version>"`. Two rules for plugin manifests:
+  - **Build metadata** — if the old value is `<a.b.c>+codex.<timestamp>`, write `<new core>+codex.<fresh timestamp>` (regenerate via `date +%Y%m%d%H%M%S`); a clean manifest (e.g. `.claude-plugin/plugin.json`) stays plain `<new core>` with no suffix.
+  - **Dual manifests in sync** — when a plugin ships both a `.codex-plugin/` and a `.claude-plugin/` manifest, bump them to the **same** core version; their main version must always match.
 - **Expo** (`app.json`): the version is nested — match the surrounding context to avoid ambiguity:
   ```json
   "expo": {
@@ -114,7 +116,8 @@ Update the `version` field in each version file using the Edit tool:
 Stage all modified version files and create a **single** commit:
 
 - Single version file — subject: `chore(version): bump version to <new_version>`
-- Multiple version files — subject: `chore(version): bump versions`, body lists each bump.
+- The two host manifests of the **same** plugin (Codex + Claude Code) share one core version — treat them as a single version: subject `chore(version): bump version to <new_version>`.
+- Genuinely different version files (separate packages) — subject: `chore(version): bump versions`, body lists each bump.
 
 ```bash
 git add <all modified VERSION_FILES>
@@ -146,3 +149,4 @@ Display a summary table:
 - Do not push — pushing is handled by the push/PR pipeline or the user.
 - If no version file is detected or no new commits exist, do nothing.
 - Never mix changes from different packages — each version file is bumped based only on commits that touched its scope.
+- Dual-host plugins (`.codex-plugin/plugin.json` + `.claude-plugin/plugin.json`) are one logical version: always bump both to the same core, refreshing only the Codex `+codex.<timestamp>` build metadata.
