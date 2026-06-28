@@ -80,6 +80,7 @@
 - **會話知識蒸餾** — `/smart:distill` 從當前會話擷取有價值的問答對，按主題聚類成 markdown 檔案，落盤到知識庫。目標目錄讀自本地 `.smart/settings.json`；若本地缺失，則用 `AskUserQuestion` 詢問是複用全域 `~/.smart/settings.json` 還是新建本地設定——兩者都沒有時再問落盤目錄——隨後把選擇保存到本地，之後靜默。目錄詢問留在主工作階段；繁重的擷取與落盤隨後在後台 **fork** 中進行，主上下文只收到一份精簡總結。預設 `.smart/knowledges/`；`{date}` 佔位符支援按日期嵌套的目錄（如 `~/knowledges/md/{date}`）。重複/新增/差分三態比對讓重複蒸餾只追加不重複，已 review 檔案（`.printed.md` 或有同名 PDF）絕不觸碰。
 - **Workflow 模型分層** — `/smart:wfb` 讓 Workflow 腳本更省 token：按難度給每個 `agent()` 分層（機械活用 haiku、軀幹用 sonnet、收口與重要/硬實作用 opus），在 fan-out 前剪枝，並用 schema 壓縮輸出。編寫任何 Workflow 腳本時自動套用。
 - **剪貼簿截圖上傳** — `/smart:sendshot` 安裝一個跨平台的 `sendshot` shell 函數：擷取剪貼簿圖片，透過 `scp` 上傳到遠端主機（如 EC2），隨後印出並把遠端路徑回寫剪貼簿。支援 WSL（PowerShell 讀 Windows 剪貼簿）和 macOS（`pngpaste`/`osascript`）。zsh 下還會把 **`Ctrl+G`** 綁定為在任意提示符處觸發 sendshot。設定——主機、金鑰、遠端目錄——位於 `~/.smart/settings.json`，執行時讀取，所以換主機無需重裝；遠端目錄用 `mkdir -p` 自動建立。
+- **學習模式** — `/smart:learning 1` 開啟協作編碼模式：由*你*親手編寫程式碼中有意義的部分——Claude 把設定好的樣板（~30%）、核心邏輯（~60%）、資料庫 Schema（100%）占比留作 TODO 樁並停下來，等你補全。開關與可調占比保存在 `.smart/settings.json`（`learning` + `learning_ratios`，與 distill 共用，位於已 git-ignore 的 `.smart/` 目錄）；開啟時把規則注入 `.claude/CLAUDE.local.md` 使其每個工作階段持續生效，`/smart:learning config boilerplate=40 core=70` 調占比，`/smart:learning 0` 移除該塊。
 
 ---
 
@@ -106,6 +107,7 @@
 | `/smart:distill [目錄]` | 把當前會話蒸餾成按主題命名的知識檔案（預設 `.smart/knowledges/`） |
 | `/smart:wfb` | 編寫 Workflow 腳本時的省 token、模型分層指導（按難度選 haiku/sonnet/opus） |
 | `/smart:sendshot [install\|config\|uninstall]` | 安裝跨平台 `sendshot` 函數（剪貼簿圖片 → `scp` 到遠端 → 複製遠端路徑）；設定在 `~/.smart/settings.json` |
+| `/smart:learning [0\|1\|config]` | 切換學習模式——由*你*親手寫一部分程式碼；各類占比（樣板/核心/資料庫）可在 `.smart/settings.json` 設定。`1`=開，`0`=關，`config bucket=NN`=調占比，留空=狀態。規則持久化在 `.claude/CLAUDE.local.md` |
 
 ---
 
