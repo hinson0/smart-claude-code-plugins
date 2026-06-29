@@ -67,7 +67,7 @@
 
 **保護と自動化**
 
-- **セッション Hook** — セッション開始時に挨拶、終了時にお別れ（macOS `say` TTS による音声出力）。
+- **セッション Hook** — セッション開始時に挨拶（macOS `say` TTS による音声出力）。
 - **セッションログ** — すべてのツール呼び出しの完全な入力データが `.smart/session-logs/` に記録され、事後のデバッグと監査に活用できます。
 
 **ユーティリティ**
@@ -309,7 +309,6 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | Hook | トリガー | 機能 |
 |------|---------|------|
 | `greet.sh` | `SessionStart` | macOS TTS（`say`）でウェルカムメッセージを再生 |
-| `goodbye.sh` | `SessionEnd` | macOS TTS（`say`）でお別れメッセージを再生 |
 | `session-logs.py` | `PreToolUse`（すべてのツール） | すべてのツール呼び出しの完全な入力を `.smart/session-logs/<日付>/<session_id>.json` に記録 |
 
 同梱 hook 設定は Claude 互換 host で `${CLAUDE_PLUGIN_ROOT}` を使ってパスを解決します。TTS hook はバックグラウンドで実行され（`nohup &`）、host プロセスをブロックしません。

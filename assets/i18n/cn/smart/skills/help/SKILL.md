@@ -52,7 +52,6 @@ argument-hint: "[skill|hook|agent]（空=显示全部）"
 |------|------|------|
 | SessionStart | greet.sh | 会话开始时问候 |
 | PreToolUse | session-logs.py | 记录工具调用输入 |
-| SessionEnd | goodbye.sh | 会话结束时告别 |
 ```
 
 ### Agents（`agent` 或 `all`）

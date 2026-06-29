@@ -67,7 +67,7 @@
 
 **보호 및 자동화**
 
-- **세션 Hook** — 세션 시작 시 인사, 종료 시 작별 인사 (macOS `say` TTS를 통한 음성 출력).
+- **세션 Hook** — 세션 시작 시 인사 (macOS `say` TTS를 통한 음성 출력).
 - **세션 로그** — 모든 도구 호출의 전체 입력 데이터가 `.smart/session-logs/`에 기록되어 사후 디버깅 및 감사에 활용할 수 있습니다.
 
 **유틸리티**
@@ -309,7 +309,6 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | Hook | 트리거 | 기능 |
 |------|--------|------|
 | `greet.sh` | `SessionStart` | macOS TTS (`say`)를 통해 환영 메시지 재생 |
-| `goodbye.sh` | `SessionEnd` | macOS TTS (`say`)를 통해 작별 메시지 재생 |
 | `session-logs.py` | `PreToolUse` (모든 도구) | 모든 도구 호출의 전체 입력을 `.smart/session-logs/<날짜>/<session_id>.json`에 기록 |
 
 번들 hook 구성은 Claude 호환 host에서 `${CLAUDE_PLUGIN_ROOT}`를 통해 경로를 해석합니다. TTS hook은 백그라운드에서 실행되어 (`nohup &`) host 프로세스를 차단하지 않습니다.

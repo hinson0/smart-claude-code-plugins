@@ -67,7 +67,7 @@ The friendliest way is right inside a Codex session — no clone needed:
 
 **Protection & Automation**
 
-- **Session Hooks** — Greet on session start, goodbye on session end (via macOS `say` TTS).
+- **Session Hooks** — Greet on session start (via macOS `say` TTS).
 - **Session Logs** — Every tool call is logged to `.smart/session-logs/` with full input data for post-session debugging and audit.
 
 **Utilities**
@@ -309,7 +309,6 @@ The plugin includes hooks that trigger at session boundaries and tool calls:
 | Hook | Trigger | What it does |
 |------|---------|--------------|
 | `greet.sh` | `SessionStart` | Plays a welcome message via macOS TTS (`say`) |
-| `goodbye.sh` | `SessionEnd` | Plays a farewell message via macOS TTS (`say`) |
 | `session-logs.py` | `PreToolUse` (all tools) | Logs every tool call's full input to `.smart/session-logs/<date>/<session_id>.json` |
 
 The bundled hook config uses `${CLAUDE_PLUGIN_ROOT}` for path resolution in Claude-compatible hosts. TTS hooks run in the background (`nohup &`) to avoid blocking the host process.

@@ -52,7 +52,6 @@ Skip the `help` skill itself from the listing.
 |-------|--------|-------------|
 | SessionStart | greet.sh | Greeting on session start |
 | PreToolUse | session-logs.py | Log tool call inputs |
-| SessionEnd | goodbye.sh | Farewell on session end |
 ```
 
 ### Agents (`agent` or `all`)

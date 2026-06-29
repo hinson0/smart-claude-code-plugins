@@ -67,7 +67,7 @@
 
 **保护与自动化**
 
-- **会话 Hook** — 会话开始时问候，结束时告别（通过 macOS `say` TTS 语音播报）。
+- **会话 Hook** — 会话开始时问候（通过 macOS `say` TTS 语音播报）。
 - **会话日志** — 每次工具调用的完整输入数据均记录到 `.smart/session-logs/`，便于事后调试和审计。
 
 **实用工具**
@@ -309,7 +309,6 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | Hook | 触发时机 | 功能 |
 |------|---------|------|
 | `greet.sh` | `SessionStart` | 通过 macOS TTS（`say`）播放欢迎语 |
-| `goodbye.sh` | `SessionEnd` | 通过 macOS TTS（`say`）播放告别语 |
 | `session-logs.py` | `PreToolUse`（所有工具） | 将每次工具调用的完整输入记录到 `.smart/session-logs/<日期>/<session_id>.json` |
 
 内置 hook 配置在 Claude 兼容宿主中通过 `${CLAUDE_PLUGIN_ROOT}` 解析路径。TTS hooks 在后台运行（`nohup &`），不阻塞宿主进程。

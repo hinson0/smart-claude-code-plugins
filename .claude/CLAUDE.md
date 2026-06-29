@@ -26,7 +26,7 @@ assets/i18n/cn/smart/             # CN 镜像目录（仅供阅读，结构与 p
 ├── agents/                       # CN agents（中文版，仅供参考）
 ├── hooks/
 │   ├── hooks.json
-│   ├── greet.sh / goodbye.sh     # 会话开始/结束 hook
+│   ├── greet.sh                  # 会话开始 hook
 │   └── session-logs.py
 └── skills/                       # CN skills（中文版，仅供参考）
     ├── check/SKILL.md
@@ -46,7 +46,7 @@ plugins/smart/                    # EN 主插件目录（被 Codex 和 Claude Co
 ├── agents/                       # EN agents
 ├── hooks/
 │   ├── hooks.json                # hook 配置
-│   ├── greet.sh / goodbye.sh     # 会话开始/结束 hook
+│   ├── greet.sh                  # 会话开始 hook
 │   └── session-logs.py           # hook 输入日志（PreToolUse）
 └── skills/                       # EN skills（按 Agent Skills 规范，脚本在各自 scripts/ 子目录）
     ├── check/SKILL.md
