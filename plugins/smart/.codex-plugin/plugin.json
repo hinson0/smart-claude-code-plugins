@@ -1,6 +1,6 @@
 {
   "name": "smart",
-  "version": "3.25.1+codex.20260628185710",
+  "version": "3.25.2+codex.20260629154602",
   "description": "Fail-fast git workflow plugin with smart check, commit, version bump, push, PR, statusline, and session distillation skills.",
   "author": {
     "name": "Hinson",
