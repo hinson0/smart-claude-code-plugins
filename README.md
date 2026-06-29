@@ -311,10 +311,8 @@ The plugin includes hooks that trigger at session boundaries and tool calls:
 | `greet.sh` | `SessionStart` | Plays a welcome message via macOS TTS (`say`) |
 | `goodbye.sh` | `SessionEnd` | Plays a farewell message via macOS TTS (`say`) |
 | `session-logs.py` | `PreToolUse` (all tools) | Logs every tool call's full input to `.smart/session-logs/<date>/<session_id>.json` |
-| `plan-guard.py` | `UserPromptSubmit` | When a prompt asks to write an implementation plan, injects a checklist to keep the plan faithful to the approved design |
-| _(prompt hook)_ | `Stop` | Before stopping, compares the approved UI design against the plan/implementation and blocks if any element was dropped without sign-off |
 
-The bundled hook config uses `${CLAUDE_PLUGIN_ROOT}` for path resolution in Claude-compatible hosts. TTS hooks run in the background (`nohup &`) to avoid blocking the host process. The `plan-guard.py` / `Stop` pair guards against silent UI drift between an approved design and the implementation plan; the `Stop` check is best-effort (it reasons over the transcript, not rendered pixels).
+The bundled hook config uses `${CLAUDE_PLUGIN_ROOT}` for path resolution in Claude-compatible hosts. TTS hooks run in the background (`nohup &`) to avoid blocking the host process.
 
 ---
 

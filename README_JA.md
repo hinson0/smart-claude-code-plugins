@@ -311,10 +311,8 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `greet.sh` | `SessionStart` | macOS TTS（`say`）でウェルカムメッセージを再生 |
 | `goodbye.sh` | `SessionEnd` | macOS TTS（`say`）でお別れメッセージを再生 |
 | `session-logs.py` | `PreToolUse`（すべてのツール） | すべてのツール呼び出しの完全な入力を `.smart/session-logs/<日付>/<session_id>.json` に記録 |
-| `plan-guard.py` | `UserPromptSubmit` | プロンプトが実装プランの作成を求めたとき、プランが承認済みデザインに忠実であるようチェックリストを注入 |
-| _(prompt hook)_ | `Stop` | 停止前に承認済み UI デザインとプラン/実装を比較し、承認なしに要素が欠落していればブロック |
 
-同梱 hook 設定は Claude 互換 host で `${CLAUDE_PLUGIN_ROOT}` を使ってパスを解決します。TTS hook はバックグラウンドで実行され（`nohup &`）、host プロセスをブロックしません。`plan-guard.py` と `Stop` の組み合わせは、承認済みデザインと実装プランの間の静かなドリフトを防ぎます。`Stop` チェックはベストエフォートです（transcript に基づいて推論し、レンダリングされたピクセルは比較しません）。
+同梱 hook 設定は Claude 互換 host で `${CLAUDE_PLUGIN_ROOT}` を使ってパスを解決します。TTS hook はバックグラウンドで実行され（`nohup &`）、host プロセスをブロックしません。
 
 ---
 

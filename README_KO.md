@@ -311,10 +311,8 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `greet.sh` | `SessionStart` | macOS TTS (`say`)를 통해 환영 메시지 재생 |
 | `goodbye.sh` | `SessionEnd` | macOS TTS (`say`)를 통해 작별 메시지 재생 |
 | `session-logs.py` | `PreToolUse` (모든 도구) | 모든 도구 호출의 전체 입력을 `.smart/session-logs/<날짜>/<session_id>.json`에 기록 |
-| `plan-guard.py` | `UserPromptSubmit` | 프롬프트가 구현 계획 작성을 요청하면 계획이 승인된 디자인에 충실하도록 체크리스트를 주입 |
-| _(prompt hook)_ | `Stop` | 중지 전에 승인된 UI 디자인과 계획/구현을 비교하고, 승인 없이 요소가 누락되면 차단 |
 
-번들 hook 구성은 Claude 호환 host에서 `${CLAUDE_PLUGIN_ROOT}`를 통해 경로를 해석합니다. TTS hook은 백그라운드에서 실행되어 (`nohup &`) host 프로세스를 차단하지 않습니다. `plan-guard.py`와 `Stop` 조합은 승인된 디자인과 구현 계획 사이의 조용한 드리프트를 방지합니다. `Stop` 검사는 최선의 노력 기반입니다(transcript를 바탕으로 추론하며 렌더링된 픽셀을 비교하지 않음).
+번들 hook 구성은 Claude 호환 host에서 `${CLAUDE_PLUGIN_ROOT}`를 통해 경로를 해석합니다. TTS hook은 백그라운드에서 실행되어 (`nohup &`) host 프로세스를 차단하지 않습니다.
 
 ---
 

@@ -311,10 +311,8 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 | `greet.sh` | `SessionStart` | 通过 macOS TTS（`say`）播放欢迎语 |
 | `goodbye.sh` | `SessionEnd` | 通过 macOS TTS（`say`）播放告别语 |
 | `session-logs.py` | `PreToolUse`（所有工具） | 将每次工具调用的完整输入记录到 `.smart/session-logs/<日期>/<session_id>.json` |
-| `plan-guard.py` | `UserPromptSubmit` | 当 prompt 要求编写实现计划时，注入一份清单使计划忠实于已批准的设计 |
-| _(prompt hook)_ | `Stop` | 停止前对比已批准的 UI 设计与计划/实现，若有元素未经报备就被丢弃则阻断 |
 
-内置 hook 配置在 Claude 兼容宿主中通过 `${CLAUDE_PLUGIN_ROOT}` 解析路径。TTS hooks 在后台运行（`nohup &`），不阻塞宿主进程。`plan-guard.py` 与 `Stop` 这一对用于防止已批准设计与实现计划之间的静默走样；`Stop` 检查为尽力而为（基于 transcript 推理，不比对渲染像素）。
+内置 hook 配置在 Claude 兼容宿主中通过 `${CLAUDE_PLUGIN_ROOT}` 解析路径。TTS hooks 在后台运行（`nohup &`），不阻塞宿主进程。
 
 ---
 
