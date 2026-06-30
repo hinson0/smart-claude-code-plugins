@@ -80,7 +80,7 @@
 - **セッション知識蒸留** — `/smart:distill` は現在のセッションから価値ある Q&A を抽出し、トピック別の markdown ファイルにクラスタリングして知識ベースに書き出します。対象ディレクトリはローカルの `.smart/settings.json` から読み取り、なければ `AskUserQuestion` でグローバル `~/.smart/settings.json` を再利用するかローカル設定を新規作成するかを尋ね — どちらも無ければ書き出し先ディレクトリを尋ね — 選択をローカルに保存するので以降の実行は静かです。ディレクトリの確認はメインセッションに残り、重い抽出とファイル書き込みはバックグラウンドの **fork** で実行されるため、メインコンテキストには短い要約だけが返ります。デフォルト `.smart/knowledges/`；`{date}` トークンで `~/knowledges/md/{date}` のような日付ネストディレクトリに対応。重複/新規/差分の比較により再蒸留時は重複せず追記され、レビュー済みファイル（`.printed.md` または同名 PDF 付き）には一切触れません。
 - **Workflow モデル階層化** — `/smart:wfb` は Workflow スクリプトを省 token にします：各 `agent()` を難易度で階層化し（機械的な作業は haiku、本体は sonnet、収束と重要/難しい実装は opus）、fan-out の前に呼び出しを剪定し、schema で出力を制約します。Workflow スクリプトを書くたびに自動的に適用されます。
 - **クリップボードスクリーンショットアップローダー** — `/smart:sendshot` はクロスプラットフォームの `sendshot` shell 関数をインストールします：クリップボードの画像をキャプチャし、`scp` でリモートホスト（例：EC2）にアップロードして、リモートパスを出力しクリップボードに再コピーします。WSL（PowerShell で Windows クリップボードを読む）と macOS（`pngpaste`/`osascript`）に対応。zsh では **`Ctrl+G`** をバインドし、どのプロンプトからでも sendshot を実行できます。設定 — ホスト、鍵、リモートディレクトリ — は `~/.smart/settings.json` にあり実行時に読むため、ホストを変えても再インストール不要です。リモートディレクトリは `mkdir -p` で自動作成されます。
-- **学習モード** — `/smart:learning 1` はコードの意味のある部分を*自分の手で*書く協働コーディングモードを有効にします：Claude は設定された割合のボイラープレート（~30%）、コアロジック（~60%）、データベーススキーマ（100%）を TODO スタブとして残し、手を止めてあなたに埋めてもらいます。トグルと調整可能なバケット別の割合は `.smart/settings.json`（`learning` + `learning_ratios`、distill と共有、git-ignore された `.smart/` ディレクトリ内）に保存され、有効化時にルールが `.claude/CLAUDE.local.md` に注入されて全セッションで持続し、`/smart:learning config boilerplate=40 core=70` で割合を調整し、`/smart:learning 0` でブロックを削除します。
+- **学習モード** — `/smart:learning 1` はコードの意味のある部分を*自分の手で*書く協働コーディングモードを有効にします。分割はレイヤー × 種類のグリッドです——frontend/backend/db × ボイラープレート/ビジネス——各数値は*あなたが*手で書く割合です（0 = Claude が全部書く、100 = あなたが全部書く；デフォルト：frontend 0/30、backend 30/70、db 0/100）。タスクごとに Claude は自分の分をそのままディスクに書き、あなたの分全体を「詰まったら見る」参考解としてコンソールに出力し（設計が先、答えは後）、もう一度やり取りする必要をなくし、その後あなたが書いて保存したコードをレビューしてから次に進みます。トグルとグリッドは `.smart/settings.json`（`learning` + `learning_ratios`、distill と共有、git-ignore された `.smart/` ディレクトリ内）に保存され、有効化時にルールが `.claude/CLAUDE.local.md` に注入されて全セッションで持続し、`/smart:learning config backend.business=100 frontend.boilerplate=0` でセルを調整し、`/smart:learning 0` でブロックを削除します。
 
 ---
 
@@ -107,7 +107,7 @@
 | `/smart:distill [ディレクトリ]` | 現在のセッションをトピック別の知識ファイルに蒸留（デフォルト `.smart/knowledges/`） |
 | `/smart:wfb` | Workflow スクリプト作成のための省 token・モデル階層化ガイド（難易度別に haiku/sonnet/opus） |
 | `/smart:sendshot [install\|config\|uninstall]` | クロスプラットフォーム `sendshot` 関数をインストール（クリップボード画像 → `scp` でリモート → リモートパスをコピー）；設定は `~/.smart/settings.json` |
-| `/smart:learning [0\|1\|config]` | 学習モードの切り替え — コードの一部を*自分で*書く；バケット別の割合（ボイラープレート/コア/DB）は `.smart/settings.json` で設定。`1`=オン、`0`=オフ、`config bucket=NN`=割合調整、空=状態。ルールは `.claude/CLAUDE.local.md` に永続化 |
+| `/smart:learning [0\|1\|config]` | 学習モードの切り替え — コードの一部を*自分で*書く；レイヤー × 種類グリッド（frontend/backend/db × ボイラープレート/ビジネス）のセル別割合は `.smart/settings.json` で設定。Claude があなたの分をコンソールに出力してフォールバックにし、保存したコードをレビュー。`1`=オン、`0`=オフ、`config layer.kind=NN`=調整（例：`backend.business=100`）、空=状態。ルールは `.claude/CLAUDE.local.md` に永続化 |
 
 ---
 

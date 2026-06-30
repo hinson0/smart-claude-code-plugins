@@ -80,7 +80,7 @@
 - **세션 지식 증류** — `/smart:distill`은 현재 세션에서 가치 있는 Q&A를 추출하고 주제별 markdown 파일로 클러스터링하여 지식 베이스에 기록합니다. 대상 디렉터리는 로컬 `.smart/settings.json`에서 읽으며, 없으면 `AskUserQuestion`으로 전역 `~/.smart/settings.json`을 재사용할지 로컬 설정을 새로 만들지 묻고 — 둘 다 없으면 디렉터리를 묻습니다 — 선택을 로컬에 저장하므로 이후 실행은 조용합니다. 디렉터리 질문은 메인 세션에 남고, 무거운 추출과 파일 쓰기는 백그라운드 **fork**에서 실행되어 메인 컨텍스트는 짧은 요약만 받습니다. 기본값 `.smart/knowledges/`; `{date}` 토큰으로 `~/knowledges/md/{date}` 같은 날짜 중첩 디렉터리를 지원합니다. 중복/신규/차분 비교로 재증류 시 중복 없이 추가되며, 검토 완료 파일(`.printed.md` 또는 동일 이름 PDF 동반)은 절대 건드리지 않습니다.
 - **Workflow 모델 계층화** — `/smart:wfb`는 Workflow 스크립트를 토큰 절약형으로 만듭니다: 각 `agent()`를 난이도별로 계층화하고(기계적 작업은 haiku, 본체는 sonnet, 수렴 및 중요/어려운 구현은 opus), fan-out 전에 호출을 가지치기하며, schema로 출력을 제약합니다. Workflow 스크립트를 작성할 때마다 자동 적용됩니다.
 - **클립보드 스크린샷 업로더** — `/smart:sendshot`은 크로스플랫폼 `sendshot` shell 함수를 설치합니다: 클립보드 이미지를 캡처해 `scp`로 원격 호스트(예: EC2)에 업로드한 뒤 원격 경로를 출력하고 클립보드에 다시 복사합니다. WSL(PowerShell로 Windows 클립보드 읽기)과 macOS(`pngpaste`/`osascript`)를 지원합니다. zsh에서는 **`Ctrl+G`**를 바인딩해 어느 프롬프트에서나 sendshot을 실행할 수 있습니다. 설정 — 호스트, 키, 원격 디렉터리 — 은 `~/.smart/settings.json`에 있으며 런타임에 읽으므로 호스트를 바꿔도 재설치가 필요 없습니다. 원격 디렉터리는 `mkdir -p`로 자동 생성됩니다.
-- **학습 모드** — `/smart:learning 1`은 코드의 의미 있는 부분을 *직접* 손으로 작성하는 협업 코딩 모드를 켭니다: Claude는 설정된 비율의 보일러플레이트(~30%), 핵심 로직(~60%), 데이터베이스 스키마(100%)를 TODO 스텁으로 남기고 멈춰 당신이 채우게 합니다. 토글과 조정 가능한 버킷별 비율은 `.smart/settings.json`(`learning` + `learning_ratios`, distill과 공유, git-ignore된 `.smart/` 디렉터리 안)에 저장되며, 켜면 규칙이 `.claude/CLAUDE.local.md`에 주입되어 모든 세션에서 지속되고, `/smart:learning config boilerplate=40 core=70`으로 비율을 조정하며, `/smart:learning 0`은 블록을 제거합니다.
+- **학습 모드** — `/smart:learning 1`은 코드의 의미 있는 부분을 *직접* 손으로 작성하는 협업 코딩 모드를 켭니다. 분할은 레이어 × 종류 그리드입니다 — frontend/backend/db × 보일러플레이트/비즈니스 — 각 숫자는 *당신이* 직접 작성하는 비율입니다(0 = Claude가 전부 작성, 100 = 당신이 전부 작성; 기본값: frontend 0/30, backend 30/70, db 0/100). 작업마다 Claude는 자기 몫을 디스크에 바로 쓰고, 당신 몫 전체를 "막히면 보세요" 참고 솔루션으로 콘솔에 출력하며(설계 먼저, 답은 나중), 그래서 다시 대화를 시작할 필요가 없고, 그런 다음 당신이 작성해 저장한 코드를 검토한 뒤 진행합니다. 토글과 그리드는 `.smart/settings.json`(`learning` + `learning_ratios`, distill과 공유, git-ignore된 `.smart/` 디렉터리 안)에 저장되며, 켜면 규칙이 `.claude/CLAUDE.local.md`에 주입되어 모든 세션에서 지속되고, `/smart:learning config backend.business=100 frontend.boilerplate=0`으로 셀을 조정하며, `/smart:learning 0`은 블록을 제거합니다.
 
 ---
 
@@ -107,7 +107,7 @@
 | `/smart:distill [디렉터리]` | 현재 세션을 주제별 지식 파일로 증류 (기본값 `.smart/knowledges/`) |
 | `/smart:wfb` | Workflow 스크립트 작성을 위한 토큰 절약·모델 계층화 가이드(난이도별 haiku/sonnet/opus) |
 | `/smart:sendshot [install\|config\|uninstall]` | 크로스플랫폼 `sendshot` 함수 설치(클립보드 이미지 → `scp`로 원격 전송 → 원격 경로 복사); 설정은 `~/.smart/settings.json` |
-| `/smart:learning [0\|1\|config]` | 학습 모드 토글 — 코드 일부를 *직접* 작성; 버킷별 비율(보일러플레이트/핵심/DB)은 `.smart/settings.json`에서 설정. `1`=켜기, `0`=끄기, `config bucket=NN`=비율 조정, 비어 있음=상태. 규칙은 `.claude/CLAUDE.local.md`에 유지 |
+| `/smart:learning [0\|1\|config]` | 학습 모드 토글 — 코드 일부를 *직접* 작성; 레이어 × 종류 그리드(frontend/backend/db × 보일러플레이트/비즈니스)의 셀별 비율은 `.smart/settings.json`에서 설정. Claude가 당신 몫을 콘솔에 출력해 폴백으로 제공한 뒤, 저장한 코드를 검토. `1`=켜기, `0`=끄기, `config layer.kind=NN`=조정(예: `backend.business=100`), 비어 있음=상태. 규칙은 `.claude/CLAUDE.local.md`에 유지 |
 
 ---
 
