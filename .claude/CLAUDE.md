@@ -23,7 +23,7 @@ Codex 格式插件，自动化 commit → push → PR 流程（push 内含 versi
 └── docs/                            # 设计文档（gitignored，不提交）
 
 assets/i18n/cn/smart/             # CN 镜像目录（仅供阅读，结构与 plugins/smart/ 对称）
-├── agents/                       # CN agents（中文版，仅供参考）
+├── agents/                       # 空占位，暂无 agent
 ├── hooks/
 │   ├── hooks.json
 │   ├── greet.sh                  # 会话开始 hook
@@ -43,7 +43,7 @@ assets/i18n/cn/smart/             # CN 镜像目录（仅供阅读，结构与 p
 plugins/smart/                    # EN 主插件目录（被 Codex 和 Claude Code 同时加载）
 ├── .codex-plugin/plugin.json     # Codex 插件元数据
 ├── .claude-plugin/plugin.json    # Claude Code 插件元数据（清单文件，缺失则 CC 无法加载插件）
-├── agents/                       # EN agents
+├── agents/                       # 空占位，暂无 agent
 ├── hooks/
 │   ├── hooks.json                # hook 配置
 │   ├── greet.sh                  # 会话开始 hook
@@ -78,12 +78,9 @@ plugins/smart/                    # EN 主插件目录（被 Codex 和 Claude Co
 ## 注意事项
 
 - 修改任何 SKILL.md 内容后，必须同步更新 `assets/i18n/cn/smart/` 目录中的对应文件
-- 修改 agent 文件同理，`agents/` 和 `assets/i18n/cn/smart/agents/` 需同步更新
 - 修改 hooks/assets 的脚本和文件：逻辑与结构保持 EN/CN 一致，但语言严格分离——
   - `plugins/` 下所有文件（注释、description、skill body 等）全英文
   - `assets/i18n/cn/` 下所有文件（注释、description、skill body 等）全中文
-- agent EN 版（`plugins/smart/agents/`）：frontmatter + body 全英文（被 Codex 实际加载）
-- agent CN 版（`assets/i18n/cn/smart/agents/`）：frontmatter（description/example）和 body 均为中文（仅供阅读参考，不被加载）
 - commit message 遵循 Conventional Commits：`<type>(<scope>): <description>`
   - type: feat, fix, refactor, docs, test, chore, perf, ci
   - scope: 可选，指明改动范围（如 mobile, api, auth）；省略时格式为 `<type>: <description>`
