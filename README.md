@@ -51,7 +51,7 @@ This repository publishes one dual-host plugin:
 
 | Plugin | Install | Purpose |
 |--------|---------|---------|
-| Smart | `smart@smart` | Developer workflows, HTML/PDF/Wiki tools, weekly reports, and session utilities |
+| Smart | `smart@smart` | Developer workflows, PDF/Wiki tools, weekly reports, and session utilities |
 
 Claude Code uses `/smart:*`; Codex exposes the corresponding `$smart:*` skills.
 

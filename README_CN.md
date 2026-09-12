@@ -51,7 +51,7 @@
 
 | 插件 | 安装名 | 用途 |
 |------|--------|------|
-| Smart | `smart@smart` | 开发工作流、HTML/PDF/Wiki 工具、周报和会话工具 |
+| Smart | `smart@smart` | 开发工作流、PDF/Wiki 工具、周报和会话工具 |
 
 Claude Code 使用 `/smart:*`；Codex 提供对应的 `$smart:*` skills。
 
