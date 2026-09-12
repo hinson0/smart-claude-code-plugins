@@ -1,5 +1,7 @@
 # 实现计划：移除七个 Smart Skills
 
+> 历史说明（2026-09-12）：现行文档仅维护英文 README.md 和简体中文 README_CN.md；以下五语文档描述及旧文件名仅保留为历史记录，不再作为维护要求。
+
 **Branch**: `001-remove-seven-skills`（逻辑功能名；当前工作区为 detached HEAD） | **Date**: 2026-08-23 | **Spec**: [spec.md](spec.md)
 
 **Input**: 来自 `specs/001-remove-seven-skills/spec.md` 的功能规格

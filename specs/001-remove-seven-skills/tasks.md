@@ -1,7 +1,8 @@
 ---
-
 description: "移除七个 Smart Skills 的依赖有序实施任务"
 ---
+
+> 历史说明（2026-09-12）：现行文档仅维护英文 README.md 和简体中文 README_CN.md；以下五语文档描述及旧文件名仅保留为历史记录，不再作为维护要求。
 
 # 任务：移除七个 Smart Skills
 
