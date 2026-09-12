@@ -63,9 +63,9 @@ Claude Code 使用 `/smart:*`；Codex 提供对应的 `$smart:*` skills。
 codex plugin add smart@smart
 ```
 
-Smart 包含十八个 skills：`ask`、`clean-branches`、`close-issue`、`code-simplifier`、`commit`、
-`generate-wiki`、`github-skills-pdf`、`help`、`html`、`hud`、`learning`、`local`、
-`matt-implement-all-tickets`、`my-weekly`、`one-by-one`、`pair-write`、`pr` 和 `show`。
+Smart 包含十五个 skills：`clean-branches`、`close-issue`、`code-simplifier`、`commit`、
+`generate-wiki`、`github-skills-pdf`、`help`、`hud`、`learning`、`local`、
+`matt-implement-all-tickets`、`my-weekly`、`one-by-one`、`pair-write`、`pr`。
 部分流程依赖 Git、`gh`、`glab`、Node.js、Python/PDF 工具、
 浏览器或文档能力；每个 skill 都会检查自己的前置条件。
 所有 skill 都只由用户主动调用：请明确使用对应的 `/smart:*` 或
@@ -94,17 +94,14 @@ Codex 界面统一显示 `smart:<name>`，保留 Claude Code 原调用名但省�
 
 - **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。提供两个安装级别（简化版 / 完整版）及从备份恢复，仅 user 作用域。
 - **帮助概览** — `/smart:help` 动态扫描并列出所有技能、hook 和 agent 及其描述。
-- **只读指导** — `/smart:ask` 返回简洁判断、命令、片段或清单，不修改文件、不运行工具。
 - **全新上下文代码简化** — `/smart:code-simplifier` 把完整流程交给一个串行、不可递归委派且不带对话历史的 worker。主 agent 不接触目标代码；worker 负责限定近期改动范围、遵循仓库规范并证明行为等价。
 - **单 Cycle TDD** — `/smart:one-by-one` 验证一个最小 Red，再指导用户完成对应 Green。
 - **结对手写** — `/smart:pair-write` 为一个用户手写步骤同轮提供注释骨架和直接展开的完整参考实现，默认只检查书写是否正确以及落盘内容是否与指导一致。
-- **Markdown 转 HTML** — `/smart:html` 确定性地把 Markdown 转为安全自包含 HTML，不自动打开浏览器。
 - **Wiki 生成** — `/smart:generate-wiki` 把资料整理为 GitLab、GitHub 或本地 Markdown Wiki，并安全发布。
 - **双语 Skills PDF** — `/smart:github-skills-pdf` 固定 GitHub skills 仓库版本并生成经验证的英中 A4 手册。
 - **个人周报** — `/smart:my-weekly` 按自然周汇总当前用户的 Git 提交。
 - **内置编码规则** — 预置规则文件（如 Pydantic V2 标准）存于 `rules/` 目录，按需软链到项目的 `.claude/rules/` 即可激活。
-- **学习模式** — `/smart:learning 1` 开启一种简单的协作编码模式：由*你*亲手编写代码。它是一个纯粹的开/关开关——没有占比、没有配置。开启时，凡是 Claude 本会写的代码都改为打到控制台——每段标明 新增文件 / 新增代码 / 修改 / 删除，并附文件与位置——由你敲入，然后 Claude 审查你落盘的代码再继续，每次只处理一个任务。开启时把规则注入 `.claude/CLAUDE.local.md`（Claude Code 每次会话载入的、已 git-ignore 的项目级记忆）使其持续生效；该块是否存在就是全部状态，`/smart:learning 0` 移除它。`.smart/settings.json` 里不存任何东西。
-- **HTML 审阅页** — `/smart:show` 把冗长交付物——当前对话的方案/分析/评审，或一个 Markdown 文件——渲染成单文件、零 JavaScript 的自包含 HTML 审阅页并在浏览器打开。灰底白卡视觉系统：粘性目录、编号章节、风险徽章、方案对比卡（选定项高亮）、内联 SVG 架构图与 `<details>` 折叠。三种固定版式配方（plan-review / explainer / report）保证每次生成的页面结构一致。每页强制携带出处页脚（时间、commit SHA、来源），且仅是派生视图——Markdown 仍是事实来源。每次运行都在 `.smart/pages/`（已 git-ignore）写入带时间戳的新文件，保留旧页面作为不可变审阅资产，不再覆盖。示例见 `assets/demos/`。
+- **学习模式** — `/smart:learning 1` 开启持久化的“用户写、AI 审”流程；`0` 关闭，无参数查看状态。只修改 `.claude/CLAUDE.local.md` 中的受管区块。
 
 ---
 
@@ -120,20 +117,18 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
 | `/smart:pr [分支]` | 创建或更新 PR；无参数须确认默认 `main`，有参数直接执行；不自动合并 |
 | `/smart:clean-branches [分支]` | 清理完整合并到目标的本地和远端分支；无参数须确认默认 `main`；保留保护分支和 worktree 占用分支 |
-| `/smart:ask` | 返回简洁只读指导，不执行命令或修改内容 |
 | `/smart:close-issue <IID或URL>` | 只读核对单个 GitLab Issue；明确授权关闭后，先发布可审计的开发资产记录，再关闭 Issue |
 | `/smart:code-simplifier [路径或diff]` | 使用一个全新上下文 worker 简化近期代码，同时保持可观察行为不变 |
 | `/smart:matt-implement-all-tickets` | 显式加载 Matt `/implement` 后，串行实现并关闭当前 `/to-tickets` 输出 |
 | `/smart:generate-wiki` | 把资料整理为受保护的 GitLab、GitHub 或本地 Wiki |
 | `/smart:github-skills-pdf [--notes 2\|4]` | 从 GitHub skills 仓库生成经验证的英中 A4 手册 |
-| `/smart:html <input.md> [output.html]` | 把 Markdown 转为安全自包含 HTML，不自动打开浏览器 |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安装状态栏（`1`/`normal`=简化版，`2`/`all`=完整版）或恢复备份（`0`/`reset`），user 作用域 |
 | `/smart:help [skill\|hook\|agent]` | 显示所有插件组件概览（或按类别筛选） |
-| `/smart:learning [0\|1]` | 切换学习模式——由*你*亲手写代码；Claude 把每段打到控制台并标明 新增文件 / 新增代码 / 修改 / 删除 供你敲入，再审查你落盘的代码。`1`=开，`0`=关，留空=状态。状态就是注入到 `.claude/CLAUDE.local.md` 的块——无设置、无占比 |
+| `/smart:learning [0\|1]` | 持久化学习模式：`1` 开启、`0` 关闭、无参数查看状态；用户写代码，AI 逐步审阅 |
+| `/smart:local` | 创建被 Git 忽略的个人配置文件，不覆盖已有笔记 |
 | `/smart:my-weekly <repo> [-N]` | 按指定自然周汇总当前用户的 Git 提交 |
 | `/smart:one-by-one` | 每次执行一个最小 Red-to-Green Cycle |
 | `/smart:pair-write` | 引导用户手写一个步骤，再对照骨架和参考实现检查落盘代码 |
-| `/smart:show [<path>.md]` | 把当前对话交付物（或指定 Markdown 文件）渲染成带时间戳的全新自包含零 JS HTML 审阅页，写入 `.smart/pages/`，保留旧页面并在浏览器打开。三种版式配方：plan-review / explainer / report |
 
 ---
 
@@ -224,7 +219,7 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 - Matt Pocock Skills 的 `/implement` — `/smart:matt-implement-all-tickets` 必需
 - [`gh` CLI](https://cli.github.com/) — `/smart:matt-implement-all-tickets` 使用 GitHub Issues 时需要
 - [`glab` CLI](https://gitlab.com/gitlab-org/cli) — `/smart:close-issue` 以及 `/smart:matt-implement-all-tickets` 使用 GitLab Issues 时需要
-- Node.js — 供 `/smart:html` 和收口脚本使用
+- Node.js — 供收口脚本使用
 - Python 3、`reportlab` 与可嵌入 CJK 字体 — 供 `/smart:github-skills-pdf` 使用
 - `jq` — 仅 HUD 状态栏需要（其他功能无需）
 

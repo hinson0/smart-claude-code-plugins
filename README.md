@@ -63,9 +63,9 @@ Claude Code uses `/smart:*`; Codex exposes the corresponding `$smart:*` skills.
 codex plugin add smart@smart
 ```
 
-Smart includes eighteen skills: `ask`, `clean-branches`, `close-issue`, `code-simplifier`, `commit`,
-`generate-wiki`, `github-skills-pdf`, `help`, `html`, `hud`, `learning`, `local`,
-`matt-implement-all-tickets`, `my-weekly`, `one-by-one`, `pair-write`, `pr`, and `show`.
+Smart includes fifteen skills: `clean-branches`, `close-issue`, `code-simplifier`, `commit`,
+`generate-wiki`, `github-skills-pdf`, `help`, `hud`, `learning`, `local`,
+`matt-implement-all-tickets`, `my-weekly`, `one-by-one`, `pair-write`, `pr`.
 Some workflows require Git, `gh`, `glab`, Node.js, Python/PDF
 tooling, browser access, or document capabilities; each skill checks its own prerequisites.
 Every skill is user-invoked only: start it explicitly with its `/smart:*` or
@@ -95,17 +95,14 @@ invocation name without the leading slash or a separate title.
 
 - **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Two install levels (minimal / full) plus restore from backup, user scope.
 - **Help Overview** — `/smart:help` dynamically scans and lists all skills, hooks, and agents with descriptions.
-- **Read-Only Guidance** — `/smart:ask` returns a concise judgment, command, snippet, or checklist without modifying files or running tools.
 - **Fresh-Context Code Simplification** — `/smart:code-simplifier` sends the complete run to one serial, non-recursive worker with no conversation history. The primary stays out of the target code while the worker scopes recent changes, follows repository standards, and proves behavior equivalence.
 - **One-Cycle TDD** — `/smart:one-by-one` validates one minimal Red test, then guides the user through the matching Green implementation.
 - **Pair Writing** — `/smart:pair-write` gives one user-written coding step a comment skeleton and directly expanded reference, then checks only transcription and agreement with that guidance by default.
-- **Markdown to HTML** — `/smart:html` deterministically converts one Markdown file into safe, self-contained HTML without opening a browser.
 - **Wiki Generation** — `/smart:generate-wiki` turns source material into a GitLab, GitHub, or local Markdown Wiki with guarded publishing.
 - **Bilingual Skills PDF** — `/smart:github-skills-pdf` pins a GitHub skills repository and builds a verified English-Chinese A4 handbook.
 - **Personal Weekly Report** — `/smart:my-weekly` summarizes the current user's commits for a selected natural week.
 - **Bundled Coding Rules** — Pre-written rule files (e.g. Pydantic V2 standards) in `rules/`. Symlink any file to your project's `.claude/rules/` to activate it.
-- **Learning Mode** — `/smart:learning 1` turns on a simple co-coding mode where *you* hand-write the code yourself. It is a plain on/off switch — no ratios, no config. While on, any code Claude would write goes to the console instead — each piece labeled New file / New code / Modify / Delete with its file and location — for you to type in, and Claude reviews what you land before moving on, one task at a time. Enabling injects the rules into `.claude/CLAUDE.local.md` (the git-ignored per-project memory Claude Code loads every session) so they persist; the presence of that block is the entire state, and `/smart:learning 0` removes it. Nothing is stored in `.smart/settings.json`.
-- **HTML Review Pages** — `/smart:show` renders a long deliverable — the current conversation's plan/analysis/review, or a Markdown file — as a single self-contained, zero-JavaScript HTML review page and opens it in the browser. Card-on-gray visual system: sticky TOC, numbered sections, risk badges, option-comparison cards (chosen one highlighted), inline SVG diagrams, and `<details>` folding. Three fixed layout recipes (plan-review / explainer / report) keep pages structurally consistent across runs. Every page carries a mandatory provenance footer (time, commit SHA, source) and is a derived view only — Markdown stays the source of truth. Each run writes a new timestamped file to `.smart/pages/` (git-ignored), preserving earlier pages as immutable review assets instead of overwriting them. Live demos in `assets/demos/`.
+- **Learning Mode** — `/smart:learning 1` enables a persistent user-writes, agent-reviews loop; `0` disables it and no argument shows status. Only the managed block in `.claude/CLAUDE.local.md` is changed.
 
 ---
 
@@ -121,20 +118,18 @@ invocation name without the leading slash or a separate title.
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
 | `/smart:pr [branch]` | Create or update a PR; omitted branch requires confirmation of `main`, explicit branch skips confirmation; no auto-merge |
 | `/smart:clean-branches [branch]` | Delete local and remote branches fully merged into the target; omitted target requires confirmation of `main`; protected and checked-out branches are kept |
-| `/smart:ask` | Return concise read-only guidance without executing or changing anything |
 | `/smart:close-issue <IID-or-URL>` | Check one GitLab Issue read-only; with explicit close authorization, publish an auditable development asset note and then close it |
 | `/smart:code-simplifier [paths-or-diff]` | Use one fresh-context worker to simplify recent code while preserving observable behavior |
 | `/smart:matt-implement-all-tickets` | With Matt `/implement` explicitly loaded, implement and close the current `/to-tickets` output serially |
 | `/smart:generate-wiki` | Distill source material into a guarded GitLab, GitHub, or local Wiki |
 | `/smart:github-skills-pdf [--notes 2\|4]` | Build a verified English-Chinese A4 handbook from a GitHub skills repository |
-| `/smart:html <input.md> [output.html]` | Convert Markdown to safe, self-contained HTML without opening a browser |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | Install statusline (`1`/`normal`=minimal, `2`/`all`=full) or restore backup (`0`/`reset`), user scope |
 | `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
-| `/smart:learning [0\|1]` | Toggle learning mode — *you* hand-write the code; Claude prints each piece to the console labeled New file / New code / Modify / Delete for you to type in, then reviews what you land. `1`=on, `0`=off, empty=status. State is the injected block in `.claude/CLAUDE.local.md` — no settings, no ratios |
+| `/smart:learning [0\|1]` | Persistent learning mode: `1` enables, `0` disables, empty shows status; the user writes and the agent reviews one step at a time |
+| `/smart:local` | Create a git-ignored personal configuration file without overwriting existing notes |
 | `/smart:my-weekly <repo> [-N]` | Summarize the current user's commits for a selected natural week |
 | `/smart:one-by-one` | Run one minimal Red-to-Green cycle at a time |
 | `/smart:pair-write` | Guide one user-written step, then compare the landed code with its skeleton and reference |
-| `/smart:show [<path>.md]` | Render the current conversation's deliverable (or a Markdown file) as a new timestamped, self-contained zero-JS HTML review page in `.smart/pages/`, preserve previous pages, and open it in the browser. Three layout recipes: plan-review / explainer / report |
 
 ---
 
@@ -225,7 +220,7 @@ The bundled hook config uses `${CLAUDE_PLUGIN_ROOT}` for path resolution in Clau
 - Matt Pocock Skills with `/implement` — required by `/smart:matt-implement-all-tickets`
 - [`gh` CLI](https://cli.github.com/) — for `/smart:matt-implement-all-tickets` with GitHub Issues
 - [`glab` CLI](https://gitlab.com/gitlab-org/cli) — for `/smart:close-issue` and `/smart:matt-implement-all-tickets` with GitLab Issues
-- Node.js — for `/smart:html` and closeout scripts
+- Node.js — for closeout scripts
 - Python 3 with `reportlab` and an embeddable CJK font — for `/smart:github-skills-pdf`
 - `jq` — for HUD statusline only (optional otherwise)
 
