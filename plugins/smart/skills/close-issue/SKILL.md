@@ -6,65 +6,35 @@ disable-model-invocation: true
 
 # Close One GitLab Issue
 
-## Confirm authorization and input
+Check one Issue IID or URL. Default to read-only: a readiness question or ambiguous intent authorizes no writes. Explicit “close this Issue” authorization covers one development asset note followed by closure, not push, merge, MR/PR creation, checklist edits, or labels.
 
-1. Accept exactly one Issue IID or URL. Stop when the target is missing or ambiguous.
-2. Classify the user's intent:
-   - “Can this be closed?” and “check whether it is ready” authorize a read-only check. Return `ready` or `not_ready`, then stop.
-   - “Close this Issue” authorizes one development asset note defined by this skill and, after that note succeeds, closing the Issue.
-   - Treat ambiguous intent as read-only.
-3. Accept an optional implementation commit. Resolve an omitted value from the request, Issue, repository rules, and current Git facts. Return `not_ready` unless the implementation commit is uniquely proved.
-4. Closing authorization covers neither push, merge, merge request or pull request creation, checklist edits, nor label changes. Perform those actions only under separate explicit authorization.
+## Establish readiness
 
-## Read current facts
+Read repository rules and the current Issue, including comments and acceptance criteria. This workflow requires GitLab Issues and `glab issue`. Resolve a unique committed implementation SHA from the optional argument or current evidence; the clean current implementation branch must contain it.
 
-1. Read every applicable `AGENTS.md`, `CLAUDE.md`, and their Issue tracker and Git convention pointers. This version supports repositories that explicitly use GitLab Issues and `glab issue`; return `not_ready` for other forges.
-2. Run `glab issue view <issue> --comments`. Check the Issue state, specification, acceptance criteria, and implementation or validation evidence in its comments.
-3. Inspect the worktree, implementation commit, and current implementation branch:
-   - The task worktree must contain no uncommitted changes; the script applies the stricter whole-worktree clean gate.
-   - The implementation commit must exist as a committed object.
-   - The current implementation branch must contain it.
-4. Read the commit diff, repository task review evidence, and checks that actually ran. When `/implement` produced the work, use its final commit, test results, and code review as asset candidates, then verify them against Git and command results. Map evidence to every acceptance criterion. Run safe checks allowed by the repository or return `not_ready` when evidence is missing. Never report an unrun check as passing.
-5. Read existing code review conclusions. Perform the repository's review workflow when no trustworthy review exists, or return `not_ready` if it cannot be performed. Summaries are not sources of truth; verify against the Issue, commit, files, and command results.
+Verify the implementation diff against every acceptance criterion, checks actually run, and a trustworthy code review. Run allowed checks or the repository review workflow where evidence is missing; otherwise return `not_ready` with blockers. Worker reports and summaries only point to evidence. Never claim an unrun check passed. Target-branch integration is a disclosed delivery boundary, not a close gate.
 
-## Run the gate
-
-Start with this read-only check:
+Run the read-only script gate:
 
 ```bash
-node <this-skill-directory>/scripts/close-issue.mjs check \
-  --issue <iid-or-url> \
-  --commit <implementation-sha>
+node <this-skill-directory>/scripts/close-issue.mjs check --issue <iid-or-url> --commit <sha>
 ```
 
-- `ready`: the worktree is clean, the Issue is open, and the current implementation branch contains the implementation commit.
-- `not_ready`: list every blocker and current-branch containment evidence; do not write to the Issue.
-- Script readiness is necessary but not sufficient. Acceptance evidence and a trustworthy review must also be complete before publishing assets or closing.
+Add `--repo <group/project>` for a numeric IID outside the current project. Script `ready` is necessary but does not establish acceptance or review completeness. A check-only request ends with `ready` or `not_ready`, without creating a note file.
 
-A check-only request ends here. It creates no note file and calls no GitLab write operation.
+## Publish and close
 
-## Publish the development asset and close
+Only after explicit close authorization and all readiness evidence passes, create a temporary Markdown note outside the worktree with the script's required headings:
 
-1. Continue only with explicit close authorization, a `ready` script result, complete acceptance evidence, and a trustworthy review conclusion.
-2. Create a temporary Markdown note outside the Git worktree. Keep it concise and independently auditable, with these exact headings:
-   - `## Implementation assets`: Issue or specification, current implementation branch, implementation commit, modified scope, and any durable links that actually exist.
-   - `## Acceptance evidence`: facts mapped to acceptance criteria, plus commands actually run and their results.
-   - `## Review conclusion`: review source, conclusion, resolved findings, and residual risks.
-   - `## Closeout boundaries`: current implementation branch and any unverified target-branch integration, plus push, merge, MR/PR, environment validation, or other actions not performed.
-3. Cite the current Issue, commit, review, and check results. Summarize specifications and diffs instead of copying them wholesale. Exclude secrets, Authorization headers, complete environment variables, model traces, and unverified test claims.
-4. Run the close command. It repeats every gate, then publishes the note before closing:
+- `## Implementation assets`: Issue/specification, current implementation branch, commit, scope, and existing durable links.
+- `## Acceptance evidence`: each criterion's evidence and commands actually run with results.
+- `## Review conclusion`: review source, conclusion, resolved findings, and residual risks.
+- `## Closeout boundaries`: unverified target integration and delivery actions not performed.
+
+Keep the note independently auditable and exclude secrets or unsupported claims. Use the script, which repeats its gates and publishes the note before closing:
 
 ```bash
-node <this-skill-directory>/scripts/close-issue.mjs close \
-  --issue <iid-or-url> \
-  --commit <implementation-sha> \
-  --note-file <note.md>
+node <this-skill-directory>/scripts/close-issue.mjs close --issue <iid-or-url> --commit <sha> --note-file <note.md>
 ```
 
-Add `--repo <group/project>` for a numeric IID used outside the current project; a full Issue URL needs no guessed project. Target-branch integration is a disclosed delivery boundary, not a close gate.
-
-5. Handle the JSON result:
-   - `closed`: return clickable note and Issue links and disclose remaining delivery boundaries.
-   - `not_ready` with `failure: note_failed`: the note was not published and close did not run. Report the failure and stop.
-   - `partially_completed` with `stage: noted`: the note was published but close failed. Preserve and return the note link, and state that the Issue remains open.
-6. Delete the temporary note. Test this skill only with fixtures and fake `git` and `glab` executables, never a disposable real Issue.
+Report the actual result: `closed` with note and Issue links; `note_failed` means no closure ran; `partially_completed` at `stage: noted` means the note exists but the Issue remains open. Preserve its link and report the failure without implying success or duplicating the note. Remove the temporary file. Validate this workflow with fixtures and fake `git`/`glab`, never real test Issues.

@@ -6,12 +6,11 @@ argument-hint: No arguments needed. Group changes by type and independent purpos
 model: haiku
 ---
 
-
 ## Host routing
 
 - **Claude Code:** the frontmatter pins this turn to `haiku`. Execute the Commit Workflow below directly.
 - **Codex commit worker:** if the dispatch prompt explicitly identifies you as the commit worker, skip the rest of this section and execute the Commit Workflow directly. Never delegate again.
-- **Codex primary agent:** do not inspect diffs, decide groups, generate messages, stage files, or commit. Spawn exactly one subagent with the complete current context and this instruction: “You are the commit worker. Read this `commit/SKILL.md`, skip Host routing, and execute the Commit Workflow through Step 5. Do not delegate.” Request model `gpt-5.6-luna` with reasoning effort `low`, then wait and relay its result without redoing its analysis.
+- **Codex primary agent:** delegate all workflow steps to exactly one subagent with the complete current context. Identify it as the commit worker and instruct it to read this skill and complete the workflow without delegation. Request model `gpt-5.6-luna` with reasoning effort `low`, then wait and relay its result without redoing its analysis.
 - If the Luna spawn fails because that model is unavailable, retry exactly once with the same worker instruction and no model override so the user's configured default subagent model applies. If that retry fails, report the failure and stop; the primary agent must not execute the workflow itself.
 
 ## Commit Workflow

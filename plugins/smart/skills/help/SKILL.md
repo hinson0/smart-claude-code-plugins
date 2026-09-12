@@ -5,92 +5,18 @@ disable-model-invocation: true
 argument-hint: "[skill|hook|agent] (empty=show all)"
 ---
 
-Display a formatted overview of the smart plugin's components by dynamically scanning the plugin directory.
+Read the installed plugin's current components; do not maintain a static catalog.
 
-## Determine Category
+Accept `skill`/`skills`, `hook`/`hooks`, or `agent`/`agents`; no argument shows all.
+Use `${CLAUDE_PLUGIN_ROOT}`, or resolve the plugin root from this skill's location.
 
-| Argument           | Category |
-| ------------------ | -------- |
-| _(empty)_          | `all`    |
-| `skill` / `skills` | `skill`  |
-| `hook` / `hooks`   | `hook`   |
-| `agent` / `agents` | `agent`  |
+- Skills: read `skills/*/SKILL.md` frontmatter, excluding `help`. Show command,
+  description, and optional `argument-hint`; use `/smart:<name>` in Claude Code
+  and `$smart:<name>` in Codex.
+- Hooks: read `hooks/hooks.json`. Show event, script, and a one-line description
+  from the script's leading comments.
+- Agents: read `agents/*.md` frontmatter. Show name (fallback: filename), first
+  description line, and model.
 
-## Scanning Instructions
-
-### Skills (`skill` or `all`)
-
-1. List all subdirectories under `${CLAUDE_PLUGIN_ROOT}/skills/`.
-2. For each subdirectory containing `SKILL.md`, read the YAML frontmatter to extract:
-   - **name**: the directory name (used as `/smart:<name>`)
-   - **description**: from frontmatter `description` field
-   - **argument-hint**: from frontmatter `argument-hint` field (if present)
-3. Present as a table:
-
-```
-## Skills
-
-| Command | Description | Arguments |
-|---------|-------------|-----------|
-| /smart:commit | Commit with semantic grouping | (none) |
-| /smart:close-issue | Check or close one GitLab Issue safely | IID or URL |
-| ...     | ...         | ...       |
-```
-
-Skip the `help` skill itself from the listing.
-
-### Hooks (`hook` or `all`)
-
-1. Read `${CLAUDE_PLUGIN_ROOT}/hooks/hooks.json`.
-2. For each event type (SessionStart, PreToolUse, SessionEnd, etc.), list the hooks configured.
-3. For each hook script, read the first comment block (lines starting with `#` after the shebang) to extract a one-line description.
-4. Present as a table:
-
-```
-## Hooks
-
-| Event | Script | Description |
-|-------|--------|-------------|
-| SessionStart | greet.sh | Greeting on session start |
-| PreToolUse | session-logs.py | Log tool call inputs |
-```
-
-### Agents (`agent` or `all`)
-
-1. List all `.md` files under `${CLAUDE_PLUGIN_ROOT}/agents/`.
-2. For each file, read the YAML frontmatter to extract:
-   - **name**: from frontmatter `name` field (or filename without extension)
-   - **description**: from frontmatter `description` field (first line only)
-   - **model**: from frontmatter `model` field
-3. Present as a table:
-
-```
-## Agents
-
-| Name | Description | Model |
-|------|-------------|-------|
-| <name> | <description> | <model> |
-```
-
-## Output Format
-
-For `all` category, combine all three sections with a header:
-
-```
-# Smart Plugin Components
-
-<skills table>
-
-<hooks table>
-
-<agents table>
-```
-
-For a specific category, show only that section with a brief intro line.
-
-## Constraints
-
-- Do NOT read entire file contents into context — only frontmatter and leading comments.
-- Present information concisely. One-line descriptions only, no full skill body.
-- If a file is unreadable or frontmatter is malformed, skip that entry silently and continue scanning.
-- Output in the same language as the user's conversation.
+Read only the metadata needed, skip unreadable or malformed entries, and present
+one compact table per requested category in the conversation's language.
