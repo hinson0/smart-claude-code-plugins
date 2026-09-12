@@ -63,10 +63,10 @@ Claude Code は `/smart:*`、Codex は対応する `$smart:*` skills を使用�
 codex plugin add smart@smart
 ```
 
-Smart には `ask`、`close-issue`、`code-simplifier`、`commit`、`generate-wiki`、
+Smart には `ask`、`clean-branches`、`close-issue`、`code-simplifier`、`commit`、`generate-wiki`、
 `github-skills-pdf`、`help`、`html`、`hud`、`learning`、`local`、
 `matt-implement-all-tickets`、`my-weekly`、`one-by-one`、`pair-write`、`pr`、`show` の
-17 個の skill が含まれます。一部のフローは Git、`gh`、`glab`、Node.js、
+18 個の skill が含まれます。一部のフローは Git、`gh`、`glab`、Node.js、
 Python/PDF ツール、ブラウザ、文書機能を必要とし、
 各 skill は自身の前提条件を確認します。
 すべての skill はユーザーが明示的に呼び出します。モデルの自動呼び出しに頼らず、
@@ -120,6 +120,7 @@ Claude Code では `/smart:*`、Codex では `$smart:*` を使用してくださ
 |---|---|
 | `/smart:commit` | コミットのみ（スマートグルーピング、メッセージ自動生成） |
 | `/smart:pr [branch]` | PR を作成・更新。引数なしは既定の `main` を確認して待機、指定時は確認不要。自動マージなし |
+| `/smart:clean-branches [branch]` | 対象に完全にマージ済みのローカル・リモートブランチを削除。引数なしは `main` の確認を待機。保護・worktree 使用中のブランチは保持 |
 | `/smart:ask` | 実行や変更をせず簡潔な読み取り専用ガイドを返す |
 | `/smart:close-issue <IID-or-URL>` | 単一 GitLab Issue を読み取り専用で確認し、明示的なクローズ承認後に監査可能な開発資産 note を公開してから閉じる |
 | `/smart:code-simplifier [paths-or-diff]` | 新規コンテキスト worker 1 つで観測可能な動作を保ちながら最近のコードを簡略化 |
