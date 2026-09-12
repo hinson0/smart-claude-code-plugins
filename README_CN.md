@@ -139,6 +139,8 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 
 ## Smart Commit
 
+`commit`、`pr`、`clean-branches` 同时在 Codex 元数据中禁用自动调用，必须由用户明确触发。
+
 `/smart:commit` 读取状态、已暂存和未暂存 diff、未追踪文件内容及近期历史；先按 type、再按独立目的分组，同一文件可按改动块拆分；提交前简要列出各组的提交信息和文件。
 
 Claude Code 使用 `haiku` 执行整个 turn。Codex 把完整工作流交给一个低 reasoning 的 `gpt-5.6-luna` worker；Luna 不可用时，用用户配置的默认子 agent 重试一次。主 agent 不自行分组或提交。

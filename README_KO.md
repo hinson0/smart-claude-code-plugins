@@ -140,6 +140,8 @@ Claude Code에서는 `/smart:*`, Codex에서는 `$smart:*`를 사용하세요.
 
 ## Smart Commit
 
+`commit`, `pr`, `clean-branches`는 Codex 메타데이터에서도 암시적 호출을 비활성화하며 사용자가 명시적으로 호출해야 합니다.
+
 `/smart:commit`은 상태, staged/unstaged diff, 추적되지 않은 파일 내용과 최근 기록을 읽고 type과 독립 목적에 따라 분리합니다. 같은 파일도 hunk 단위로 나누고 커밋 전에 각 그룹의 메시지와 파일을 간단히 보여 줍니다.
 
 Claude Code는 전체 turn을 `haiku`로 실행합니다. Codex는 전체 워크플로를 low reasoning `gpt-5.6-luna` worker 하나에 맡기며, Luna를 사용할 수 없으면 사용자 기본 서브 에이전트로 한 번 재시도합니다. 기본 agent는 직접 그룹화하거나 커밋하지 않습니다.
