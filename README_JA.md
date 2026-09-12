@@ -65,8 +65,8 @@ codex plugin add smart@smart
 
 Smart には `ask`、`close-issue`、`code-simplifier`、`commit`、`generate-wiki`、
 `github-skills-pdf`、`help`、`html`、`hud`、`learning`、`local`、
-`matt-implement-all-tickets`、`my-weekly`、`one-by-one`、`pair-write`、`show` の
-16 個の skill が含まれます。一部のフローは Git、`gh`、`glab`、Node.js、
+`matt-implement-all-tickets`、`my-weekly`、`one-by-one`、`pair-write`、`pr`、`show` の
+17 個の skill が含まれます。一部のフローは Git、`gh`、`glab`、Node.js、
 Python/PDF ツール、ブラウザ、文書機能を必要とし、
 各 skill は自身の前提条件を確認します。
 すべての skill はユーザーが明示的に呼び出します。モデルの自動呼び出しに頼らず、
@@ -119,6 +119,7 @@ Claude Code では `/smart:*`、Codex では `$smart:*` を使用してくださ
 | コマンド | 機能 |
 |---|---|
 | `/smart:commit` | コミットのみ（スマートグルーピング、メッセージ自動生成） |
+| `/smart:pr [branch]` | PR を作成・更新。引数なしは既定の `main` を確認して待機、指定時は確認不要。自動マージなし |
 | `/smart:ask` | 実行や変更をせず簡潔な読み取り専用ガイドを返す |
 | `/smart:close-issue <IID-or-URL>` | 単一 GitLab Issue を読み取り専用で確認し、明示的なクローズ承認後に監査可能な開発資産 note を公開してから閉じる |
 | `/smart:code-simplifier [paths-or-diff]` | 新規コンテキスト worker 1 つで観測可能な動作を保ちながら最近のコードを簡略化 |

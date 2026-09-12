@@ -63,9 +63,9 @@ Claude Code uses `/smart:*`; Codex exposes the corresponding `$smart:*` skills.
 codex plugin add smart@smart
 ```
 
-Smart includes sixteen skills: `ask`, `close-issue`, `code-simplifier`, `commit`,
+Smart includes seventeen skills: `ask`, `close-issue`, `code-simplifier`, `commit`,
 `generate-wiki`, `github-skills-pdf`, `help`, `html`, `hud`, `learning`, `local`,
-`matt-implement-all-tickets`, `my-weekly`, `one-by-one`, `pair-write`, and `show`.
+`matt-implement-all-tickets`, `my-weekly`, `one-by-one`, `pair-write`, `pr`, and `show`.
 Some workflows require Git, `gh`, `glab`, Node.js, Python/PDF
 tooling, browser access, or document capabilities; each skill checks its own prerequisites.
 Every skill is user-invoked only: start it explicitly with its `/smart:*` or
@@ -119,6 +119,7 @@ invocation name without the leading slash or a separate title.
 | Command | What it does |
 |---|---|
 | `/smart:commit` | Stage & commit only (smart grouping, auto message) |
+| `/smart:pr [branch]` | Create or update a PR; omitted branch requires confirmation of `main`, explicit branch skips confirmation; no auto-merge |
 | `/smart:ask` | Return concise read-only guidance without executing or changing anything |
 | `/smart:close-issue <IID-or-URL>` | Check one GitLab Issue read-only; with explicit close authorization, publish an auditable development asset note and then close it |
 | `/smart:code-simplifier [paths-or-diff]` | Use one fresh-context worker to simplify recent code while preserving observable behavior |
