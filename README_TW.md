@@ -63,7 +63,7 @@ Claude Code 使用 `/smart:*`；Codex 提供對應的 `$smart:*` skills。
 codex plugin add smart@smart
 ```
 
-Smart 包含十七個 skills：`ask`、`close-issue`、`code-simplifier`、`commit`、
+Smart 包含十八個 skills：`ask`、`clean-branches`、`close-issue`、`code-simplifier`、`commit`、
 `generate-wiki`、`github-skills-pdf`、`help`、`html`、`hud`、`learning`、`local`、
 `matt-implement-all-tickets`、`my-weekly`、`one-by-one`、`pair-write`、`pr` 與 `show`。
 部分流程依賴 Git、`gh`、`glab`、Node.js、Python/PDF 工具、
@@ -119,6 +119,7 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 |---|---|
 | `/smart:commit` | 僅提交（智慧分組，自動產生 message） |
 | `/smart:pr [分支]` | 建立或更新 PR；無參數須確認預設 `main`，有參數直接執行；不自動合併 |
+| `/smart:clean-branches [分支]` | 清理完整合併到目標的本機和遠端分支；無參數須確認預設 `main`；保留保護分支和 worktree 使用中的分支 |
 | `/smart:ask` | 回傳簡潔唯讀指導，不執行指令或修改內容 |
 | `/smart:close-issue <IID或URL>` | 唯讀核對單一 GitLab Issue；明確授權關閉後，先發布可稽核的開發資產記錄，再關閉 Issue |
 | `/smart:code-simplifier [路徑或diff]` | 使用一個全新上下文 worker 簡化近期程式碼，同時保持可觀察行為不變 |
