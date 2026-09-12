@@ -138,11 +138,12 @@ invocation name without the leading slash or a separate title.
 
 ## Smart Commit
 
-`/smart:commit` reads status, staged and unstaged diffs, and recent history; prints a concrete purpose and type for every changed file; splits first by type and then by unrelated purpose; and commits each group separately.
+`/smart:commit` reads status, staged and unstaged diffs, untracked file contents, and recent history; splits by type and independent purpose, including hunks within a file; and lists each group’s message and files before committing.
 
 Claude Code runs the turn on `haiku`. Codex delegates the complete workflow to one low-reasoning `gpt-5.6-luna` worker. If Luna is unavailable, it retries once with the user's configured default subagent. The primary agent never performs grouping or commit work itself.
 
-Single-group commits use `git add -A`; multiple groups stage explicit file lists. The skill reports messages, file membership, and final status. It never runs checks, changes versions, pushes, or creates pull requests.
+Every group stages only explicit paths or hunks and verifies its staged diff before committing; bulk staging is prohibited. The skill reports commit hashes, messages, and remaining changes. It never runs checks, changes versions, pushes, or creates pull requests.
+
 
 ---
 
