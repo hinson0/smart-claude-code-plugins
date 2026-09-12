@@ -140,6 +140,8 @@ invocation name without the leading slash or a separate title.
 
 ## Smart Commit
 
+`commit`, `pr`, and `clean-branches` also disable implicit invocation in Codex metadata; users must explicitly request these skills.
+
 `/smart:commit` reads status, staged and unstaged diffs, untracked file contents, and recent history; splits by type and independent purpose, including hunks within a file; and lists each group’s message and files before committing.
 
 Claude Code runs the turn on `haiku`. Codex delegates the complete workflow to one low-reasoning `gpt-5.6-luna` worker. If Luna is unavailable, it retries once with the user's configured default subagent. The primary agent never performs grouping or commit work itself.
