@@ -10,7 +10,7 @@ Smart 同时发布给 Claude Code 与 Codex。
 - 每个 skill 均提供 `agents/openai.yaml`；`display_name` 必须严格等于 `smart:<SKILL.md name>`，保留 Claude Code 原调用名并省略 `/`。
 - 每个 `SKILL.md` 配同目录 `CN.md`；每个英文 reference 配 `CN[<name>].md`。修改任意一边时同步另一边。
 - 除 `CN.md` 与 `CN[...].md` 外，`plugins/` 下的宿主加载文件、脚本消息和注释使用英文。
-- 功能、组件或用户可见行为变更时，同步五份 README 和 Smart 双宿主版本。插件集合变更时再同步两个根 marketplace。
+- 功能、组件或用户可见行为变更时，同步英文和简体中文两份 README 和 Smart 双宿主版本。插件集合变更时再同步两个根 marketplace。
 
 ## 能力边界
 
