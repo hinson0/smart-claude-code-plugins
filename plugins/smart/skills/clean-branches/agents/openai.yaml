@@ -1,0 +1,5 @@
+interface:
+  display_name: "smart:clean-branches"
+  short_description: "Clean local and remote branches merged into a target"
+policy:
+  allow_implicit_invocation: false
