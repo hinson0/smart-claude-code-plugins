@@ -1,7 +1,0 @@
-interface:
-  display_name: "smart:ask"
-  short_description: "Provide concise guidance without running commands or changing files"
-  default_prompt: "Use $smart:ask to provide concise read-only guidance."
-
-policy:
-  allow_implicit_invocation: false
