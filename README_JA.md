@@ -138,11 +138,12 @@ Claude Code では `/smart:*`、Codex では `$smart:*` を使用してくださ
 
 ## Smart Commit
 
-`/smart:commit` は状態、staged/unstaged diff、最近の履歴を読み、全変更ファイルの purpose と type を出力し、type と独立 purpose の順で分割して個別にコミットします。
+`/smart:commit` は状態、staged/unstaged diff、未追跡ファイルの内容、最近の履歴を読み、type と独立した目的で分割します。同じファイル内も hunk 単位で分割し、コミット前に各グループのメッセージとファイルを示します。
 
 Claude Code は turn 全体を `haiku` で実行します。Codex はワークフロー全体を low reasoning の `gpt-5.6-luna` worker 1 つに任せ、Luna が使えない場合はユーザー設定のデフォルトサブエージェントで 1 回再試行します。primary agent は直接グループ化やコミットを行いません。
 
-単一グループは `git add -A`、複数グループは明示的ファイル一覧を stage します。message、ファイル所属、最終状態を出力し、チェック、バージョン変更、push、PR 作成は実行しません。
+各グループの明示的なパスまたは hunk だけを stage し、コミット前に staged diff を確認します。一括 stage は禁止です。コミットハッシュ、メッセージ、残りの変更を報告し、チェック、バージョン変更、push、PR 作成は実行しません。
+
 
 ---
 

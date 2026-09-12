@@ -137,11 +137,12 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 
 ## Smart Commit
 
-`/smart:commit` 讀取狀態、已暫存和未暫存 diff、近期歷史；為每個變更檔案輸出具體 purpose 與 type；先按 type、再按不相關 purpose 拆分，並分別提交。
+`/smart:commit` 讀取狀態、已暫存和未暫存 diff、未追蹤檔案內容及近期歷史；先按 type、再按獨立目的分組，同一檔案可按變更區塊拆分；提交前簡要列出各組的提交訊息和檔案。
 
 Claude Code 使用 `haiku` 執行整個 turn。Codex 把完整工作流交給一個低 reasoning 的 `gpt-5.6-luna` worker；Luna 不可用時，用使用者設定的預設子 agent 重試一次。主 agent 不自行分組或提交。
 
-單組使用 `git add -A`；多組暫存明確檔案清單。技能輸出 message、檔案歸屬和最終狀態，不執行檢查、不改版本、不 push，也不建立 PR。
+每組只暫存明確路徑或變更區塊，提交前核對暫存差異，禁止全量暫存。技能輸出提交雜湊、提交訊息和剩餘變更，不執行檢查、不改版本、不 push，也不建立 PR。
+
 
 ---
 
