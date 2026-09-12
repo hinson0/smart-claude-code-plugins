@@ -49,7 +49,7 @@ test("both marketplaces publish only Smart", async () => {
   assert.deepEqual(pluginNames(claude), ["smart"]);
 });
 
-test("Smart is one dual-host version 6.6.0 release", async () => {
+test("Smart is one dual-host version 6.6.1 release", async () => {
   const [codex, claude] = await Promise.all([
     readJson("plugins/smart/.codex-plugin/plugin.json"),
     readJson("plugins/smart/.claude-plugin/plugin.json"),
@@ -57,8 +57,8 @@ test("Smart is one dual-host version 6.6.0 release", async () => {
 
   assert.equal(codex.name, "smart");
   assert.equal(claude.name, "smart");
-  assert.equal(codex.version, "6.6.0");
-  assert.equal(claude.version, "6.6.0");
+  assert.equal(codex.version, "6.6.1");
+  assert.equal(claude.version, "6.6.1");
   assert.equal(codex.skills, "./skills/");
   assert.ok(codex.interface.defaultPrompt.length <= 3);
 });
@@ -147,5 +147,19 @@ test("every Smart skill and reference has its Chinese companion", async () => {
     const name = reference.slice(slash + 1, -3);
     const files = await readdir(new URL(`plugins/smart/${directory}`, ROOT));
     assert.ok(files.includes(`CN[${name}].md`), `${reference} is missing CN companion`);
+  }
+});
+
+
+test("Git action skills require explicit user invocation on both hosts", async () => {
+  for (const skill of ["commit", "pr", "clean-branches"]) {
+    const [source, translation, metadata] = await Promise.all([
+      readFile(new URL(`plugins/smart/skills/${skill}/SKILL.md`, ROOT), "utf8"),
+      readFile(new URL(`plugins/smart/skills/${skill}/CN.md`, ROOT), "utf8"),
+      readFile(new URL(`plugins/smart/skills/${skill}/agents/openai.yaml`, ROOT), "utf8"),
+    ]);
+    assert.match(source.split("---")[1], /^disable-model-invocation: true$/m);
+    assert.match(translation.split("---")[1], /^disable-model-invocation: true$/m);
+    assert.match(metadata, /^policy:\n  allow_implicit_invocation: false$/m);
   }
 });
