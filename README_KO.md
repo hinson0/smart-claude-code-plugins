@@ -65,7 +65,7 @@ codex plugin add smart@smart
 
 Smart는 `ask`, `close-issue`, `code-simplifier`, `commit`, `generate-wiki`, `github-skills-pdf`,
 `help`, `html`, `hud`, `learning`, `local`, `matt-implement-all-tickets`,
-`my-weekly`, `one-by-one`, `pair-write`, `show`의 열여섯 개 skill을 포함합니다.
+`my-weekly`, `one-by-one`, `pair-write`, `pr`, `show`의 열일곱 개 skill을 포함합니다.
 일부 흐름은 Git, `gh`, `glab`, Node.js, Python/PDF 도구,
 브라우저 또는 문서 기능이 필요하며 각 skill은 자체 전제 조건을 확인합니다.
 모든 skill은 사용자가 직접 호출해야 합니다. 모델의 자동 호출에 의존하지 말고
@@ -119,6 +119,7 @@ Claude Code에서는 `/smart:*`, Codex에서는 `$smart:*`를 사용하세요.
 | 명령어 | 기능 |
 |---|---|
 | `/smart:commit` | 커밋만 수행 (스마트 그룹화, 자동 메시지 생성) |
+| `/smart:pr [branch]` | PR 생성·갱신. 인수 없으면 기본 `main` 확인 후 대기, 지정하면 확인 생략. 자동 병합 없음 |
 | `/smart:ask` | 실행이나 변경 없이 간결한 읽기 전용 안내 반환 |
 | `/smart:close-issue <IID-or-URL>` | 단일 GitLab Issue를 읽기 전용으로 확인하고, 명시적 종료 승인 후 감사 가능한 개발 자산 note를 게시한 다음 닫기 |
 | `/smart:code-simplifier [paths-or-diff]` | 새 컨텍스트 worker 하나로 관찰 가능한 동작을 유지하며 최근 코드 단순화 |
