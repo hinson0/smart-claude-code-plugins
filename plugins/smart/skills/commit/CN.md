@@ -6,12 +6,11 @@ argument-hint: 无需参数。按 type 和独立目的分组提交。
 model: haiku
 ---
 
-
 ## 宿主路由
 
 - **Claude Code：** frontmatter 将本轮固定为 `haiku`。直接执行下方“提交工作流”。
 - **Codex commit worker：** 若调度 prompt 明确说明你是 commit worker，跳过本节余下内容，直接执行“提交工作流”，不得再次委派。
-- **Codex 主 agent：** 不得读取 diff、决定分组、生成 message、暂存文件或提交。只派生一个继承完整当前上下文的子 agent，并给出指令：“你是 commit worker。读取本 `commit/SKILL.md`，跳过‘宿主路由’，执行‘提交工作流’直到第 5 步，不得再次委派。”指定模型 `gpt-5.6-luna`、reasoning effort `low`，等待其完成后原样转述结果，不得重做其分析。
+- **Codex 主 agent：** 将全部工作流步骤交给一个继承完整当前上下文的子 agent。明确其 commit worker 身份，要求读取本 skill 并完成工作流，不再委派。指定模型 `gpt-5.6-luna`、reasoning effort `low`，等待其完成后原样转述结果，不得重做其分析。
 - 若 Luna 仅因模型不可用而派生失败，使用相同 worker 指令且不指定模型重试一次，让用户配置的默认子 agent 生效。若重试仍失败，报告失败并停止；主 agent 不得自行执行工作流。
 
 ## 提交工作流

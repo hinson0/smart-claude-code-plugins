@@ -91,15 +91,14 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
     "Simplified Chinese translation",
     "book-format.md",
     "translation-guide.md",
-    "never treat a\\s+subagent summary as completion evidence",
     "--check",
     "pdftoppm",
     "every official skill",
     "fixed source link",
-    "unexpected blank pages",
-    "out-of-bounds characters",
+    "unexpected blanks",
+    "clipping",
     "orphan headings",
-    "do not claim full\\s+completion",
+    "skipped or failed validation",
   ]) {
     assert.match(skill, new RegExp(contract));
   }

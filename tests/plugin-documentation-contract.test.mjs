@@ -8,7 +8,6 @@ const REQUIRED = [
   "smart@smart",
   "/smart:*",
   "smart:<name>",
-  "ask",
   "/smart:pr",
   "/smart:clean-branches",
   "close-issue",
@@ -18,10 +17,8 @@ const REQUIRED = [
   "github-skills-pdf",
   "my-weekly",
   "one-by-one",
-  "html",
-  "show",
 ];
-const REMOVED = ["fuzz@smart", "/fuzz:*", "fuzz@ce-workflow", "Joke Teller"];
+const REMOVED = ["fuzz@smart", "/fuzz:*", "fuzz@ce-workflow", "Joke Teller", "HTML/PDF/Wiki", "/smart:ask", "/smart:html", "/smart:show"];
 
 test("both README variants describe the same Smart plugin surface", async () => {
   for (const file of READMES) {
@@ -43,5 +40,16 @@ test("only English and Simplified Chinese README variants are published", async 
     const content = await readFile(new URL(file, ROOT), "utf8");
     assert.ok(content.includes("[English](./README.md) | [简体中文](./README_CN.md)"));
     assert.doesNotMatch(content, /README_(?:TW|KO|JA)\.md/);
+  }
+});
+
+
+test("README command tables cover every published skill", async () => {
+  const entries = await readdir(new URL("plugins/smart/skills/", ROOT), { withFileTypes: true });
+  const skills = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+  for (const file of READMES) {
+    const content = await readFile(new URL(file, ROOT), "utf8");
+    const commands = [...new Set([...content.matchAll(/^\| `\/smart:([a-z-]+)/gm)].map((match) => match[1]))].sort();
+    assert.deepEqual(commands, skills, `${file} command table differs from published skills`);
   }
 });

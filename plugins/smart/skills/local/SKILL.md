@@ -5,47 +5,24 @@ disable-model-invocation: true
 argument-hint: "(no args — bootstraps a git-ignored .claude/CLAUDE.local.md)"
 ---
 
-## Personal Preferences (always apply)
+Create a personal preferences file at `.claude/CLAUDE.local.md`.
 
-Reply in **Simplified Chinese** throughout (a hard requirement), including:
+1. Resolve the root with `git rev-parse --show-toplevel`, falling back to the
+   working directory outside Git.
+2. Create `.claude/` and the file only if absent. Never overwrite existing notes.
+3. In a Git repository, check `git check-ignore -q .claude/CLAUDE.local.md`.
+   If not ignored, append `.claude/CLAUDE.local.md` to the root `.gitignore`
+   without duplicating the entry or changing other content.
+4. Report the absolute path, whether it was created, and its ignore status.
 
-- All explanations, questions, and summaries Claude Code produces, plus its internal thinking/reasoning process
-- Daily communication, technical discussions, code comments, specs, and plans
-- Skill (slash-command) output — titles, step descriptions, and prompts — translated into Chinese even when the skill's template is written in English
-- Necessary English technical terms may be kept.
-
-Claude Code Plan Mode plan files are stored in the **current project directory**:
-`.claude/plans/YYYY_MM_DD_HH_mm-<name>.md`
-
-## Action: bootstrap a git-ignored `.claude/CLAUDE.local.md`
-
-Set up a per-project personal memory file that stays out of version control. The point is a place for machine- or person-specific notes (the preferences above, local paths, scratch context) that should never reach a shared commit.
-
-1. **Resolve the project root.** Use `git rev-parse --show-toplevel`; if not in a git repo, fall back to the current working directory.
-2. **Ensure the directory.** `mkdir -p <root>/.claude`.
-3. **Create the file if absent.** If `<root>/.claude/CLAUDE.local.md` does not exist, write it from the template below. If it already exists, leave it untouched so the user's own notes are never clobbered — just report that it was already there.
-4. **Ensure it is git-ignored** (only meaningful inside a git repo). Check with `git check-ignore -q .claude/CLAUDE.local.md`. If that command fails (the file is not yet ignored), append the line `.claude/CLAUDE.local.md` to `<root>/.gitignore` (create `.gitignore` if absent). This is idempotent — never add a duplicate line, and never rewrite unrelated `.gitignore` content; append a single line with the Edit/Write tool.
-5. **Report** the absolute path of the file (created vs. already present) and whether the ignore rule was added or already in effect. Remind the user that `.claude/CLAUDE.local.md` is personal and will not be committed.
-
-### Template for a fresh `.claude/CLAUDE.local.md`
+Use this template for a new file; existing user preferences remain authoritative:
 
 ```markdown
-# CLAUDE.local.md — personal, git-ignored
+# Personal project notes
 
-Per-project notes for this machine/person. Not committed.
-
-## Language
-- Reply in Simplified Chinese (hard requirement); keep necessary English technical terms.
-- Translate skill (slash-command) output — titles, steps, prompts — into Chinese even when the template is English.
+## Preferences
+- Reply in Simplified Chinese, including skill output; keep necessary English terms.
 - Plan Mode files: `.claude/plans/YYYY_MM_DD_HH_mm-<name>.md`
 
 ## Local context
-<!-- local paths, credentials location, scratch notes, etc. -->
 ```
-
-## Constraints
-
-- Honor the exact path the user asked for: `.claude/CLAUDE.local.md` (under `.claude/`, not the project root).
-- Never overwrite an existing `.claude/CLAUDE.local.md`; treat the user's content as authoritative.
-- Always use the Edit/Write tool for `.gitignore`; append a single line, never clobber the whole file.
-- Output in the same language as the user's conversation.

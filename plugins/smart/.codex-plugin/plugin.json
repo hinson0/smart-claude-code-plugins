@@ -1,6 +1,6 @@
 {
   "name": "smart",
-  "version": "6.6.2",
+  "version": "7.0.0",
   "description": "Focused developer workflows, fresh-worker code simplification, content tools, session utilities, and engineering rules.",
   "author": {
     "name": "Hinson",
@@ -10,12 +10,12 @@
   "homepage": "https://github.com/hinson0/smart-claude-code-plugins",
   "repository": "https://github.com/hinson0/smart-claude-code-plugins",
   "license": "MIT",
-  "keywords": ["git", "github", "gitlab", "issues", "tickets", "commit", "refactoring", "automation", "productivity", "wiki", "pdf", "html"],
+  "keywords": ["git", "github", "gitlab", "issues", "tickets", "commit", "refactoring", "automation", "productivity", "wiki", "pdf"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Smart",
     "shortDescription": "Run focused developer workflows and content tools.",
-    "longDescription": "Smart adds semantic commits, fresh-context behavior-preserving code simplification, serial delivery of /to-tickets output through Matt /implement, safe Issue closeout, read-only guidance, guided pair-writing, one-cycle TDD, Wiki and weekly report generation, bilingual skills PDFs, deterministic Markdown-to-HTML conversion, statusline setup, and focused engineering utilities.",
+    "longDescription": "Smart adds semantic commits, fresh-context behavior-preserving code simplification, serial delivery of /to-tickets output through Matt /implement, safe Issue closeout, guided pair-writing, one-cycle TDD, Wiki and weekly report generation, bilingual skills PDFs, statusline setup, and focused engineering utilities.",
     "developerName": "Hinson",
     "category": "Productivity",
     "capabilities": ["Automation", "Git", "Read", "Write"],

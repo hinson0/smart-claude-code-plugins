@@ -4,75 +4,42 @@ description: Guide one user-written coding step, then compare the landed code wi
 disable-model-invocation: true
 ---
 
-# Smart Pair Write
+Guide one independently reviewable step at a time in the current task only.
+Do not persist this mode in `.claude/CLAUDE.local.md` or elsewhere. The user writes
+business code unless explicitly authorizing the agent to land the current step;
+that authorization ends with the step. Preserve existing user changes.
 
-Use this agreement only for the task in which the user explicitly invoked it. Do
-not create or modify `.claude/CLAUDE.local.md` or any other persistent mode.
+## Prepare
 
-## Working agreement
+Read repository rules, target files, relevant callers, tests, and current diff.
+Give the following together, without editing business files or revealing later steps:
 
-- Keep exactly one independently reviewable step current.
-- The user writes business code by default. An explicit request to land a named
-  step authorizes only that step; restore the user-writing default afterward.
-- Preserve existing user changes and repository rules. Hand-writing never lowers
-  the bar for security, input validation, atomicity, accessibility, or tests.
+- Edit target: file path and precise symbol, schema, or line anchor.
+- Comment skeleton: real code structure with comments explaining each placeholder's
+  intent and boundary, in a language-tagged block.
+- Complete reference implementation: a second, directly expanded language-tagged
+  block retaining the skeleton comments beside their matching implementations.
+- Acceptance criteria and a short completion signal for requesting review.
 
-## Prepare one step
+## Review
 
-1. Read the applicable repository rules, actual target files, relevant callers,
-   tests, and current diff. Resolve facts available from the repository yourself.
-2. Select the smallest cohesive step that can be reviewed or checked on its own.
-3. In one response, provide all five items below. Do not edit business files or
-   reveal a later step while the user owns the current step.
+Re-read actual files and the current diff; the reference is not landed evidence.
+Check transcription correctness and agreement with the skeleton, reference, and
+acceptance criteria. Equivalent code is valid. Confirm correct parts, then report
+required fixes with locations, evidence, and impact.
 
-### Step output
+Run formatting, type, or test checks only when the user requests them. Disclose
+conditions the comparison cannot verify and propose a focused check. On failure,
+keep this step current and provide the corrected skeleton and complete reference.
+When no errors remain and unverified risks are disclosed, move to the next step.
 
-1. **Edit target:** repository-relative file paths and exact symbol, schema, or
-   line anchor.
-2. **Comment skeleton:** a language-tagged code block preserving the real code
-   structure. Every placeholder comment states what to do, why, and its boundary.
-3. **Complete reference implementation:** directly expanded in a second
-   language-tagged code block. Keep every skeleton comment beside its corresponding
-   implementation; the two sets of comments must match one for one.
-4. **Acceptance:** concrete success, failure, compatibility, and risk cases for
-   this step.
-5. **Completion signal:** one short phrase the user can send when the files are
-   ready for review.
+If explicitly asked to land this step, re-read and edit only its authorized scope,
+run focused validation, and report the result before restoring user-written mode.
 
-The reference is guidance, not evidence of what the user wrote.
+## Migration
 
-## Review the landed work
-
-When the user says the work is ready, re-read the files on disk and the current
-step's diff before comparing. Never assume the reference was copied.
-
-1. Check only transcription correctness and agreement with this step's comment
-   skeleton, reference implementation, and acceptance criteria. Equivalent code is
-   valid; catch misspelled identifiers, syntax mistakes, misplaced code, and
-   behavioral mismatches.
-2. Confirm the correct parts first, then report only **Must fix** findings with
-   exact file locations, evidence, and impact.
-3. Treat the comparison as the default validation. Run formatting, type, unit, or
-   integration checks only when the user requests them. If the comparison cannot
-   establish a high-risk condition, state the uncertainty and propose the smallest
-   relevant check instead of running a broad suite.
-4. If the comparison fails, keep this step current and provide a corrected comment
-   skeleton and directly expanded reference implementation.
-5. Complete the step when the comparison has no errors and any unverified risk is
-   disclosed. Then select the next minimal step.
-
-## Agent landing branch
-
-When the user explicitly asks the agent to land the current step, restate the
-authorized files and scope, re-read them, edit only that scope, run its validation,
-and report the actual result. This authorization ends with the step.
-
-## Migration branch
-
-The user writes migrations by default. Provide the comment skeleton, directly
-expanded reference SQL, exact generator command, expected artifacts, and guidance
-for each interactive choice. Review generated SQL, snapshots, journals, and the
-diff before any migrate action. Stop on historical drift or unrelated SQL.
-
-Do not land a migration unless the user explicitly authorizes that migration step.
-Keep destructive or shared-environment actions behind their own explicit approval.
+The user writes migrations by default. Provide the skeleton, complete reference
+SQL, generator command, expected artifacts, and interactive choices. Before any
+migrate action, review generated SQL, snapshots, journals, and diff; stop on
+historical drift or unrelated SQL. Agent landing needs authorization for this
+migration step; destructive or shared-environment actions need their own approval.

@@ -5,88 +5,33 @@ disable-model-invocation: true
 argument-hint: "[0|1|2|reset|normal|all]（0/reset=恢复备份，1/normal=简化版，2/all=完整版，默认=2）"
 ---
 
-安装或恢复 smart 插件的 statusline（仅支持 user 级别）。
+只安装或恢复 Claude Code 用户级 statusline。
 
-## 确定操作
+参数不区分大小写：`1`/`normal` 安装 session + context 两行；
+`2`/`all`（默认）安装全部六行；`0`/`reset` 恢复备份。
 
-参数大小写不敏感，每个 level 既可用数字也可用单词别名 —— `1` 等同 `normal`，`2` 等同 `all`，`0` 等同 `reset`。
+## 路径
 
-| 参数           | 操作             | 说明                                               |
-| -------------- | ---------------- | -------------------------------------------------- |
-| `1` / `normal` | `install-level1` | 安装简化版 statusline（只显示 session + ctx 两行） |
-| `2` / `all`    | `install-level2` | 安装完整版 statusline（全部 6 行）                 |
-| `0` / `reset`  | `reset`          | 恢复之前的 statusline 备份                         |
-| _（空）_       | `install-level2` | 默认：安装完整版                                   |
+- 源文件位于 `${CLAUDE_PLUGIN_ROOT}/skills/hud/scripts/`：
+  level 1 用 `statusline-command-level1.sh`，level 2 用 `statusline-command.sh`。
+- 目标：`~/.claude/statusline-command.sh`
+- 备份：`~/.claude/statusline-command.sh.bak`
+- 配置：`~/.claude/settings.json`
 
-## 路径（仅 user 级别）
+## 安装
 
-- **源脚本 level 1**: `${CLAUDE_PLUGIN_ROOT}/skills/hud/scripts/statusline-command-level1.sh`
-- **源脚本 level 2**: `${CLAUDE_PLUGIN_ROOT}/skills/hud/scripts/statusline-command.sh`
-- **目标脚本**: `~/.claude/statusline-command.sh`
-- **备份脚本**: `~/.claude/statusline-command.sh.bak`
-- **配置文件**: `~/.claude/settings.json`
+用 `command -v jq` 检查依赖。缺失时通过平台可用的包管理器
+（`brew`、`apt-get`、`dnf`、`pacman` 或 `apk`）安装后复查。
+若安装失败，给出对应的手动安装命令并继续；解决前脚本会显示 `jq not found` 提示。
 
-## 预检：确保 jq 可用（必做，任何安装前先执行）
+目标已存在时先备份，再把所选源脚本复制到目标。配置中只编辑 `statusLine`，保留其他字段：
 
-statusline 用 `jq` 解析 Claude 传入的 JSON。一旦缺少 `jq`，几乎所有字段都会显示为空 —— 这是「Linux/WSL 上 statusline 只显示局部信息」的头号原因（macOS 一般通过 Homebrew 自带 jq，Linux 往往没有）。
+```json
+{"statusLine":{"type":"command","command":"bash ~/.claude/statusline-command.sh"}}
+```
 
-1. 检查是否可用：`command -v jq`。若已存在，直接进入安装操作。
-2. 若缺失，检测平台包管理器并自动安装（通过 Bash 执行）：
-   - macOS（`uname -s` = Darwin）有 `brew`：`brew install jq`
-   - Linux 有 `apt-get`：`sudo apt-get update && sudo apt-get install -y jq`
-   - Linux 有 `dnf`：`sudo dnf install -y jq`
-   - Linux 有 `pacman`：`sudo pacman -S --noconfirm jq`
-   - Linux 有 `apk`：`sudo apk add jq`
-3. 再次用 `command -v jq` 验证。已存在则继续；若安装失败（无包管理器/无 sudo/网络错误），不要中止——向用户给出对应平台的手动安装命令并继续（脚本本身在未解决前会输出一行 `jq not found` 提示）。
+## 恢复
 
-## 操作: install-level1 / install-level2
+备份或配置文件缺失时说明缺失项并停止。把备份复制回目标，设置与上面相同的 `statusLine`。
 
-0. 先执行上面的 **预检：确保 jq 可用**。
-1. 从插件 `skills/hud/scripts/` 目录读取对应源脚本：
-   - Level 1 → `statusline-command-level1.sh`
-   - Level 2 → `statusline-command.sh`
-2. 如果目标脚本已存在，先备份：
-   ```
-   cp ~/.claude/statusline-command.sh ~/.claude/statusline-command.sh.bak
-   ```
-3. 将源脚本复制到目标路径：
-   ```
-   cp <源脚本> ~/.claude/statusline-command.sh
-   ```
-4. 读取 `~/.claude/settings.json`，设置 `statusLine` 字段：
-   ```json
-   "statusLine": {
-     "type": "command",
-     "command": "bash ~/.claude/statusline-command.sh"
-   }
-   ```
-   使用 Edit 工具修改 settings.json — 不要覆盖整个文件。
-5. 报告成功：
-   - 确认安装的是哪个 level
-   - 确认 settings.json 已更新
-   - 如果创建了备份，说明备份位置
-   - 告知用户重启会话以查看新的 statusline
-
-## 操作: reset
-
-1. 检查备份脚本 `~/.claude/statusline-command.sh.bak` 是否存在。
-   - 如果不存在，报告错误："未找到备份，无法恢复。"并停止。
-2. 从备份恢复：
-   ```
-   cp ~/.claude/statusline-command.sh.bak ~/.claude/statusline-command.sh
-   ```
-3. 读取 `~/.claude/settings.json`，确保 `statusLine` 设置为：
-   ```json
-   "statusLine": {
-     "type": "command",
-     "command": "bash ~/.claude/statusline-command.sh"
-   }
-   ```
-   若文件不存在，报告错误并停止。
-4. 报告成功 — 已恢复之前的 statusline，重启会话生效。
-
-## 约束
-
-- 修改 settings.json 时始终使用 Edit 工具，不要覆盖整个文件。
-- 不要修改 settings.json 中的其他字段。
-- 仅支持 user 级别（`~/.claude/`）。
+报告安装级别或恢复结果、配置更新，以及本次创建的备份位置；提醒用户重启会话生效。

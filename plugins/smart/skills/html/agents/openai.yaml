@@ -1,4 +1,0 @@
-interface:
-  display_name: "smart:html"
-  short_description: "Convert Markdown into a safe, self-contained HTML file"
-  default_prompt: "Use $smart:html to convert this Markdown document to HTML."

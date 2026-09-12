@@ -5,7 +5,7 @@ disable-model-invocation: true
 argument-hint: "[target branch, default: main]"
 ---
 
-1. Use the supplied target branch without confirmation. If omitted, ask “Delete local and remote branches already merged into main?” in the user's language and wait for explicit confirmation before proceeding. Silence is not confirmation.
+1. Use the supplied target branch without confirmation. If omitted, ask “Delete local and remote branches already merged into main?” in the user's language and wait for explicit confirmation before proceeding.
 2. Read project instructions, resolve the remote, fetch and prune, and verify its target branch exists. If the remote is ambiguous, ask rather than guess.
 3. Find local and remote branch tips that are ancestors of the fetched remote target. Check each tip independently; a merged PR or matching branch name is not proof.
 4. Exclude the target, `main`, `master`, `dev`, `develop`, the remote default branch, project/host-protected branches, and branch names checked out in any worktree.

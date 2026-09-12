@@ -20,13 +20,14 @@ test("Smart one-by-one preserves one complete Red-to-Green cycle", async () => {
   assert.match(skill, /Land only the minimal Red test/);
   assert.match(skill, /target behavior is missing/);
   assert.match(skill, /same response/);
-  assert.match(skill, /repository-relative paths only/);
-  assert.match(skill, /expected number of matches/);
-  assert.match(skill, /within 80 columns/);
+  assert.match(skill, /repository-relative paths/);
   assert.match(skill, /Do not run tests/);
   assert.match(skill, /exact lines, evidence, and impact/);
   assert.match(skill, /preserve newer user changes/);
-  assert.match(skill, /before explicit acceptance/);
+  assert.match(skill, /until explicit acceptance/);
+  assert.match(skill, /“continue” is not acceptance/);
+  assert.match(skill, /the agent lands Red, the user lands\s+Green/);
+  assert.match(skill, /explicit request to fix authorizes/);
   assert.doesNotMatch(skill, /[\p{Script=Han}]/u);
 
   assert.match(translation, /每轮只处理一个最小 Cycle/);

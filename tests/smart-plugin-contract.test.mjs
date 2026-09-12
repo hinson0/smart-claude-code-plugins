@@ -4,7 +4,6 @@ import test from "node:test";
 
 const ROOT = new URL("../", import.meta.url);
 const SMART_SKILLS = [
-  "ask",
   "clean-branches",
   "close-issue",
   "code-simplifier",
@@ -12,7 +11,6 @@ const SMART_SKILLS = [
   "generate-wiki",
   "github-skills-pdf",
   "help",
-  "html",
   "hud",
   "learning",
   "local",
@@ -21,14 +19,11 @@ const SMART_SKILLS = [
   "one-by-one",
   "pair-write",
   "pr",
-  "show",
 ];
 const REFERENCES = [
   "skills/code-simplifier/references/worker.md",
   "skills/github-skills-pdf/references/book-format.md",
   "skills/github-skills-pdf/references/translation-guide.md",
-  "skills/my-weekly/references/report-format.md",
-  "skills/show/references/layouts.md",
 ];
 
 async function readJson(path) {
@@ -49,7 +44,7 @@ test("both marketplaces publish only Smart", async () => {
   assert.deepEqual(pluginNames(claude), ["smart"]);
 });
 
-test("Smart is one dual-host version 6.6.2 release", async () => {
+test("Smart is one dual-host version 7.0.0 release", async () => {
   const [codex, claude] = await Promise.all([
     readJson("plugins/smart/.codex-plugin/plugin.json"),
     readJson("plugins/smart/.claude-plugin/plugin.json"),
@@ -57,8 +52,8 @@ test("Smart is one dual-host version 6.6.2 release", async () => {
 
   assert.equal(codex.name, "smart");
   assert.equal(claude.name, "smart");
-  assert.equal(codex.version, "6.6.2");
-  assert.equal(claude.version, "6.6.2");
+  assert.equal(codex.version, "7.0.0");
+  assert.equal(claude.version, "7.0.0");
   assert.equal(codex.skills, "./skills/");
   assert.ok(codex.interface.defaultPrompt.length <= 3);
 });
@@ -162,4 +157,20 @@ test("Git action skills require explicit user invocation on both hosts", async (
     assert.match(translation.split("---")[1], /^disable-model-invocation: true$/m);
     assert.match(metadata, /^policy:\n  allow_implicit_invocation: false$/m);
   }
+});
+
+
+test("removed presentation and ask components are not shipped", async () => {
+  for (const path of [
+    "plugins/smart/skills/ask",
+    "plugins/smart/skills/html",
+    "plugins/smart/skills/show",
+    "assets/demos/plan-review-demo.html",
+    "assets/demos/report-demo.html",
+  ]) {
+    await assert.rejects(access(new URL(path, ROOT)), { code: "ENOENT" });
+  }
+  const manifest = await readJson("plugins/smart/.codex-plugin/plugin.json");
+  assert.ok(!manifest.keywords.includes("html"));
+  assert.doesNotMatch(JSON.stringify(manifest.interface), /\$smart:(?:ask|html|show)\b|Markdown-to-HTML|read-only guidance/);
 });

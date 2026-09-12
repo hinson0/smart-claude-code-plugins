@@ -5,92 +5,14 @@ disable-model-invocation: true
 argument-hint: "[skill|hook|agent]（空=显示全部）"
 ---
 
-通过动态扫描插件目录，展示 smart 插件各组件的格式化概览。
+读取已安装插件的实际组件，不维护静态目录。
 
-## 确定类别
+参数接受 `skill`/`skills`、`hook`/`hooks`、`agent`/`agents`；留空显示全部。
+使用 `${CLAUDE_PLUGIN_ROOT}`，或从当前 skill 所在位置解析插件根目录。
 
-| 参数               | 类别    |
-| ------------------ | ------- |
-| _（空）_           | `all`   |
-| `skill` / `skills` | `skill` |
-| `hook` / `hooks`   | `hook`  |
-| `agent` / `agents` | `agent` |
+- Skills：读取 `skills/*/SKILL.md` frontmatter，排除 `help`。显示命令、说明及可选的
+  `argument-hint`；Claude Code 使用 `/smart:<name>`，Codex 使用 `$smart:<name>`。
+- Hooks：读取 `hooks/hooks.json`，显示事件、脚本，以及脚本开头注释中的一行说明。
+- Agents：读取 `agents/*.md` frontmatter，显示名称（缺失则用文件名）、说明首行及模型。
 
-## 扫描指令
-
-### 技能（`skill` 或 `all`）
-
-1. 列出 `${CLAUDE_PLUGIN_ROOT}/skills/` 下的所有子目录。
-2. 对每个包含 `SKILL.md` 的子目录，读取 YAML frontmatter 提取：
-   - **name**: 目录名（作为 `/smart:<name>` 使用）
-   - **description**: frontmatter 中的 `description` 字段
-   - **argument-hint**: frontmatter 中的 `argument-hint` 字段（如有）
-3. 以表格形式展示：
-
-```
-## 技能
-
-| 命令 | 说明 | 参数 |
-|------|------|------|
-| /smart:commit | 语义分组提交 | （无） |
-| /smart:close-issue | 安全核对或关闭单个 GitLab Issue | IID 或 URL |
-| ...  | ...  | ...  |
-```
-
-列表中跳过 `help` 技能本身。
-
-### Hooks（`hook` 或 `all`）
-
-1. 读取 `${CLAUDE_PLUGIN_ROOT}/hooks/hooks.json`。
-2. 对每种事件类型（SessionStart、PreToolUse、SessionEnd 等），列出已配置的 hook。
-3. 对每个 hook 脚本，读取 shebang 之后的首段注释行（`#` 开头）提取一行描述。
-4. 以表格形式展示：
-
-```
-## Hooks
-
-| 事件 | 脚本 | 说明 |
-|------|------|------|
-| SessionStart | greet.sh | 会话开始时问候 |
-| PreToolUse | session-logs.py | 记录工具调用输入 |
-```
-
-### Agents（`agent` 或 `all`）
-
-1. 列出 `${CLAUDE_PLUGIN_ROOT}/agents/` 下的所有 `.md` 文件。
-2. 对每个文件，读取 YAML frontmatter 提取：
-   - **name**: frontmatter 中的 `name` 字段（或文件名去掉扩展名）
-   - **description**: frontmatter 中的 `description` 字段（仅第一行）
-   - **model**: frontmatter 中的 `model` 字段
-3. 以表格形式展示：
-
-```
-## Agents
-
-| 名称 | 说明 | 模型 |
-|------|------|------|
-| <名称> | <说明> | <模型> |
-```
-
-## 输出格式
-
-`all` 类别时，合并三个 section 并加标题：
-
-```
-# Smart 插件组件
-
-<技能表格>
-
-<hooks 表格>
-
-<agents 表格>
-```
-
-指定具体类别时，仅显示该 section 并附一行简要说明。
-
-## 约束
-
-- 不要将完整文件内容读入上下文 — 仅读取 frontmatter 和开头注释。
-- 信息展示应简洁。仅使用一行描述，不展示完整 skill body。
-- 若文件不可读或 frontmatter 格式异常，跳过该条目继续扫描。
-- 输出语言与用户对话语言一致。
+只读取所需元数据，跳过无法读取或格式错误的条目；按对话语言为每个所选类别输出简洁表格。
