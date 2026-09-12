@@ -1,3 +1,5 @@
 interface:
   display_name: "smart:commit"
   short_description: "Group and commit changes without checks or remote actions"
+policy:
+  allow_implicit_invocation: false
