@@ -1,7 +1,6 @@
 ---
 name: commit
 description: Analyze, group, and commit current changes without checks, version bumps, pushes, or PRs.
-disable-model-invocation: true
 argument-hint: No arguments needed. Group changes by type and independent purpose.
 model: haiku
 ---

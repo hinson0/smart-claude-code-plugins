@@ -1,7 +1,6 @@
 ---
 name: pr
 description: Commit current changes and create or update a PR targeting the specified branch.
-disable-model-invocation: true
 argument-hint: "[target branch, default: main]"
 ---
 

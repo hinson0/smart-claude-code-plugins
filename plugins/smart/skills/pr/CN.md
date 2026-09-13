@@ -1,7 +1,6 @@
 ---
 name: pr
 description: 提交当前改动，创建或更新到指定分支的 PR。
-disable-model-invocation: true
 argument-hint: "[目标分支，默认 main]"
 ---
 

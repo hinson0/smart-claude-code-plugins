@@ -68,8 +68,8 @@ Smart 包含十五个 skills：`clean-branches`、`close-issue`、`code-simplifi
 `matt-implement-all-tickets`、`my-weekly`、`one-by-one`、`pair-write`、`pr`。
 部分流程依赖 Git、`gh`、`glab`、Node.js、Python/PDF 工具、
 浏览器或文档能力；每个 skill 都会检查自己的前置条件。
-所有 skill 都只由用户主动调用：请明确使用对应的 `/smart:*` 或
-`$smart:*` 名称，不依赖模型自动调用。
+`commit` 和 `pr` 在两个宿主中都允许模型自动调用。其余 skill 仍只由用户主动调用：
+请明确使用对应的 `/smart:*` 或 `$smart:*` 名称。
 Codex 界面统一显示 `smart:<name>`，保留 Claude Code 原调用名但省略 `/`，不再使用另一套标题。
 
 ---
@@ -134,7 +134,7 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 
 ## Smart Commit
 
-`commit`、`pr`、`clean-branches` 同时在 Codex 元数据中禁用自动调用，必须由用户明确触发。
+`commit` 和 `pr` 在 Codex 元数据中允许自动调用。`clean-branches` 仍必须由用户明确触发。
 
 `/smart:commit` 读取状态、已暂存和未暂存 diff、未追踪文件内容及近期历史；先按 type、再按独立目的分组，同一文件可按改动块拆分；提交前简要列出各组的提交信息和文件。
 

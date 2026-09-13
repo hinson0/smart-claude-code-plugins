@@ -6,7 +6,7 @@ Smart 同时发布给 Claude Code 与 Codex。
 
 - 仓库只发布 Smart；入口使用 `/smart:*` 与 `$smart:*`，不提供 Fuzz 兼容入口。
 - 两个根 marketplace 登记相同插件集合。每个插件同时提供 Claude Code 与 Codex manifest；Smart 的两份 `plugin.json` 使用同一个干净 SemVer。
-- 所有 skill 均设置 `disable-model-invocation: true`，只由用户显式调用。
+- `commit` 与 `pr` 允许模型自动调用，Codex 设置 `allow_implicit_invocation: true`；其余 skill 均设置 `disable-model-invocation: true`，只由用户显式调用。
 - 每个 skill 均提供 `agents/openai.yaml`；`display_name` 必须严格等于 `smart:<SKILL.md name>`，保留 Claude Code 原调用名并省略 `/`。
 - 每个 `SKILL.md` 配同目录 `CN.md`；每个英文 reference 配 `CN[<name>].md`。修改任意一边时同步另一边。
 - 除 `CN.md` 与 `CN[...].md` 外，`plugins/` 下的宿主加载文件、脚本消息和注释使用英文。

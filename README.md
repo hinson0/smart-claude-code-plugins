@@ -68,8 +68,8 @@ Smart includes fifteen skills: `clean-branches`, `close-issue`, `code-simplifier
 `matt-implement-all-tickets`, `my-weekly`, `one-by-one`, `pair-write`, `pr`.
 Some workflows require Git, `gh`, `glab`, Node.js, Python/PDF
 tooling, browser access, or document capabilities; each skill checks its own prerequisites.
-Every skill is user-invoked only: start it explicitly with its `/smart:*` or
-`$smart:*` name instead of relying on model invocation.
+`commit` and `pr` allow model invocation on both hosts. All other skills are
+user-invoked only: start them explicitly with their `/smart:*` or `$smart:*` names.
 Codex displays each skill as `smart:<name>`, preserving its Claude Code
 invocation name without the leading slash or a separate title.
 
@@ -135,7 +135,7 @@ invocation name without the leading slash or a separate title.
 
 ## Smart Commit
 
-`commit`, `pr`, and `clean-branches` also disable implicit invocation in Codex metadata; users must explicitly request these skills.
+`commit` and `pr` allow implicit invocation in Codex metadata. `clean-branches` still requires explicit user invocation.
 
 `/smart:commit` reads status, staged and unstaged diffs, untracked file contents, and recent history; splits by type and independent purpose, including hunks within a file; and lists each group’s message and files before committing.
 
