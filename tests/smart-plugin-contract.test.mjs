@@ -44,7 +44,7 @@ test("both marketplaces publish only Smart", async () => {
   assert.deepEqual(pluginNames(claude), ["smart"]);
 });
 
-test("Smart is one dual-host version 7.0.0 release", async () => {
+test("Smart is one dual-host version 7.0.1 release", async () => {
   const [codex, claude] = await Promise.all([
     readJson("plugins/smart/.codex-plugin/plugin.json"),
     readJson("plugins/smart/.claude-plugin/plugin.json"),
@@ -52,8 +52,8 @@ test("Smart is one dual-host version 7.0.0 release", async () => {
 
   assert.equal(codex.name, "smart");
   assert.equal(claude.name, "smart");
-  assert.equal(codex.version, "7.0.0");
-  assert.equal(claude.version, "7.0.0");
+  assert.equal(codex.version, "7.0.1");
+  assert.equal(claude.version, "7.0.1");
   assert.equal(codex.skills, "./skills/");
   assert.ok(codex.interface.defaultPrompt.length <= 3);
 });
@@ -98,16 +98,14 @@ test("every Smart skill and reference has its Chinese companion", async () => {
         "utf8",
       ),
     ]);
-    assert.match(
-      source,
-      /^disable-model-invocation: true$/m,
-      `${skill} allows model invocation`,
-    );
-    assert.match(
-      translation,
-      /^disable-model-invocation: true$/m,
-      `${skill} Chinese companion allows model invocation`,
-    );
+    const invocationPattern = ["commit", "pr"].includes(skill)
+      ? /^disable-model-invocation:/m
+      : /^disable-model-invocation: true$/m;
+    const checkInvocation = ["commit", "pr"].includes(skill)
+      ? assert.doesNotMatch
+      : assert.match;
+    checkInvocation(source, invocationPattern, `${skill} invocation policy`);
+    checkInvocation(translation, invocationPattern, `${skill} Chinese invocation policy`);
 
     const sourceDescription = source.match(/^description: (.+)$/m)?.[1];
     const translatedDescription = translation.match(/^description: (.+)$/m)?.[1];
@@ -146,16 +144,22 @@ test("every Smart skill and reference has its Chinese companion", async () => {
 });
 
 
-test("Git action skills require explicit user invocation on both hosts", async () => {
+test("Commit and PR allow model invocation while branch cleanup remains explicit", async () => {
   for (const skill of ["commit", "pr", "clean-branches"]) {
     const [source, translation, metadata] = await Promise.all([
       readFile(new URL(`plugins/smart/skills/${skill}/SKILL.md`, ROOT), "utf8"),
       readFile(new URL(`plugins/smart/skills/${skill}/CN.md`, ROOT), "utf8"),
       readFile(new URL(`plugins/smart/skills/${skill}/agents/openai.yaml`, ROOT), "utf8"),
     ]);
-    assert.match(source.split("---")[1], /^disable-model-invocation: true$/m);
-    assert.match(translation.split("---")[1], /^disable-model-invocation: true$/m);
-    assert.match(metadata, /^policy:\n  allow_implicit_invocation: false$/m);
+    const implicit = skill !== "clean-branches";
+    for (const document of [source, translation]) {
+      if (implicit) {
+        assert.doesNotMatch(document.split("---")[1], /^disable-model-invocation:/m);
+      } else {
+        assert.match(document.split("---")[1], /^disable-model-invocation: true$/m);
+      }
+    }
+    assert.match(metadata, new RegExp(`^policy:\n  allow_implicit_invocation: ${implicit}$`, "m"));
   }
 });
 

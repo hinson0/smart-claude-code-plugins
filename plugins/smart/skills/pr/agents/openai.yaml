@@ -2,4 +2,4 @@ interface:
   display_name: "smart:pr"
   short_description: "Create a PR with an explicit target confirmation rule"
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true
