@@ -180,7 +180,7 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 | 行 | 内容 |
 |----|------|
-| 1 | 会话 ID / 会话名、模型@版本、总花费（USD） |
+| 1 | 会话 ID / 会话名、模型-effort 等级@版本、总花费（USD） |
 | 2 | 目录、Git 分支（dirty/ahead/behind/stash）、最近 commit 时间、worktree 名称、电池 |
 | 3 | 上下文进度条 + tokens + cache、速率限制（5h/7d）含重置倒计时、会话时长、agent 名称 |
 | 4 | CPU、内存、磁盘、运行时间、Runtime 版本（Node/Python/Go/Rust/Ruby）、本机 IP |

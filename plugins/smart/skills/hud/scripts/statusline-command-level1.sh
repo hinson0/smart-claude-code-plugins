@@ -2,7 +2,7 @@
 # Claude Code statusLine command — level 1 (minimal, cross-platform: macOS + Linux/WSL/Ubuntu)
 #
 # Layout:
-#   line 1: @ session-id  |  model@version  |  $cost
+#   line 1: @ session-id  |  model-effort@version  |  $cost
 #   line 3: ctx-bar+tokens+cache  |  rate-limits(reset countdown)  |  session-duration  |  agent
 
 # Ensure common binary locations are in PATH.
@@ -53,9 +53,12 @@ version=$(echo "$input"        | jq -r '.version // ""')
 transcript_path=$(echo "$input"| jq -r '.transcript_path // ""')
 agent_name=$(echo "$input"     | jq -r '.agent.name // ""')
 total_cost=$(echo "$input"     | jq -r '.cost.total_cost_usd // empty')
+effort=$(echo "$input"         | jq -r '.effort.level // ""')
 
 # Short model name: "Claude Sonnet 4.6" → "Sonnet 4.6"
 model_short=$(echo "$model" | sed 's/^Claude //')
+# Append effort level: "Opus 4.7" → "Opus 4.7-high"
+[ -n "$effort" ] && model_short="${model_short}-${effort}"
 
 # ══════════════════════════════════════════════════════════
 # 2. Session duration (cross-platform: stat for file timestamp)
@@ -135,7 +138,7 @@ fmt_tok() {
 }
 
 # ══════════════════════════════════════════════════════════
-# line 1: @ session-id  |  model@version  |  $cost
+# line 1: @ session-id  |  model-effort@version  |  $cost
 # ══════════════════════════════════════════════════════════
 if [ -n "$session_name" ]; then
   line1="$(printf "${DIM}@ %s${RESET}" "$session_name")"

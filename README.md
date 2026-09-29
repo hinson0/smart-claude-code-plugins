@@ -181,7 +181,7 @@ Install a feature-rich statusline with one command:
 
 | Line | Content |
 |------|---------|
-| 1 | Session ID / session name, model@version, total cost (USD) |
+| 1 | Session ID / session name, model-effort@version, total cost (USD) |
 | 2 | Directory, git branch (dirty/ahead/behind/stash), last commit time, worktree name, battery |
 | 3 | Context progress bar + tokens + cache, rate limits (5h/7d) with reset countdown, session duration, agent name |
 | 4 | CPU, memory, disk, uptime, runtime versions (Node/Python/Go/Rust/Ruby), local IP |
