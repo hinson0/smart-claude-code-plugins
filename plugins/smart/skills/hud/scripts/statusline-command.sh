@@ -2,7 +2,7 @@
 # Claude Code statusLine command — enhanced (cross-platform: macOS + Linux/WSL/Ubuntu)
 #
 # Layout:
-#   line 1: @ session-id  |  model@version  |  $cost
+#   line 1: @ session-id  |  model-effort@version  |  $cost
 #   line 2: ~/cwd  |  ⎇ branch[dirty][↑↓ ahead/behind][≡stash]  |  commit-time  |  wt:worktree  |  battery
 #   line 3: ctx-bar+tokens+cache  |  rate-limits(reset countdown)  |  session-duration  |  agent
 #   line 4: CPU(load)  Mem  Disk  uptime  |  Runtime(Node/Py/Go/Rust/Ruby)  |  local-IP
@@ -62,9 +62,12 @@ agent_name=$(echo "$input"     | jq -r '.agent.name // ""')
 worktree_name=$(echo "$input"  | jq -r '.worktree.name // ""')
 worktree_branch=$(echo "$input"| jq -r '.worktree.branch // ""')
 total_cost=$(echo "$input"     | jq -r '.cost.total_cost_usd // empty')
+effort=$(echo "$input"         | jq -r '.effort.level // ""')
 
 # Short model name: "Claude Sonnet 4.6" → "Sonnet 4.6"
 model_short=$(echo "$model" | sed 's/^Claude //')
+# Append effort level: "Opus 4.7" → "Opus 4.7-high"
+[ -n "$effort" ] && model_short="${model_short}-${effort}"
 
 # Directory: if in a worktree, show original repo root instead of worktree path
 if [ -n "$worktree_name" ]; then
@@ -375,7 +378,7 @@ fmt_tok() {
 }
 
 # ══════════════════════════════════════════════════════════
-# line 1: @ session-id  |  model@version  |  $cost
+# line 1: @ session-id  |  model-effort@version  |  $cost
 # ══════════════════════════════════════════════════════════
 
 if [ -n "$session_name" ]; then
