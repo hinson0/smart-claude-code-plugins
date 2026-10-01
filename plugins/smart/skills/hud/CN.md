@@ -2,13 +2,13 @@
 name: hud
 description: 安装 Smart 的简化版或完整版用户级 statusline，或恢复备份。
 disable-model-invocation: true
-argument-hint: "[0|1|2|reset|normal|all]（0/reset=恢复备份，1/normal=简化版，2/all=完整版，默认=2）"
+argument-hint: "[0|1|2|reset|normal|all]（0/reset=恢复备份，1/normal=简化版，2/all=完整版，默认=1）"
 ---
 
 只安装或恢复 Claude Code 用户级 statusline。
 
-参数不区分大小写：`1`/`normal` 安装 session + context 两行；
-`2`/`all`（默认）安装全部六行；`0`/`reset` 恢复备份。
+参数不区分大小写：`1`/`normal`（默认）安装 session + context 两行；
+`2`/`all` 安装全部六行；`0`/`reset` 恢复备份。
 
 ## 路径
 
