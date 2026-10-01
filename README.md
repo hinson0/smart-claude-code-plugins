@@ -192,8 +192,8 @@ Install a feature-rich statusline with one command:
 
 | Command | Action |
 |---------|--------|
-| `/smart:hud` · `/smart:hud 2` · `/smart:hud all` | Install full statusline (all 6 lines) to user scope, auto-backup |
-| `/smart:hud 1` · `/smart:hud normal` | Install minimal statusline (session + ctx only) |
+| `/smart:hud` · `/smart:hud 1` · `/smart:hud normal` | Install minimal statusline (session + ctx only) to user scope, auto-backup |
+| `/smart:hud 2` · `/smart:hud all` | Install full statusline (all 6 lines) |
 | `/smart:hud 0` · `/smart:hud reset` | Restore your previous statusline from backup |
 
 **Note:** Cross-platform (macOS + Linux/WSL/Ubuntu) — auto-detects the OS and picks the right tools for battery, CPU, memory, and IP. Requires `jq`; if it's missing, `/smart:hud` auto-installs it (apt/dnf/pacman/apk/brew).

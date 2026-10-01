@@ -191,8 +191,8 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 | 命令 | 操作 |
 |------|------|
-| `/smart:hud` · `/smart:hud 2` · `/smart:hud all` | 安装完整版状态栏（全部 6 行）到 user 作用域，自动备份 |
-| `/smart:hud 1` · `/smart:hud normal` | 安装简化版状态栏（仅 session + ctx） |
+| `/smart:hud` · `/smart:hud 1` · `/smart:hud normal` | 安装简化版状态栏（仅 session + ctx）到 user 作用域，自动备份 |
+| `/smart:hud 2` · `/smart:hud all` | 安装完整版状态栏（全部 6 行） |
 | `/smart:hud 0` · `/smart:hud reset` | 从备份恢复之前的状态栏 |
 
 **注意：** 跨平台（macOS + Linux/WSL/Ubuntu）—— 自动检测操作系统，电量、CPU、内存、IP 各取对应命令。需要 `jq`；缺失时 `/smart:hud` 会自动安装（apt/dnf/pacman/apk/brew）。

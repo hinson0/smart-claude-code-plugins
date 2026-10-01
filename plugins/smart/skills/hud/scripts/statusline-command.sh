@@ -56,6 +56,7 @@ vim_mode=$(echo "$input"       | jq -r '.vim.mode // ""')
 five_pct=$(echo "$input"       | jq -r '.rate_limits.five_hour.used_percentage // empty')
 week_pct=$(echo "$input"       | jq -r '.rate_limits.seven_day.used_percentage // empty')
 five_reset=$(echo "$input"     | jq -r '.rate_limits.five_hour.resets_at // empty')
+week_reset=$(echo "$input"     | jq -r '.rate_limits.seven_day.resets_at // empty')
 version=$(echo "$input"        | jq -r '.version // ""')
 transcript_path=$(echo "$input"| jq -r '.transcript_path // ""')
 agent_name=$(echo "$input"     | jq -r '.agent.name // ""')
@@ -492,6 +493,15 @@ if [ -n "$week_pct" ]; then
   w_int=$(printf '%.0f' "$week_pct")
   w_color=$(pct_color "$w_int")
   rl_str="${rl_str}$(printf " 7d:${w_color}%d%%${RESET}" "$w_int")"
+  if [ -n "$week_reset" ]; then
+    # Reset date as "10月6日" (GNU date: -d @ts · macOS date: -r ts)
+    if $IS_MACOS; then
+      w_date=$(date -r "$week_reset" '+%-m月%-d日' 2>/dev/null)
+    else
+      w_date=$(date -d "@$week_reset" '+%-m月%-d日' 2>/dev/null)
+    fi
+    [ -n "$w_date" ] && rl_str="${rl_str}$(printf "${DIM}(%s)${RESET}" "$w_date")"
+  fi
 fi
 [ -n "$rl_str" ] && line3="${line3}${SEP}${VSEP}${rl_str}"
 
