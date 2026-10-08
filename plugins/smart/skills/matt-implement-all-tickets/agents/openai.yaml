@@ -1,7 +1,0 @@
-interface:
-  display_name: "smart:matt-implement-all-tickets"
-  short_description: "Implement and close one generated Ticket at a time"
-  default_prompt: "Use $smart:matt-implement-all-tickets together with $mattpocock-skills:implement to deliver the current /to-tickets output serially."
-
-policy:
-  allow_implicit_invocation: false
