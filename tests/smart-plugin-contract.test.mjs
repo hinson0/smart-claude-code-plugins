@@ -14,7 +14,6 @@ const SMART_SKILLS = [
   "hud",
   "learning",
   "local",
-  "matt-implement-all-tickets",
   "my-weekly",
   "one-by-one",
   "pair-write",
@@ -44,7 +43,7 @@ test("both marketplaces publish only Smart", async () => {
   assert.deepEqual(pluginNames(claude), ["smart"]);
 });
 
-test("Smart is one dual-host version 7.1.0 release", async () => {
+test("Smart is one dual-host version 7.2.1 release", async () => {
   const [codex, claude] = await Promise.all([
     readJson("plugins/smart/.codex-plugin/plugin.json"),
     readJson("plugins/smart/.claude-plugin/plugin.json"),
@@ -52,8 +51,8 @@ test("Smart is one dual-host version 7.1.0 release", async () => {
 
   assert.equal(codex.name, "smart");
   assert.equal(claude.name, "smart");
-  assert.equal(codex.version, "7.2.0");
-  assert.equal(claude.version, "7.2.0");
+  assert.equal(codex.version, "7.2.1");
+  assert.equal(claude.version, "7.2.1");
   assert.equal(codex.skills, "./skills/");
   assert.ok(codex.interface.defaultPrompt.length <= 3);
 });
