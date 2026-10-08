@@ -12,13 +12,12 @@ const REQUIRED = [
   "/smart:clean-branches",
   "close-issue",
   "code-simplifier",
-  "matt-implement-all-tickets",
   "generate-wiki",
   "github-skills-pdf",
   "my-weekly",
   "one-by-one",
 ];
-const REMOVED = ["fuzz@smart", "/fuzz:*", "fuzz@ce-workflow", "Joke Teller", "HTML/PDF/Wiki", "/smart:ask", "/smart:html", "/smart:show"];
+const REMOVED = ["matt-implement-all-tickets", "fuzz@smart", "/fuzz:*", "fuzz@ce-workflow", "Joke Teller", "HTML/PDF/Wiki", "/smart:ask", "/smart:html", "/smart:show"];
 
 test("both README variants describe the same Smart plugin surface", async () => {
   for (const file of READMES) {
