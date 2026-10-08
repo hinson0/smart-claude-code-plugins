@@ -63,10 +63,10 @@ Claude Code 使用 `/smart:*`；Codex 提供对应的 `$smart:*` skills。
 codex plugin add smart@smart
 ```
 
-Smart 包含十四个 skills：`clean-branches`、`close-issue`、`code-simplifier`、`commit`、
+Smart 包含十三个 skills：`clean-branches`、`code-simplifier`、`commit`、
 `generate-wiki`、`github-skills-pdf`、`help`、`hud`、`learning`、`local`、
 `my-weekly`、`one-by-one`、`pair-write`、`pr`。
-部分流程依赖 Git、`gh`、`glab`、Node.js、Python/PDF 工具、
+部分流程依赖 Git、`gh`、`glab`、Python/PDF 工具、
 浏览器或文档能力；每个 skill 都会检查自己的前置条件。
 `commit` 和 `pr` 在两个宿主中都允许模型自动调用。其余 skill 仍只由用户主动调用：
 请明确使用对应的 `/smart:*` 或 `$smart:*` 名称。
@@ -87,7 +87,6 @@ Codex 界面统一显示 `smart:<name>`，保留 Claude Code 原调用名但省�
 
 - **会话 Hook** — 会话开始时问候（通过 macOS `say` TTS 语音播报）。
 - **会话日志** — 每次工具调用的完整输入数据均记录到 `.smart/session-logs/`，便于事后调试和审计。
-- **可审计的 GitLab Issue 收口** — `/implement` 完成提交与 Review 后，`/smart:close-issue` 会核对当前分支上的实现 commit、验收证据和 Review 结论。明确授权关闭后，它先发布这些开发资产、再关闭 Issue；目标分支是否集成只披露，不作为关闭门禁。仅使用 `glab`，不会推导出 push、merge、创建 MR/PR、修改 checklist 或标签的权限。
 
 **实用工具**
 
@@ -116,7 +115,6 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 | `/smart:commit` | 仅提交（智能分组，自动生成 message） |
 | `/smart:pr [分支]` | 创建或更新 PR；无参数须确认默认 `main`，有参数直接执行；不自动合并 |
 | `/smart:clean-branches [分支]` | 清理完整合并到目标的本地和远端分支；无参数须确认默认 `main`；保留保护分支和 worktree 占用分支 |
-| `/smart:close-issue <IID或URL>` | 只读核对单个 GitLab Issue；明确授权关闭后，先发布可审计的开发资产记录，再关闭 Issue |
 | `/smart:code-simplifier [路径或diff]` | 使用一个全新上下文 worker 简化近期代码，同时保持可观察行为不变 |
 | `/smart:generate-wiki` | 把资料整理为受保护的 GitLab、GitHub 或本地 Wiki |
 | `/smart:github-skills-pdf [--notes 2\|4]` | 从 GitHub skills 仓库生成经验证的英中 A4 手册 |
@@ -214,8 +212,6 @@ ln -s /path/to/plugin/rules/pydantic-v2.md .claude/rules/pydantic-v2.md
 
 - **Claude Code** 或 **Codex**（支持插件）—— 插件内置两套清单，在任一宿主都能原生运行
 - `git`
-- [`glab` CLI](https://gitlab.com/gitlab-org/cli)：`/smart:close-issue` 使用 GitLab Issues 时需要
-- Node.js — 供收口脚本使用
 - Python 3、`reportlab` 与可嵌入 CJK 字体 — 供 `/smart:github-skills-pdf` 使用
 - `jq` — 仅 HUD 状态栏需要（其他功能无需）
 
