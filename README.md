@@ -63,9 +63,9 @@ Claude Code uses `/smart:*`; Codex exposes the corresponding `$smart:*` skills.
 codex plugin add smart@smart
 ```
 
-Smart includes fifteen skills: `clean-branches`, `close-issue`, `code-simplifier`, `commit`,
+Smart includes fourteen skills: `clean-branches`, `close-issue`, `code-simplifier`, `commit`,
 `generate-wiki`, `github-skills-pdf`, `help`, `hud`, `learning`, `local`,
-`matt-implement-all-tickets`, `my-weekly`, `one-by-one`, `pair-write`, `pr`.
+`my-weekly`, `one-by-one`, `pair-write`, `pr`.
 Some workflows require Git, `gh`, `glab`, Node.js, Python/PDF
 tooling, browser access, or document capabilities; each skill checks its own prerequisites.
 `commit` and `pr` allow model invocation on both hosts. All other skills are
@@ -88,7 +88,6 @@ invocation name without the leading slash or a separate title.
 
 - **Session Hooks** — Greet on session start (via macOS `say` TTS).
 - **Session Logs** — Every tool call is logged to `.smart/session-logs/` with full input data for post-session debugging and audit.
-- **Serial Ticket Delivery** — `/smart:matt-implement-all-tickets`, explicitly loaded with Matt `/implement`, keeps one orchestrator session while fresh workers implement, verify, record, and close the current `/to-tickets` output one Ticket at a time. It supports configured GitHub, GitLab, and local Markdown trackers and stops on the first incomplete closeout.
 - **Auditable GitLab Issue Closeout** — After `/implement` has committed and reviewed the work, `/smart:close-issue` verifies the implementation commit on the current branch, acceptance evidence, and review conclusion. With explicit close authorization, it publishes those development assets before closing; target-branch integration is disclosed but is not a close gate. It uses `glab` and never implies push, merge, MR/PR creation, checklist edits, or label changes.
 
 **Utilities**
@@ -120,7 +119,6 @@ invocation name without the leading slash or a separate title.
 | `/smart:clean-branches [branch]` | Delete local and remote branches fully merged into the target; omitted target requires confirmation of `main`; protected and checked-out branches are kept |
 | `/smart:close-issue <IID-or-URL>` | Check one GitLab Issue read-only; with explicit close authorization, publish an auditable development asset note and then close it |
 | `/smart:code-simplifier [paths-or-diff]` | Use one fresh-context worker to simplify recent code while preserving observable behavior |
-| `/smart:matt-implement-all-tickets` | With Matt `/implement` explicitly loaded, implement and close the current `/to-tickets` output serially |
 | `/smart:generate-wiki` | Distill source material into a guarded GitLab, GitHub, or local Wiki |
 | `/smart:github-skills-pdf [--notes 2\|4]` | Build a verified English-Chinese A4 handbook from a GitHub skills repository |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | Install statusline (`1`/`normal`=minimal, `2`/`all`=full) or restore backup (`0`/`reset`), user scope |
@@ -217,9 +215,7 @@ The bundled hook config uses `${CLAUDE_PLUGIN_ROOT}` for path resolution in Clau
 
 - **Claude Code** or **Codex** (with plugin support) — the plugin ships both manifests and runs natively in either
 - `git`
-- Matt Pocock Skills with `/implement` — required by `/smart:matt-implement-all-tickets`
-- [`gh` CLI](https://cli.github.com/) — for `/smart:matt-implement-all-tickets` with GitHub Issues
-- [`glab` CLI](https://gitlab.com/gitlab-org/cli) — for `/smart:close-issue` and `/smart:matt-implement-all-tickets` with GitLab Issues
+- [`glab` CLI](https://gitlab.com/gitlab-org/cli): for `/smart:close-issue` with GitLab Issues
 - Node.js — for closeout scripts
 - Python 3 with `reportlab` and an embeddable CJK font — for `/smart:github-skills-pdf`
 - `jq` — for HUD statusline only (optional otherwise)
