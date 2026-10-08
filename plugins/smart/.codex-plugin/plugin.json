@@ -1,6 +1,6 @@
 {
   "name": "smart",
-  "version": "7.2.0",
+  "version": "7.2.1",
   "description": "Focused developer workflows, fresh-worker code simplification, content tools, session utilities, and engineering rules.",
   "author": {
     "name": "Hinson",
@@ -15,7 +15,7 @@
   "interface": {
     "displayName": "Smart",
     "shortDescription": "Run focused developer workflows and content tools.",
-    "longDescription": "Smart adds semantic commits, fresh-context behavior-preserving code simplification, serial delivery of /to-tickets output through Matt /implement, safe Issue closeout, guided pair-writing, one-cycle TDD, Wiki and weekly report generation, bilingual skills PDFs, statusline setup, and focused engineering utilities.",
+    "longDescription": "Smart adds semantic commits, fresh-context behavior-preserving code simplification, safe Issue closeout, guided pair-writing, one-cycle TDD, Wiki and weekly report generation, bilingual skills PDFs, statusline setup, and focused engineering utilities.",
     "developerName": "Hinson",
     "category": "Productivity",
     "capabilities": ["Automation", "Git", "Read", "Write"],
