@@ -84,7 +84,10 @@ Required fields:
 
 The builder uses the current date when `build_date` is omitted. `logo` is
 optional; omitting it produces a black cover. `repo_url` is optional and helps
-resolve relative links in front and back matter.
+resolve relative links in front and back matter. `original_author` and
+`translator` fill the PDF author metadata; set `translator` to whoever actually
+translated and typeset the edition, or omit it to credit only the original
+author.
 
 ## Monolingual projects
 

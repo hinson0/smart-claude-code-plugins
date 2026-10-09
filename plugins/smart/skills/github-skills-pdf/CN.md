@@ -12,7 +12,7 @@ argument-hint: "<仓库或 URL> [--notes 2|4] —— --notes 在每章后插入 
 1. 使用宿主 GitHub 能力读取仓库；需要完整目录树时再 clone。记录仓库、默认分支、完整 commit、版本依据、许可证和构建日期。缺少源码或元数据时明确报告，不猜测。
 2. 结合 manifest、README 命令和 `skills/*/SKILL.md` 找全正式 skill，排除示例、fixture 和废弃技能。列全各 skill 目录的 Markdown：正文材料放入 `references`，其余登记到 `skip_references` 并说明理由。
 3. 阅读源文件判定模式：英文源文下方逐块配简体中文译文；中文或其他非英文单语源文使用 `monolingual: true`，不重复翻译。
-4. 在本 skill 目录外创建项目。阅读 [book-format.md](references/book-format.md)，了解 `book.json`、导言/附录、依赖和笔记纸。双语模式再阅读 [translation-guide.md](references/translation-guide.md)，翻译全部收录的 skill 和参考文档。若委派翻译，同一 skill 及其参考文档交给同一人，完成后亲自重读译文。
+4. 在本 skill 目录外创建项目。阅读 [book-format.md](references/book-format.md)，了解 `book.json`、导言/附录、依赖和笔记纸；`translator` 填实际完成翻译与编排的人或工具。双语模式再阅读 [translation-guide.md](references/translation-guide.md)，翻译全部收录的 skill 和参考文档。若委派翻译，同一 skill 及其参考文档交给同一人，完成后亲自重读译文。
 5. 从本 skill 实际路径运行构建器；配对失败时修正译文，不降低校验强度：
 
    ```bash

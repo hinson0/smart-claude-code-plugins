@@ -495,3 +495,54 @@ test("builder runs from the skill directory and rejects a moving ref", async () 
     await rm(project, { recursive: true, force: true });
   }
 });
+
+/** Run Python against the builder module and return its stdout. */
+function withBuilder(code) {
+  const script = fileURLToPath(
+    new URL(
+      "../plugins/smart/skills/github-skills-pdf/scripts/build_bilingual_skills_pdf.py",
+      import.meta.url,
+    ),
+  );
+  const result = spawnSync(
+    "python3",
+    [
+      "-c",
+      "import importlib.util, sys\n" +
+        "spec = importlib.util.spec_from_file_location('builder', sys.argv[1])\n" +
+        "b = importlib.util.module_from_spec(spec)\n" +
+        "sys.modules['builder'] = b\n" +
+        "spec.loader.exec_module(b)\n" +
+        code,
+      script,
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
+}
+
+test("排版：代码块不重叠、堆叠标题随正文", () => {
+  const out = JSON.parse(
+    withBuilder(
+      "import json\n" +
+        "b.register_fonts()\n" +
+        "styles = b.build_styles()\n" +
+        "code = styles['code']\n" +
+        "top, _, bottom, _ = code.borderPadding\n" +
+        "blocks = [b.Block(kind='heading', text='Examples', level=2),\n" +
+        "          b.Block(kind='heading', text='Good', level=3),\n" +
+        "          b.Block(kind='paragraph', text='Body.')]\n" +
+        "flow = b.pair_flowables(blocks, None, styles)\n" +
+        "print(json.dumps({\n" +
+        "  'gap': max(code.spaceAfter, code.spaceBefore),\n" +
+        "  'padding': top + bottom,\n" +
+        "  'top_level': [type(f).__name__ for f in flow],\n" +
+        "}))",
+    ),
+  );
+  // 相邻代码块的间距必须盖过两侧背景的内边距，否则后一块会盖住前一块最后一行
+  assert.ok(out.gap > out.padding, `间距 ${out.gap} 应大于内边距 ${out.padding}`);
+  // H2 紧跟 H3 时，两个标题都和正文绑在同一个 KeepTogether 里，不会单独留在页底
+  assert.deepEqual(out.top_level, ["CondPageBreak", "KeepTogether"]);
+});

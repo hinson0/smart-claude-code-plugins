@@ -81,7 +81,8 @@ book/
 - `front` 与 `back`：`en`、`zh`。
 
 `build_date` 缺省时使用当天日期。`logo` 可省略；没有 logo 时生成纯黑封面。
-`repo_url` 可选，用于解析导言和附录中的相对链接。
+`repo_url` 可选，用于解析导言和附录中的相对链接。`original_author` 与 `translator`
+写入 PDF 作者元数据；`translator` 填实际完成翻译与编排的人或工具，省略时只署原作者。
 
 ## 单语项目
 

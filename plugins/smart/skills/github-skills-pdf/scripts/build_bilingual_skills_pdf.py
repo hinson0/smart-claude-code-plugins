@@ -375,7 +375,11 @@ def build_styles() -> dict[str, ParagraphStyle]:
             borderRadius=2,
             backColor=colors.HexColor("#F7F7F8"),
             textColor=INK,
-            spaceAfter=2 * mm,
+            # The background extends 2.8 mm beyond the text on both sides, so
+            # stacked code blocks need that padding twice plus a visible gap,
+            # or the second box paints over the last line of the first.
+            spaceBefore=4.3 * mm,
+            spaceAfter=7.1 * mm,
             wordWrap="CJK",
         ),
         "source": ParagraphStyle(
@@ -841,8 +845,10 @@ def pair_flowables(
     )
     for source, translation in pairs:
         if source.kind == "heading":
-            if pending_heading:
-                flowables.extend(pending_heading)
+            # A heading directly above another heading (an H2 over an H3)
+            # stays pending with it, so the whole stack keeps with the first
+            # content block instead of being stranded at a page foot.
+            pending_heading = pending_heading or []
             style = styles["section"] if source.level <= 2 else styles["subsection"]
             title = inline_markup(source.text)
             toc_text = plain_text(source.text)
@@ -850,7 +856,7 @@ def pair_flowables(
                 title = f"{title}　{inline_markup(translation.text)}"
                 toc_text = f"{toc_text}  {plain_text(translation.text)}"
             heading = Paragraph(title, style)
-            pending_heading = [heading]
+            pending_heading.append(heading)
             if source.level <= 2:
                 heading._toc_level = 1
                 heading._toc_text = toc_text
@@ -873,6 +879,10 @@ def pair_flowables(
                 "code": 80 * mm,
                 "table": 150 * mm,
             }.get(source.kind, 35 * mm)
+            # Each extra stacked heading needs room on the same page too.
+            minimum_space += 12 * mm * (
+                sum(isinstance(item, Paragraph) for item in pending_heading) - 1
+            )
             flowables.append(CondPageBreak(minimum_space))
             flowables.append(KeepTogether([*pending_heading, *content]))
             pending_heading = None
@@ -1319,6 +1329,12 @@ def build(project_dir: Path, output: Path, config: dict, notes_pages: int) -> No
     commit = str(config["commit"])
     build_date = str(config["build_date"])
     original_author = config.get("original_author", "Original authors")
+    translator = str(config.get("translator", "")).strip()
+    if translator:
+        role = "编排" if monolingual else "中文翻译与编排"
+        author = f"{original_author}（原文）· {translator}（{role}）"
+    else:
+        author = f"{original_author}（原文）"
     logo_path = (
         project_path(project_dir, config["logo"]) if config.get("logo") else None
     )
@@ -1337,16 +1353,12 @@ def build(project_dir: Path, output: Path, config: dict, notes_pages: int) -> No
         topMargin=21 * mm,
         bottomMargin=20 * mm,
         title=f"{title_en} {title_zh}".strip(),
-        author=(
-            f"{original_author}（原文）· OpenAI Codex（编排）"
-            if monolingual
-            else f"{original_author}（原文）· OpenAI Codex（中文翻译与编排）"
-        ),
+        author=author,
         subject=(
             f"{title_en} {version} 的 {len(config['skills'])} 个正式技能"
             + ("学习版" if monolingual else "英中逐块对照学习版")
         ),
-        creator="OpenAI Codex",
+        creator="smart:github-skills-pdf",
     )
 
     cover_frame = Frame(
