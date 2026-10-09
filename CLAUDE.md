@@ -15,7 +15,7 @@ Smart 同时发布给 Claude Code 与 Codex。
 ## 能力边界
 
 - **Commit**：type 是硬边界，purpose 是软边界；不相关改动分开提交。用户项目的 `AGENTS.md`、`CLAUDE.md`、`CLAUDE.local.md` 优先于默认格式与语言。
-- **Commit 路由**：Claude Code 使用 `haiku`；Codex 主 agent 只派生单个 `gpt-5.6-luna` low-reasoning worker。worker 不递归委派，主 agent 不接管。
+- **Commit 路由**：Claude Code 使用 `haiku`；Codex 主 agent 只派生单个使用最新 Luna 模型的 low-reasoning worker，不写死模型版本。worker 不递归委派，主 agent 不接管。
 - **Commit 范围**：只分组、生成 message 和提交；不运行检查、升级版本或执行远端操作。
 - **Code Simplifier 路由**：Claude Code 只调用一个插件内 `smart:code-simplifier-worker`；Codex 只派生一个 `fork_turns: none` 且不覆盖模型的 worker。worker 串行执行、不递归委派，主 agent 不读取目标代码、不接管实现。
 - **相邻能力**：`learning`、`one-by-one` 与 `pair-write` 合同不同，保持独立。
