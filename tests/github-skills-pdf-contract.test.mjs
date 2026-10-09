@@ -82,7 +82,8 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
   );
   const argumentHint = skill.match(/\nargument-hint: (.+)\n/)?.[1];
   assert.ok(argumentHint, "argument-hint must be present");
-  assert.match(argumentHint, /--notes/);
+  assert.match(argumentHint, /is_note=true/);
+  assert.doesNotMatch(argumentHint, /--notes/);
   for (const contract of [
     "GitHub",
     "full commit",
@@ -109,7 +110,7 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
     openaiMetadata,
     /default_prompt: ".*\$smart:github-skills-pdf.*"/,
   );
-  assert.match(openaiMetadata, /--notes/);
+  assert.match(openaiMetadata, /is_note=true/);
 
   for (const artifact of [skill, openaiMetadata, builder, bookFormat, translationGuide]) {
     assert.doesNotMatch(artifact, /\/Users\//);
@@ -124,7 +125,8 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
     "validate_pair",
     "TableOfContents",
     "CondPageBreak",
-    "--notes",
+    "--is-note",
+    "source_override",
     "/usr/share/fonts/",
     "C:/Windows/Fonts/",
   ]) {
@@ -201,7 +203,7 @@ test("构建器在每个 skill 章节后插入双面笔记空白页", async () =
     const notes = join(project, "notes.pdf");
     const notesResult = spawnSync(
       "python3",
-      [script, project, "--output", notes, "--notes", "2"],
+      [script, project, "--output", notes, "--is-note"],
       { encoding: "utf8" },
     );
     assert.equal(notesResult.status, 0, notesResult.stderr);
@@ -235,6 +237,8 @@ test("构建器在每个 skill 章节后插入双面笔记空白页", async () =
         0,
         `笔记段 ${run[0]}-${run[run.length - 1]} 应收在纸背，下一章才从新纸正面起`,
       );
+      // --is-note 固定为一张双面纸：2 页，章末停在正面时再补 1 页
+      assert.ok(run.length <= 3, `笔记段 ${run[0]}-${run[run.length - 1]} 超过一张纸`);
     }
   } finally {
     await rm(project, { recursive: true, force: true });
@@ -398,7 +402,7 @@ test("构建器支持单语项目并照常插入笔记页", async () => {
     const plain = join(project, "plain.pdf");
     assert.equal(run(book, ["--output", plain]).status, 0);
     const notes = join(project, "notes.pdf");
-    assert.equal(run(book, ["--output", notes, "--notes", "2"]).status, 0);
+    assert.equal(run(book, ["--output", notes, "--is-note"]).status, 0);
 
     const inspect = (pdf, expr) =>
       spawnSync("python3", ["-c", `import sys\n${expr}`, pdf], {
@@ -468,7 +472,8 @@ test("builder runs from the skill directory and rejects a moving ref", async () 
   assert.equal(help.status, 0, help.stderr);
   assert.match(help.stdout, /usage:/);
   assert.match(help.stdout, /project directory containing book\.json/);
-  assert.match(help.stdout, /--notes/);
+  assert.match(help.stdout, /--is-note/);
+  assert.doesNotMatch(help.stdout, /--notes/);
 
   const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-"));
   try {
@@ -522,7 +527,136 @@ function withBuilder(code) {
   return result.stdout.trim();
 }
 
-test("排版：代码块不重叠、堆叠标题随正文", () => {
+test("代码块按 CommonMark 规则结束，未结束时指出行号", () => {
+  const parsed = JSON.parse(
+    withBuilder(
+      "import json\n" +
+        "nested = '````markdown\\n# Doc\\n```ts\\nconst a = 1;\\n```\\n````\\n\\nAfter.\\n'\n" +
+        "info = '```markdown\\nText\\n```ts\\ncode\\n```\\n\\nAfter.\\n'\n" +
+        "out = {}\n" +
+        "for key, md in (('nested', nested), ('info', info)):\n" +
+        "    out[key] = [(x.kind, x.language, x.text) for x in b.parse_blocks(md)]\n" +
+        "try:\n" +
+        "    b.parse_blocks('Intro.\\n\\n```\\nnever closed\\n')\n" +
+        "except ValueError as e:\n" +
+        "    out['error'] = str(e)\n" +
+        "print(json.dumps(out))",
+    ),
+  );
+  // 四个反引号的外层把三个反引号的内层整个包住
+  assert.deepEqual(parsed.nested[0], [
+    "code",
+    "markdown",
+    "# Doc\n```ts\nconst a = 1;\n```",
+  ]);
+  assert.deepEqual(parsed.nested[1], ["paragraph", "", "After."]);
+  // 带语言标记的 ```ts 不能结束外层代码块
+  assert.deepEqual(parsed.info[0], ["code", "markdown", "Text\n```ts\ncode"]);
+  assert.match(parsed.error, /line 3/);
+  assert.match(parsed.error, /source_override/);
+});
+
+test("只改围栏行的 source_override 可以通过，并在 --check 中留痕", async () => {
+  const skillDirectory = fileURLToPath(
+    new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
+  );
+  const script = join(skillDirectory, "scripts/build_bilingual_skills_pdf.py");
+  const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-override-"));
+  const commit = "16f29800fd2681bdf24f3eb4ccffe38be3baec6b";
+  // 上游把 ```ts 嵌在等长的 ```markdown 里，按 CommonMark 文末会剩一个未结束的代码块
+  const broken =
+    "# Demo\n\n```markdown\n# Example\n\n```ts\nconst a = 1;\n```\n\nTail.\n```\n";
+  const repaired =
+    "# Demo\n\n````markdown\n# Example\n\n```ts\nconst a = 1;\n```\n\nTail.\n````\n";
+  const skill = {
+    name: "demo",
+    title_en: "Demo",
+    source: "demo/SKILL.md",
+    translation: "demo-zh.md",
+    source_url: `https://github.com/example/repo/blob/${commit}/skills/demo/SKILL.md`,
+  };
+  const book = {
+    title_en: "Fixture",
+    title_zh: "测试",
+    version: "1.0.0",
+    commit,
+    translator: "Test Translator",
+    skills: [skill],
+    front: { en: "front-en.md", zh: "front-zh.md" },
+    back: { en: "back-en.md", zh: "back-zh.md" },
+  };
+  const run = (args) => {
+    writeFileSync(join(project, "book.json"), JSON.stringify(book));
+    return spawnSync("python3", [script, project, ...args], { encoding: "utf8" });
+  };
+  try {
+    await mkdir(join(project, "demo"), { recursive: true });
+    await mkdir(join(project, "overrides"), { recursive: true });
+    await Promise.all([
+      writeFile(join(project, "front-en.md"), "# Front\n\nIntro.\n"),
+      writeFile(join(project, "front-zh.md"), "# 导言\n\n简介。\n"),
+      writeFile(join(project, "back-en.md"), "# Back\n\nReference.\n"),
+      writeFile(join(project, "back-zh.md"), "# 附录\n\n参考。\n"),
+      writeFile(join(project, "demo", "SKILL.md"), broken),
+      writeFile(join(project, "overrides", "demo.md"), repaired),
+      writeFile(join(project, "demo-zh.md"), repaired.replace("# Demo", "# 演示")),
+    ]);
+
+    // 未登记修正副本时，错误指向源文件与开头行号
+    const unclosed = run(["--check"]);
+    assert.equal(unclosed.status, 1);
+    assert.match(unclosed.stderr, /SKILL\.md: fenced code block opened at line 11/);
+
+    // 只登记副本不写理由，不放行
+    skill.source_override = "overrides/demo.md";
+    const noReason = run(["--check"]);
+    assert.equal(noReason.status, 1);
+    assert.match(noReason.stderr, /override_reason/);
+
+    // 写明理由后通过，并打印改动的围栏行
+    skill.override_reason = "Upstream nests equal-length fences.";
+    const checked = run(["--check"]);
+    assert.equal(checked.status, 0, checked.stderr);
+    assert.match(checked.stdout, /demo: paired 2 content blocks/);
+    assert.match(
+      checked.stdout,
+      /source override overrides\/demo\.md replaces demo\/SKILL\.md \(fence lines changed: 3, 11\); reason: Upstream/,
+    );
+
+    // 构建产物的作者取 translator，不再写死其他工具名
+    const output = join(project, "out.pdf");
+    const built = run(["--output", output]);
+    assert.equal(built.status, 0, built.stderr);
+    const meta = spawnSync(
+      "python3",
+      [
+        "-c",
+        "from pypdf import PdfReader; import sys, json\n" +
+          "m = PdfReader(sys.argv[1]).metadata\n" +
+          "print(json.dumps({'author': m.author, 'creator': m.creator}))",
+        output,
+      ],
+      { encoding: "utf8" },
+    );
+    const { author, creator } = JSON.parse(meta.stdout);
+    assert.match(author, /Test Translator/);
+    assert.doesNotMatch(author, /Codex/);
+    assert.equal(creator, "smart:github-skills-pdf");
+
+    // 修正副本改了围栏以外的内容，一律拒绝
+    await writeFile(
+      join(project, "overrides", "demo.md"),
+      repaired.replace("Tail.", "Changed."),
+    );
+    const tampered = run(["--check"]);
+    assert.equal(tampered.status, 1);
+    assert.match(tampered.stderr, /only code fence lines; line 10 differs/);
+  } finally {
+    await rm(project, { recursive: true, force: true });
+  }
+});
+
+test("排版：代码块不重叠、堆叠标题随正文、下划线强调", () => {
   const out = JSON.parse(
     withBuilder(
       "import json\n" +
@@ -538,6 +672,9 @@ test("排版：代码块不重叠、堆叠标题随正文", () => {
         "  'gap': max(code.spaceAfter, code.spaceBefore),\n" +
         "  'padding': top + bottom,\n" +
         "  'top_level': [type(f).__name__ for f in flow],\n" +
+        "  'italic': b.inline_markup('_Use when_ needed'),\n" +
+        "  'snake': b.inline_markup('set skip_references or __init__'),\n" +
+        "  'cjk': b.inline_markup('_适用于_会话'),\n" +
         "}))",
     ),
   );
@@ -545,4 +682,8 @@ test("排版：代码块不重叠、堆叠标题随正文", () => {
   assert.ok(out.gap > out.padding, `间距 ${out.gap} 应大于内边距 ${out.padding}`);
   // H2 紧跟 H3 时，两个标题都和正文绑在同一个 KeepTogether 里，不会单独留在页底
   assert.deepEqual(out.top_level, ["CondPageBreak", "KeepTogether"]);
+  assert.match(out.italic, /<i>Use when<\/i>/);
+  assert.doesNotMatch(out.snake, /<i>/);
+  // 与 GitHub 一致：紧贴汉字的下划线不构成强调
+  assert.doesNotMatch(out.cjk, /<i>/);
 });

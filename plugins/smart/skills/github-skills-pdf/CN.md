@@ -2,7 +2,7 @@
 name: github-skills-pdf
 description: 将固定版本的 GitHub skills 仓库制作为经验证的 A4 手册，英文原文在上、简体中文译文在下。
 disable-model-invocation: true
-argument-hint: "<仓库或 URL> [--notes 2|4] —— --notes 在每章后插入 1 张或 2 张笔记纸对应的空白页，留空不插入；须在构建前决定"
+argument-hint: "<仓库或 URL> [is_note=true] —— 默认不插入笔记页；is_note=true 时在每章后插入 1 张双面笔记纸"
 ---
 
 # GitHub Skills PDF
@@ -20,6 +20,6 @@ argument-hint: "<仓库或 URL> [--notes 2|4] —— --notes 在每章后插入 
    python3 <this-skill-directory>/scripts/build_bilingual_skills_pdf.py <project-dir> --output <output.pdf>
    ```
 
-   加 `--notes 2` 或 `--notes 4` 可在每章后留一张或两张完整双面笔记纸；省略则不留。使用构建器的 A4 版式、英上中下顺序、章内参考文档、固定源码链接、目录、书签和页眉页码。有截图时遵循其字号、间距、分隔线和代码底色。
+   仅当调用时带 `is_note=true` 才传 `--is-note`，在每章后留一张完整双面笔记纸；省略则不留。`--check` 报告固定源码中有未结束的代码块时，按 book-format.md 登记只改围栏行、并写明理由的 `source_override`，不修改固定源码。使用构建器的 A4 版式、英上中下顺序、章内参考文档、固定源码链接、目录、书签和页眉页码。有截图时遵循其字号、间距、分隔线和代码底色。
 6. 检查 PDF 元数据、页数、书签、链接和文本；用 `pdftoppm -png -r 144 <output.pdf> <render-dir>/page` 渲染全部页面。核对全部 skill、收录的参考文档和源码链接，检查页面有无越界、截断、孤立标题、意外空白或占位符。确认渲染页数与 PDF 页数一致，指定样式已体现。
 7. 交付前说明跳过或失败的验证。返回 PDF 链接、页数、skill 数量、固定版本及验证结果。保留构建项目以便复现，临时渲染图另存。

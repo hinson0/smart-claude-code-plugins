@@ -1,4 +1,4 @@
 interface:
   display_name: "smart:github-skills-pdf"
   short_description: "Typeset a GitHub skills repository as an English-Chinese PDF"
-  default_prompt: "Use $smart:github-skills-pdf to make this GitHub skills repository into an English-Chinese PDF; add --notes 2 or --notes 4 when note sheets are needed."
+  default_prompt: "Use $smart:github-skills-pdf to make this GitHub skills repository into an English-Chinese PDF; add is_note=true when blank note sheets are needed."

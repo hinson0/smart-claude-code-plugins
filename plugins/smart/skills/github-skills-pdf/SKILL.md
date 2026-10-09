@@ -2,7 +2,7 @@
 name: github-skills-pdf
 description: Build a verified A4 handbook from a pinned GitHub skills repository, with English source above Simplified Chinese translation.
 disable-model-invocation: true
-argument-hint: "<repository-or-url> [--notes 2|4] -- decide before building; 2 or 4 inserts one or two sheets of blank note pages after each chapter"
+argument-hint: "<repository-or-url> [is_note=true] -- omit for no note pages; is_note=true adds one duplex sheet of blank note pages after each chapter"
 ---
 
 # GitHub Skills PDF
@@ -20,6 +20,6 @@ Build a reproducible A4 handbook from a pinned repository.
    python3 <this-skill-directory>/scripts/build_bilingual_skills_pdf.py <project-dir> --output <output.pdf>
    ```
 
-   Add `--notes 2` or `--notes 4` for one or two complete duplex note sheets after each chapter; omit for none. Use the builder's A4 layout, source-above-translation order, chapter references, fixed source links, contents, bookmarks, and page furniture. When given a screenshot, follow its typography, spacing, dividers, and code background.
+   Pass `--is-note` only when invoked with `is_note=true`; it adds one duplex note sheet after each chapter, and omitting it adds none. When `--check` reports an unclosed fence in the pinned source, register a fence-only `source_override` with a reason as book-format.md describes; never edit the pinned source. Use the builder's A4 layout, source-above-translation order, chapter references, fixed source links, contents, bookmarks, and page furniture. When given a screenshot, follow its typography, spacing, dividers, and code background.
 6. Inspect PDF metadata, page count, bookmarks, links, and text; render every page with `pdftoppm -png -r 144 <output.pdf> <render-dir>/page`. Check all skills and included references, source links, and rendered pages for clipping, truncation, orphan headings, unexpected blanks, or placeholders. Confirm rendered and PDF page counts agree and requested styling is visible.
 7. Report skipped or failed validation before delivery. Return the PDF link, page/skill counts, pinned version, and validation result. Preserve the build project for reproducibility and keep temporary renders separate.

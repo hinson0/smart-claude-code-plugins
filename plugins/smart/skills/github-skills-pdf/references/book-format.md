@@ -94,7 +94,7 @@ author.
 When the source repository already uses one language, there is no source/
 translation pair to align. Set `"monolingual": true` at the root. The body uses
 one stream while the contents, bookmarks, headers, page numbers, fixed source
-links, references, and `--notes` sheets remain unchanged.
+links, references, and `--is-note` sheets remain unchanged.
 
 Monolingual projects use neutral field names instead of `_en` and `_zh`:
 
@@ -167,14 +167,40 @@ Use `skip_references` for files that genuinely are not part of the body:
 
 Every skip is printed by `--check`; it is never silent.
 
-Use `--notes 2` or `--notes 4` to reserve one or two duplex sheets after each
-skill chapter. Blank pages omit headers, page numbers, and borders. Front and
-back matter receive no note sheets, and omitting the option inserts none.
+## Note sheets
+
+By default the builder inserts no note pages. Pass `--is-note` to reserve one
+duplex sheet of blank note pages after each skill chapter. Blank pages omit
+headers, page numbers, and borders. Front and back matter receive no note
+sheets.
 
 Notes count physical sheets rather than pages. If a chapter ends on the front
-of a duplex sheet, the builder adds a blank back before complete note sheets.
-The actual blank-page count can therefore exceed the option by one, but every
-note run occupies complete sheets and the next chapter starts on a front.
+of a duplex sheet, the builder adds a blank back before the note sheet. A note
+run is therefore two or three blank pages, always occupies complete sheets, and
+the next chapter starts on a front.
+
+## Malformed source fences
+
+Code fences follow CommonMark: a closing fence uses the same character, is at
+least as long as the opening fence, and has no info string. A four-backtick
+fence may therefore contain three-backtick blocks, and a nested `` ```ts ``
+line never closes an outer `` ```markdown `` block.
+
+When the pinned upstream file leaves a fence unclosed under these rules,
+`--check` fails and names the file and opening line. Never edit the pinned
+source. Instead, copy it into the project, repair only the fence lines (for
+example, lengthen the outer fence to four backticks), and register the copy on
+that skill or reference entry:
+
+```json
+"source_override": "overrides/triage-out-of-scope.md",
+"override_reason": "Upstream nests a ```ts fence inside ```markdown with equal-length fences."
+```
+
+The builder renders the override but keeps `source` for reference discovery,
+file names, and the fixed source link. The override must keep the source's
+line count and may differ only on code fence lines; any other difference is an
+error. `--check` prints every override with its changed lines and reason.
 
 ## Front and back matter
 

@@ -117,7 +117,7 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 | `/smart:clean-branches [分支]` | 清理完整合并到目标的本地和远端分支；无参数须确认默认 `main`；保留保护分支和 worktree 占用分支 |
 | `/smart:code-simplifier [路径或diff]` | 使用一个全新上下文 worker 简化近期代码，同时保持可观察行为不变 |
 | `/smart:generate-wiki` | 把资料整理为受保护的 GitLab、GitHub 或本地 Wiki |
-| `/smart:github-skills-pdf [--notes 2\|4]` | 从 GitHub skills 仓库生成经验证的英中 A4 手册 |
+| `/smart:github-skills-pdf <仓库> [is_note=true]` | 从 GitHub skills 仓库生成经验证的英中 A4 手册；`is_note=true` 时每章后加一张双面空白笔记纸 |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安装状态栏（`1`/`normal`=简化版，`2`/`all`=完整版）或恢复备份（`0`/`reset`），user 作用域 |
 | `/smart:help [skill\|hook\|agent]` | 显示所有插件组件概览（或按类别筛选） |
 | `/smart:learning [0\|1]` | 持久化学习模式：`1` 开启、`0` 关闭、无参数查看状态；用户写代码，AI 逐步审阅 |

@@ -59,3 +59,6 @@ commands and configuration structure must not change.
 - Use technical terms consistently and never omit exceptions or failure cases
   for fluency.
 - Use Chinese punctuation in prose while leaving code punctuation unchanged.
+- Mark emphasis next to Chinese text with `*...*`. Underscore emphasis follows
+  CommonMark and never opens or closes inside a word, so `_..._` touching CJK
+  characters stays literal, both in the PDF and on GitHub.

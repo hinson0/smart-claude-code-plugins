@@ -49,6 +49,8 @@ CODE_BG = colors.HexColor("#F1F3F4")
 WHITE = colors.white
 PAGE_WIDTH, PAGE_HEIGHT = A4
 CONTENT_WIDTH = 169 * mm
+# Blank pages per chapter with --is-note: one duplex sheet.
+NOTE_SHEET_PAGES = 2
 
 
 @dataclass(frozen=True)
@@ -501,6 +503,9 @@ def inline_markup(text: str) -> str:
     text = html.escape(text, quote=False)
     text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
     text = re.sub(r"(?<!\*)\*([^*\n]+?)\*(?!\*)", r"<i>\1</i>", text)
+    # Underscore emphasis follows CommonMark flanking: it never opens or
+    # closes inside a word, so snake_case identifiers stay literal.
+    text = re.sub(r"(?<!\w)_(?=\S)([^_\n]+?)(?<=\S)_(?!\w)", r"<i>\1</i>", text)
     for index in range(len(tokens) - 1, -1, -1):
         text = text.replace(f"@@INLINE{index}@@", tokens[index])
     return text
@@ -549,12 +554,42 @@ def is_table_separator(row: tuple[str, ...]) -> bool:
     return bool(row) and all(re.fullmatch(r":?-{3,}:?", cell) for cell in row)
 
 
+FENCE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+
+
+def opening_fence(line: str) -> tuple[str, str] | None:
+    """Return (fence, info string) when the line opens a fenced code block."""
+    match = FENCE.match(line)
+    if not match:
+        return None
+    fence, info = match.group(1), match.group(2).strip()
+    if fence[0] == "`" and "`" in info:
+        return None
+    return fence, info
+
+
+def closes_fence(line: str, fence: str) -> bool:
+    """Apply CommonMark closing rules for a fence opened with `fence`.
+
+    A closing fence uses the same character, is at least as long as the
+    opening fence, and carries no info string. A nested ```ts line therefore
+    stays inside a ```markdown block, and ```` blocks can contain ``` blocks.
+    """
+    match = FENCE.match(line)
+    return bool(
+        match
+        and match.group(1)[0] == fence[0]
+        and len(match.group(1)) >= len(fence)
+        and not match.group(2).strip()
+    )
+
+
 def is_block_start(line: str) -> bool:
     stripped = line.strip()
     return bool(
         not stripped
         or stripped.startswith("#")
-        or stripped.startswith("```")
+        or opening_fence(line)
         or stripped in {"---", "***", "___"}
         or stripped.startswith("|")
         or re.match(r"^\s*[-*+]\s+", line)
@@ -565,6 +600,8 @@ def is_block_start(line: str) -> bool:
 def parse_blocks(markdown: str) -> list[Block]:
     _, body = parse_frontmatter(markdown)
     lines = body.splitlines()
+    # Report file line numbers, counting the front matter removed above.
+    line_offset = len(markdown.splitlines()) - len(lines)
     blocks: list[Block] = []
     index = 0
 
@@ -575,15 +612,22 @@ def parse_blocks(markdown: str) -> list[Block]:
             index += 1
             continue
 
-        if stripped.startswith("```"):
-            language = stripped[3:].strip()
+        fence = opening_fence(line)
+        if fence:
+            opened_at = index + 1 + line_offset
+            language = fence[1].split()[0] if fence[1] else ""
             index += 1
             code_lines: list[str] = []
-            while index < len(lines) and not lines[index].strip().startswith("```"):
+            while index < len(lines) and not closes_fence(lines[index], fence[0]):
                 code_lines.append(lines[index])
                 index += 1
             if index >= len(lines):
-                raise ValueError("Fenced code block is not closed")
+                raise ValueError(
+                    f"fenced code block opened at line {opened_at} with "
+                    f"{fence[0]} is not closed. If the upstream source is "
+                    "malformed, register a corrected copy as source_override "
+                    "with an override_reason in book.json."
+                )
             blocks.append(
                 Block(kind="code", text="\n".join(code_lines), language=language)
             )
@@ -676,6 +720,74 @@ def validate_pair(label: str, english: list[Block], chinese: list[Block]) -> Non
             )
 
 
+def read_markdown(path: Path) -> tuple[dict[str, str], list[Block]]:
+    """Parse one Markdown file, naming the file in any parse error."""
+    text = path.read_text(encoding="utf-8")
+    try:
+        metadata, _ = parse_frontmatter(text)
+        return metadata, parse_blocks(text)
+    except ValueError as error:
+        raise ValueError(f"{path}: {error}") from None
+
+
+def content_path(project_dir: Path, entry: dict) -> Path:
+    """Return the file whose content is rendered for a skill or reference.
+
+    This is the pinned upstream `source` unless a validated `source_override`
+    replaces it. `source` still identifies the file for reference discovery,
+    names and source links.
+    """
+    override = entry.get("source_override")
+    return project_path(project_dir, override or entry["source"])
+
+
+def validate_override(project_dir: Path, entry: dict, label: str) -> str | None:
+    """Check a source override and describe it, or return None when absent.
+
+    An override exists only to repair malformed upstream code fences. It must
+    give a reason and differ from the pinned source in fence lines alone, so
+    no upstream wording can be changed through it.
+    """
+    override = entry.get("source_override")
+    if not override:
+        if entry.get("override_reason"):
+            raise ValueError(f"{label}: override_reason requires source_override")
+        return None
+    reason = str(entry.get("override_reason", "")).strip()
+    if not reason:
+        raise ValueError(f"{label}: source_override requires an override_reason")
+    source_path = project_path(project_dir, entry["source"])
+    override_path = project_path(project_dir, override)
+    if not override_path.exists():
+        raise FileNotFoundError(f"{label}: source_override {override} is missing")
+    source_lines = source_path.read_text(encoding="utf-8").splitlines()
+    override_lines = override_path.read_text(encoding="utf-8").splitlines()
+    if len(source_lines) != len(override_lines):
+        raise ValueError(
+            f"{label}: source_override must keep the source's line count "
+            f"({len(override_lines)} != {len(source_lines)})"
+        )
+    changed = [
+        number
+        for number, (original, patched) in enumerate(
+            zip(source_lines, override_lines), start=1
+        )
+        if original != patched
+    ]
+    for number in changed:
+        original, patched = source_lines[number - 1], override_lines[number - 1]
+        if not (FENCE.match(original) and FENCE.match(patched)):
+            raise ValueError(
+                f"{label}: source_override may change only code fence lines; "
+                f"line {number} differs"
+            )
+    lines = ", ".join(str(number) for number in changed) or "none"
+    return (
+        f"{label}: source override {override} replaces {entry['source']} "
+        f"(fence lines changed: {lines}); reason: {reason}"
+    )
+
+
 def load_pair(
     english_path: Path, chinese_path: Path | None
 ) -> tuple[dict[str, str], dict[str, str], list[Block], list[Block] | None]:
@@ -684,14 +796,10 @@ def load_pair(
     A null translation path selects monolingual mode. Returned translation
     blocks are null so rendering emits one stream and skips structural pairing.
     """
-    english_text = english_path.read_text(encoding="utf-8")
-    english_meta, _ = parse_frontmatter(english_text)
-    english_blocks = parse_blocks(english_text)
+    english_meta, english_blocks = read_markdown(english_path)
     if chinese_path is None:
         return english_meta, {}, english_blocks, None
-    chinese_text = chinese_path.read_text(encoding="utf-8")
-    chinese_meta, _ = parse_frontmatter(chinese_text)
-    chinese_blocks = parse_blocks(chinese_text)
+    chinese_meta, chinese_blocks = read_markdown(chinese_path)
     validate_pair(english_path.stem, english_blocks, chinese_blocks)
     return english_meta, chinese_meta, english_blocks, chinese_blocks
 
@@ -1146,8 +1254,11 @@ def load_reference(
             f"{skill['name']} reference {source_path.name}: source_url must use "
             f"pinned commit {commit} in a /blob/<commit>/ path"
         )
+    validate_override(
+        project_dir, reference, f"{skill['name']} / {source_path.name}"
+    )
     _, translation_meta, source_blocks, translation_blocks = load_pair(
-        source_path, translation_path
+        content_path(project_dir, reference), translation_path
     )
     has_h1 = (
         bool(source_blocks)
@@ -1243,12 +1354,15 @@ def validate_inputs(project_dir: Path, config: dict) -> list[str]:
                 f"{skill['name']}: source_url must use pinned commit "
                 f"{config['commit']} in a /blob/<commit>/ path"
             )
+        override_note = validate_override(project_dir, skill, skill["name"])
         _, _, source_blocks, translation_blocks = load_pair(
-            source_path, translation_path
+            content_path(project_dir, skill), translation_path
         )
         results.append(
             f"{skill['name']}: {verb} {len(source_blocks)} content blocks"
         )
+        if override_note:
+            results.append(override_note)
 
         references = reference_entries(skill)
         registered = {
@@ -1287,10 +1401,11 @@ def validate_inputs(project_dir: Path, config: dict) -> list[str]:
                 project_dir, skill, reference, config["commit"], monolingual
             )
             reference_name = project_path(project_dir, reference["source"]).name
-            results.append(
-                f"{skill['name']} / {reference_name}: "
-                f"{verb} {len(reference_blocks)} content blocks"
-            )
+            label = f"{skill['name']} / {reference_name}"
+            results.append(f"{label}: {verb} {len(reference_blocks)} content blocks")
+            override_note = validate_override(project_dir, reference, label)
+            if override_note:
+                results.append(override_note)
         for name in skill.get("skip_references", []):
             results.append(f"{skill['name']}: explicitly skipped reference {name}")
     for label in ("front", "back"):
@@ -1452,12 +1567,11 @@ def build(project_dir: Path, output: Path, config: dict, notes_pages: int) -> No
     for chapter_number, skill in enumerate(config["skills"], start=1):
         english_title = skill["title_en"]
         set_link_base_url(skill["source_url"])
-        source_path = project_path(project_dir, skill["source"])
         translation_path = (
             None if monolingual else project_path(project_dir, skill["translation"])
         )
         source_meta, translation_meta, source_blocks, translation_blocks = load_pair(
-            source_path, translation_path
+            content_path(project_dir, skill), translation_path
         )
         source_blocks, translation_blocks = strip_leading_h1(
             source_blocks, translation_blocks
@@ -1546,11 +1660,10 @@ def main() -> None:
         help="validate source/translation block pairing without generating a PDF",
     )
     parser.add_argument(
-        "--notes",
-        type=int,
-        choices=(2, 4),
-        default=0,
-        help="blank PDF pages after every skill chapter: 2 or 4; omit for none",
+        "--is-note",
+        action="store_true",
+        help="add one duplex sheet of blank note pages after every skill "
+        "chapter; omit for none",
     )
     args = parser.parse_args()
     try:
@@ -1569,7 +1682,7 @@ def main() -> None:
             for result in validate_inputs(project_dir, config):
                 print(result)
             return
-        build(project_dir, output, config, args.notes)
+        build(project_dir, output, config, NOTE_SHEET_PAGES if args.is_note else 0)
     except Exception as error:
         print(f"Error: {error}", file=sys.stderr)
         raise SystemExit(1) from None
