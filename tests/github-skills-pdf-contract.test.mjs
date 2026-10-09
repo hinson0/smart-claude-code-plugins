@@ -33,6 +33,31 @@ function blankPageNumbers(pdf) {
   return out ? out.split(",").map(Number) : [];
 }
 
+/** Return the one-based page numbers where a skill chapter opens. */
+function chapterStartPages(pdf) {
+  const out = spawnSync(
+    "python3",
+    [
+      "-c",
+      "from pypdf import PdfReader\nimport sys\n" +
+        "print(','.join(str(i) for i, p in enumerate(PdfReader(sys.argv[1]).pages, 1)" +
+        " if 'CHAPTER ' in p.extract_text()))",
+      pdf,
+    ],
+    { encoding: "utf8" },
+  ).stdout.trim();
+  return out ? out.split(",").map(Number) : [];
+}
+
+/** Assert blanks only fill sheet backs and every chapter opens on a front. */
+function assertChaptersOnFronts(pdf, chapterCount) {
+  const starts = chapterStartPages(pdf);
+  assert.equal(starts.length, chapterCount, `${pdf} chapter openers`);
+  for (const page of starts) {
+    assert.equal(page % 2, 1, `chapter on page ${page} must open on a sheet front`);
+  }
+}
+
 /** Split page numbers into consecutive runs. */
 function consecutiveRuns(pages) {
   const runs = [];
@@ -82,8 +107,8 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
   );
   const argumentHint = skill.match(/\nargument-hint: (.+)\n/)?.[1];
   assert.ok(argumentHint, "argument-hint must be present");
-  assert.match(argumentHint, /is_note=true/);
-  assert.doesNotMatch(argumentHint, /--notes/);
+  assert.match(argumentHint, /full=true/);
+  assert.doesNotMatch(argumentHint, /is_note|--notes/);
   for (const contract of [
     "GitHub",
     "full commit",
@@ -100,6 +125,8 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
     "clipping",
     "orphan headings",
     "skipped or failed validation",
+    "--update",
+    "print-ledger.json",
   ]) {
     assert.match(skill, new RegExp(contract));
   }
@@ -110,7 +137,7 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
     openaiMetadata,
     /default_prompt: ".*\$smart:github-skills-pdf.*"/,
   );
-  assert.match(openaiMetadata, /is_note=true/);
+  assert.doesNotMatch(openaiMetadata, /is_note/);
 
   for (const artifact of [skill, openaiMetadata, builder, bookFormat, translationGuide]) {
     assert.doesNotMatch(artifact, /\/Users\//);
@@ -125,8 +152,10 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
     "validate_pair",
     "TableOfContents",
     "CondPageBreak",
-    "--is-note",
+    "SheetParityBreak",
     "source_override",
+    "print-ledger.json",
+    "--update",
     "/usr/share/fonts/",
     "C:/Windows/Fonts/",
   ]) {
@@ -145,18 +174,18 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
   assert.ok(executableHan.length > 0, "bilingual PDF labels must remain present");
   assert.ok(
     executableHan.every((line) =>
-      /正式技能|英文原文|简体中文翻译|阅读导引|Source 原文|REFERENCE 参考文档|原文|编排|中文翻译与编排|学习版|英中逐块对照学习版|非官方学习版|固定提交|编译日期|Contents 目录|目录与 PDF 书签|主要小节和附录|从这里开始|REFERENCE · 参考/.test(line)
+      /正式技能|更新|新增|撤除|章节|英文原文|简体中文翻译|阅读导引|Source 原文|REFERENCE 参考文档|原文|编排|中文翻译与编排|学习版|英中逐块对照学习版|非官方学习版|固定提交|编译日期|Contents 目录|目录与 PDF 书签|主要小节和附录|从这里开始|REFERENCE · 参考/.test(line)
     ),
     `unexpected Chinese executable message or comment:\n${executableHan.join("\n")}`,
   );
 });
 
-test("构建器在每个 skill 章节后插入双面笔记空白页", async () => {
+test("每个 skill 章节都从纸的正面开始，空白页只补齐纸背", async () => {
   const skillDirectory = fileURLToPath(
     new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
   );
   const script = join(skillDirectory, "scripts/build_bilingual_skills_pdf.py");
-  const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-notes-"));
+  const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-fronts-"));
   const commit = "16f29800fd2681bdf24f3eb4ccffe38be3baec6b";
   const book = {
     title_en: "Fixture",
@@ -199,47 +228,13 @@ test("构建器在每个 skill 章节后插入双面笔记空白页", async () =
       encoding: "utf8",
     });
     assert.equal(plainResult.status, 0, plainResult.stderr);
-
-    const notes = join(project, "notes.pdf");
-    const notesResult = spawnSync(
-      "python3",
-      [script, project, "--output", notes, "--is-note"],
-      { encoding: "utf8" },
-    );
-    assert.equal(notesResult.status, 0, notesResult.stderr);
-    const countPages = (pdf) =>
-      Number(
-        spawnSync(
-          "python3",
-          [
-            "-c",
-            "from pypdf import PdfReader; import sys; print(len(PdfReader(sys.argv[1]).pages))",
-            pdf,
-          ],
-          { encoding: "utf8" },
-        ).stdout,
-    );
-    assert.equal(blankPageNumbers(plain).length, 0);
-    // 双面打印时奇数页是纸的正面。章末停在正面时构建器会先补一页收尾这张纸，
-    // 否则两页笔记会横跨两张纸、下一章还落在纸背——因此这里锁的是纸张完整性，
-    // 而不是某个固定页数：页数会随正文长短变化，纸张是否完整不会。
-    const blanks = blankPageNumbers(notes);
-    assert.ok(
-      blanks.length >= book.skills.length * 2,
-      `每章至少一整张笔记纸，实际空白页 ${blanks.length}`,
-    );
-    assert.equal(countPages(notes), countPages(plain) + blanks.length);
-    const runs = consecutiveRuns(blanks);
-    assert.equal(runs.length, book.skills.length, "每章后应各有一段笔记页");
-    for (const run of runs) {
-      assert.equal(
-        run[run.length - 1] % 2,
-        0,
-        `笔记段 ${run[0]}-${run[run.length - 1]} 应收在纸背，下一章才从新纸正面起`,
-      );
-      // --is-note 固定为一张双面纸：2 页，章末停在正面时再补 1 页
-      assert.ok(run.length <= 3, `笔记段 ${run[0]}-${run[run.length - 1]} 超过一张纸`);
+    // 双面打印时奇数页是纸的正面；每章从正面开始，更新包才能整章替换而不牵连邻章
+    const plainBlanks = blankPageNumbers(plain);
+    for (const run of consecutiveRuns(plainBlanks)) {
+      assert.equal(run.length, 1, `空白页 ${run} 不应连续出现`);
+      assert.equal(run[0] % 2, 0, `空白页 ${run[0]} 应在纸背`);
     }
+    assertChaptersOnFronts(plain, book.skills.length);
   } finally {
     await rm(project, { recursive: true, force: true });
   }
@@ -343,7 +338,7 @@ test("构建器收录 skill 目录的参考文档并拒绝漏收", async () => {
   }
 });
 
-test("构建器支持单语项目并照常插入笔记页", async () => {
+test("构建器支持单语项目", async () => {
   const skillDirectory = fileURLToPath(
     new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
   );
@@ -401,26 +396,13 @@ test("构建器支持单语项目并照常插入笔记页", async () => {
 
     const plain = join(project, "plain.pdf");
     assert.equal(run(book, ["--output", plain]).status, 0);
-    const notes = join(project, "notes.pdf");
-    assert.equal(run(book, ["--output", notes, "--is-note"]).status, 0);
 
     const inspect = (pdf, expr) =>
       spawnSync("python3", ["-c", `import sys\n${expr}`, pdf], {
         encoding: "utf8",
       }).stdout.trim();
-    const count =
-      "from pypdf import PdfReader; print(len(PdfReader(sys.argv[1]).pages))";
-    assert.equal(blankPageNumbers(plain).length, 0);
-    // 单语书同样按纸张插笔记：每个大章后至少一整张，且收在纸背
-    const monoBlanks = blankPageNumbers(notes);
-    assert.equal(consecutiveRuns(monoBlanks).length, book.skills.length);
-    for (const run of consecutiveRuns(monoBlanks)) {
-      assert.equal(run[run.length - 1] % 2, 0);
-    }
-    assert.equal(
-      Number(inspect(notes, count)),
-      Number(inspect(plain, count)) + monoBlanks.length,
-    );
+    assert.ok(blankPageNumbers(plain).every((page) => page % 2 === 0));
+    assertChaptersOnFronts(plain, book.skills.length);
     // 单语书不应残留双语的封面/页眉措辞
     const text =
       "from pypdf import PdfReader\n" +
@@ -472,8 +454,8 @@ test("builder runs from the skill directory and rejects a moving ref", async () 
   assert.equal(help.status, 0, help.stderr);
   assert.match(help.stdout, /usage:/);
   assert.match(help.stdout, /project directory containing book\.json/);
-  assert.match(help.stdout, /--is-note/);
-  assert.doesNotMatch(help.stdout, /--notes/);
+  assert.match(help.stdout, /--update/);
+  assert.doesNotMatch(help.stdout, /--is-note|--notes/);
 
   const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-"));
   try {
@@ -686,4 +668,130 @@ test("排版：代码块不重叠、堆叠标题随正文、下划线强调", ()
   assert.doesNotMatch(out.snake, /<i>/);
   // 与 GitHub 一致：紧贴汉字的下划线不构成强调
   assert.doesNotMatch(out.cjk, /<i>/);
+});
+
+test("增量更新只打印有变化的章节，并按账本记录已印内容", async () => {
+  const skillDirectory = fileURLToPath(
+    new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
+  );
+  const script = join(skillDirectory, "scripts/build_bilingual_skills_pdf.py");
+  const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-update-"));
+  const oldCommit = "1111111111111111111111111111111111111111";
+  const newCommit = "2222222222222222222222222222222222222222";
+  const skillEntry = (name, commit) => ({
+    name,
+    title_en: `Skill ${name}`,
+    source: `${name}-en.md`,
+    translation: `${name}-zh.md`,
+    source_url: `https://github.com/example/repo/blob/${commit}/skills/${name}/SKILL.md`,
+  });
+  const writeBook = (version, commit, names) =>
+    writeFile(
+      join(project, "book.json"),
+      JSON.stringify({
+        title_en: "Fixture",
+        title_zh: "测试",
+        version,
+        commit,
+        output: "book.pdf",
+        skills: names.map((name) => skillEntry(name, commit)),
+        front: { en: "front-en.md", zh: "front-zh.md" },
+        back: { en: "back-en.md", zh: "back-zh.md" },
+      }),
+    );
+  const run = (...args) =>
+    spawnSync("python3", [script, project, ...args], { encoding: "utf8" });
+  const ledger = async () =>
+    JSON.parse(await readFile(join(project, "print-ledger.json"), "utf8"));
+  const pdfText = (pdf) =>
+    spawnSync(
+      "python3",
+      [
+        "-c",
+        "from pypdf import PdfReader; import sys\n" +
+          "print('\\f'.join(p.extract_text() for p in PdfReader(sys.argv[1]).pages))",
+        pdf,
+      ],
+      { encoding: "utf8" },
+    ).stdout;
+  try {
+    await Promise.all([
+      writeFile(join(project, "front-en.md"), "# Front\n\nIntro.\n"),
+      writeFile(join(project, "front-zh.md"), "# 导言\n\n简介。\n"),
+      writeFile(join(project, "back-en.md"), "# Back\n\nReference.\n"),
+      writeFile(join(project, "back-zh.md"), "# 附录\n\n参考。\n"),
+      ...["a", "b", "c", "d"].flatMap((name) => [
+        writeFile(join(project, `${name}-en.md`), `# Skill ${name}\n\nBody ${name}.\n`),
+        writeFile(join(project, `${name}-zh.md`), `# 技能 ${name}\n\n正文 ${name}。\n`),
+      ]),
+    ]);
+    await writeBook("1.3.0", oldCommit, ["a", "b", "c"]);
+
+    // 没有已印版本时，增量无从比较，必须明确报错
+    const orphan = run("--update");
+    assert.equal(orphan.status, 1);
+    assert.match(orphan.stderr, /print-ledger\.json/);
+
+    const full = run();
+    assert.equal(full.status, 0, full.stderr);
+    const printed = await ledger();
+    assert.deepEqual(Object.keys(printed.skills), ["a", "b", "c"]);
+    assert.deepEqual(
+      Object.values(printed.skills).map((entry) => entry.chapter),
+      [1, 2, 3],
+    );
+    for (const entry of Object.values(printed.skills)) {
+      assert.equal(entry.pdf, "book.pdf");
+      assert.equal(entry.pages[0] % 2, 1, "已印章节应从纸的正面开始");
+    }
+
+    // v1.4：b 原文改动，c 撤除，d 新增；a 只润色译文、换了固定提交，不应重印
+    await Promise.all([
+      writeFile(join(project, "b-en.md"), "# Skill b\n\nBody b, revised.\n"),
+      writeFile(join(project, "b-zh.md"), "# 技能 b\n\n正文 b，已修订。\n"),
+      writeFile(join(project, "a-zh.md"), "# 技能 a\n\n正文 a（润色）。\n"),
+    ]);
+    await writeBook("1.4.0", newCommit, ["a", "b", "d"]);
+
+    const planned = run("--check", "--update");
+    assert.equal(planned.status, 0, planned.stderr);
+    assert.match(planned.stdout, /update: updated chapter 02 b \(replaces book\.pdf p\.\d+-\d+\)/);
+    assert.match(planned.stdout, /update: new chapter 04 d/);
+    assert.match(planned.stdout, /update: withdrawn chapter 03 c \(remove book\.pdf p\.\d+-\d+\)/);
+    assert.doesNotMatch(planned.stdout, /chapter 01 a/);
+
+    const update = run("--update");
+    assert.equal(update.status, 0, update.stderr);
+    const pack = join(project, "book-update-1.4.0.pdf");
+    const pages = pdfText(pack).split("\f");
+    assert.match(pages[0], /UPDATE/);
+    assert.match(pages[0], /v1\.3\.0 → v1\.4\.0/);
+    assert.match(pages[0], /Withdrawn/);
+    assert.match(pdfText(pack), /CHAPTER 02 · SKILL/);
+    assert.match(pdfText(pack), /CHAPTER 04 · SKILL/);
+    assert.doesNotMatch(pdfText(pack), /CHAPTER 01|CHAPTER 03/);
+    assertChaptersOnFronts(pack, 2);
+
+    const merged = await ledger();
+    assert.deepEqual(Object.keys(merged.skills).sort(), ["a", "b", "d"]);
+    assert.equal(merged.skills.a.pdf, "book.pdf");
+    assert.equal(merged.skills.a.version, "1.3.0");
+    assert.equal(merged.skills.b.pdf, "book-update-1.4.0.pdf");
+    assert.equal(merged.skills.b.version, "1.4.0");
+    assert.equal(merged.skills.d.chapter, 4);
+    assert.deepEqual(
+      merged.editions.map((edition) => edition.kind),
+      ["full", "update"],
+    );
+
+    // 再次运行时已无变化：不生成 PDF，账本不变
+    await rm(pack);
+    const again = run("--update");
+    assert.equal(again.status, 0, again.stderr);
+    assert.match(again.stdout, /nothing to print/);
+    await assert.rejects(readFile(pack));
+    assert.deepEqual(await ledger(), merged);
+  } finally {
+    await rm(project, { recursive: true, force: true });
+  }
 });

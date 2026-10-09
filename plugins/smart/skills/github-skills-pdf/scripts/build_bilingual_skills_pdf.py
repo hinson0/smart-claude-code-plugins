@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import re
@@ -49,8 +50,8 @@ CODE_BG = colors.HexColor("#F1F3F4")
 WHITE = colors.white
 PAGE_WIDTH, PAGE_HEIGHT = A4
 CONTENT_WIDTH = 169 * mm
-# Blank pages per chapter with --is-note: one duplex sheet.
-NOTE_SHEET_PAGES = 2
+# Records which chapter versions are on paper, so updates print only changes.
+LEDGER_FILE = "print-ledger.json"
 
 
 @dataclass(frozen=True)
@@ -1005,12 +1006,11 @@ def pair_flowables(
 
 
 class SheetParityBreak(PageBreak):
-    """Finish the current duplex sheet before starting note sheets.
+    """Finish the current duplex sheet.
 
-    Odd pages are sheet fronts. When a chapter ends on a front, append one
-    blank back so requested note pages form complete sheets and the next
-    chapter starts on a front. The inserted back uses the headerless Notes
-    template.
+    Odd pages are sheet fronts. When a section ends on a front, append one
+    blank back so the next chapter starts on a front. The inserted back uses
+    the headerless Notes template.
     """
 
 
@@ -1028,11 +1028,13 @@ class BookDocTemplate(BaseDocTemplate):
         self.logo_path = logo_path
         self.current_chapter = "Reading Guide 阅读导引"
         self._bookmark_counter = 0
+        self.section_starts: dict[str, int] = {}
 
     def beforeDocument(self) -> None:
         super().beforeDocument()
         self.current_chapter = "Reading Guide 阅读导引"
         self._bookmark_counter = 0
+        self.section_starts = {}
 
     def handle_flowable(self, flowables: list[Flowable]) -> None:
         # During layout, self.page is the page currently being filled, so it is
@@ -1048,6 +1050,9 @@ class BookDocTemplate(BaseDocTemplate):
         chapter = getattr(flowable, "_chapter_title", None)
         if chapter:
             self.current_chapter = chapter
+        section = getattr(flowable, "_section_key", None)
+        if section:
+            self.section_starts.setdefault(section, self.page)
         level = getattr(flowable, "_toc_level", None)
         if level is None:
             return
@@ -1139,6 +1144,7 @@ def chapter_opener(
     source_url: str | None = None,
     version: str = "",
     commit: str = "",
+    section_key: str = "",
 ) -> list[Flowable]:
     # A monolingual chapter has no second-language title or reserved blank line.
     title_text = inline_markup(english_title)
@@ -1150,6 +1156,7 @@ def chapter_opener(
     title._toc_level = 0
     title._toc_text = toc_text
     title._chapter_title = toc_text.replace("  ", " ")
+    title._section_key = section_key
     flowables: list[Flowable] = [
         Paragraph(kicker, styles["chapter-kicker"]),
         title,
@@ -1431,18 +1438,11 @@ def validate_inputs(project_dir: Path, config: dict) -> list[str]:
     return results
 
 
-def build(project_dir: Path, output: Path, config: dict, notes_pages: int) -> None:
-    register_fonts()
-    styles = build_styles()
-    validate_inputs(project_dir, config)
-    output.parent.mkdir(parents=True, exist_ok=True)
-
+def make_doc(
+    project_dir: Path, output: Path, config: dict, subject: str, with_cover: bool
+) -> BookDocTemplate:
     monolingual = bool(config.get("monolingual"))
     title_en = config["title_en"]
-    title_zh = config["title_zh"]
-    version = str(config["version"])
-    commit = str(config["commit"])
-    build_date = str(config["build_date"])
     original_author = config.get("original_author", "Original authors")
     translator = str(config.get("translator", "")).strip()
     if translator:
@@ -1467,12 +1467,9 @@ def build(project_dir: Path, output: Path, config: dict, notes_pages: int) -> No
         rightMargin=20 * mm,
         topMargin=21 * mm,
         bottomMargin=20 * mm,
-        title=f"{title_en} {title_zh}".strip(),
+        title=f"{title_en} {config['title_zh']}".strip(),
         author=author,
-        subject=(
-            f"{title_en} {version} 的 {len(config['skills'])} 个正式技能"
-            + ("学习版" if monolingual else "英中逐块对照学习版")
-        ),
+        subject=subject,
         creator="smart:github-skills-pdf",
     )
 
@@ -1498,16 +1495,337 @@ def build(project_dir: Path, output: Path, config: dict, notes_pages: int) -> No
         bottomPadding=0,
         id="content-frame",
     )
-    doc.addPageTemplates(
+    # The first template lays out page one: the cover for a full edition, a
+    # content page for an update pack.
+    templates = [
+        PageTemplate(
+            id="Content",
+            frames=[content_frame],
+            onPageEnd=content_header_footer,
+        ),
+        PageTemplate(id="Notes", frames=[content_frame]),
+    ]
+    if with_cover:
+        templates.insert(
+            0, PageTemplate(id="Cover", frames=[cover_frame], onPage=cover_background)
+        )
+    doc.addPageTemplates(templates)
+    return doc
+
+
+def skill_chapter(
+    project_dir: Path,
+    config: dict,
+    skill: dict,
+    chapter_number: int,
+    styles: dict[str, ParagraphStyle],
+) -> list[Flowable]:
+    """Lay out one skill chapter and its references."""
+    monolingual = bool(config.get("monolingual"))
+    version = str(config["version"])
+    commit = str(config["commit"])
+    english_title = skill["title_en"]
+    set_link_base_url(skill["source_url"])
+    translation_path = (
+        None if monolingual else project_path(project_dir, skill["translation"])
+    )
+    source_meta, translation_meta, source_blocks, translation_blocks = load_pair(
+        content_path(project_dir, skill), translation_path
+    )
+    source_blocks, translation_blocks = strip_leading_h1(
+        source_blocks, translation_blocks
+    )
+    chinese_title = (
+        "" if monolingual else translation_meta.get("zh_title", english_title)
+    )
+    story = chapter_opener(
+        english_title,
+        chinese_title,
+        f"CHAPTER {chapter_number:02d} · SKILL",
+        source_meta.get("description", ""),
+        translation_meta.get("description", ""),
+        styles,
+        skill["source_url"],
+        version,
+        commit,
+        skill["name"],
+    )
+    story.extend(pair_flowables(source_blocks, translation_blocks, styles))
+    for reference in reference_entries(skill):
+        set_link_base_url(reference["source_url"])
+        (
+            reference_title_en,
+            reference_title_zh,
+            reference_en,
+            reference_zh,
+        ) = load_reference(project_dir, skill, reference, commit, monolingual)
+        story.append(CondPageBreak(70 * mm))
+        story.extend(
+            reference_opener(
+                project_path(project_dir, reference["source"]).name,
+                reference_title_en,
+                reference_title_zh,
+                reference["source_url"],
+                styles,
+            )
+        )
+        story.extend(pair_flowables(reference_en, reference_zh, styles))
+    return story
+
+
+def skill_fingerprint(project_dir: Path, skill: dict) -> str:
+    """Hash the upstream text one chapter renders.
+
+    Only pinned source content and the English title count. Commit-bearing
+    source links and translations stay out, so moving to a new commit or
+    retranslating an unchanged skill never forces a reprint.
+    """
+    source_dir = project_path(project_dir, skill["source"]).parent
+    parts = [skill["title_en"]]
+    for entry in [skill, *reference_entries(skill)]:
+        source = project_path(project_dir, entry["source"])
+        try:
+            name = str(source.relative_to(source_dir))
+        except ValueError:
+            name = source.name
+        text = content_path(project_dir, entry).read_text(encoding="utf-8")
+        parts.extend([name, text.replace("\r\n", "\n")])
+    payload = json.dumps(parts, ensure_ascii=False).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def section_ranges(starts: dict[str, int], last_page: int) -> dict[str, list[int]]:
+    """Turn section start pages into inclusive page ranges.
+
+    A section runs until the next one starts, so a blank back belongs to the
+    chapter it follows.
+    """
+    ordered = sorted(starts.items(), key=lambda item: item[1])
+    ranges: dict[str, list[int]] = {}
+    for index, (key, start) in enumerate(ordered):
+        end = ordered[index + 1][1] - 1 if index + 1 < len(ordered) else last_page
+        ranges[key] = [start, end]
+    return ranges
+
+
+def edition_record(kind: str, output: Path, config: dict) -> dict:
+    return {
+        "kind": kind,
+        "pdf": output.name,
+        "version": str(config["version"]),
+        "commit": str(config["commit"]),
+        "build_date": str(config["build_date"]),
+    }
+
+
+def printed_record(
+    config: dict,
+    skill: dict,
+    chapter: int,
+    fingerprint: str,
+    output: Path,
+    pages: list[int],
+) -> dict:
+    return {
+        "chapter": chapter,
+        "title": skill["title_en"],
+        "fingerprint": fingerprint,
+        "version": str(config["version"]),
+        "commit": str(config["commit"]),
+        "pdf": output.name,
+        "pages": pages,
+    }
+
+
+def read_ledger(project_dir: Path) -> dict:
+    path = project_dir / LEDGER_FILE
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Missing {LEDGER_FILE}: no printed edition is recorded. Build the "
+            "full edition first; for an edition printed before ledgers existed, "
+            "rebuild it once at its printed commit to record it."
+        )
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_ledger(project_dir: Path, ledger: dict) -> None:
+    path = project_dir / LEDGER_FILE
+    path.write_text(
+        json.dumps(ledger, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    print(f"Recorded print ledger: {path}")
+
+
+def plan_update(
+    project_dir: Path, config: dict, ledger: dict
+) -> tuple[list[tuple[str, dict, int, str]], list[str]]:
+    """Compare the project with the printed edition.
+
+    Returns changed chapters as (kind, skill, chapter, fingerprint) in book
+    order and withdrawn skill names in chapter order. Printed chapters keep
+    their numbers; new skills continue after the highest printed chapter.
+    """
+    printed = ledger.get("skills", {})
+    next_chapter = max((entry["chapter"] for entry in printed.values()), default=0) + 1
+    changes: list[tuple[str, dict, int, str]] = []
+    for skill in config["skills"]:
+        fingerprint = skill_fingerprint(project_dir, skill)
+        previous = printed.get(skill["name"])
+        if previous is None:
+            changes.append(("new", skill, next_chapter, fingerprint))
+            next_chapter += 1
+        elif previous["fingerprint"] != fingerprint:
+            changes.append(("updated", skill, previous["chapter"], fingerprint))
+    current = {skill["name"] for skill in config["skills"]}
+    withdrawn = sorted(
+        (name for name in printed if name not in current),
+        key=lambda name: printed[name]["chapter"],
+    )
+    return changes, withdrawn
+
+
+def printed_pages(entry: dict) -> str:
+    first, last = entry["pages"]
+    return f"{entry['pdf']} p.{first}-{last}"
+
+
+def describe_plan(
+    changes: list[tuple[str, dict, int, str]], withdrawn: list[str], ledger: dict
+) -> list[str]:
+    printed = ledger.get("skills", {})
+    lines = []
+    for kind, skill, chapter, _ in changes:
+        line = f"update: {kind} chapter {chapter:02d} {skill['name']}"
+        if kind == "updated":
+            line += f" (replaces {printed_pages(printed[skill['name']])})"
+        lines.append(line)
+    for name in withdrawn:
+        entry = printed[name]
+        lines.append(
+            f"update: withdrawn chapter {entry['chapter']:02d} {name} "
+            f"(remove {printed_pages(entry)})"
+        )
+    if not lines:
+        lines.append(
+            "update: no chapter changes since the printed edition; nothing to print"
+        )
+    return lines
+
+
+def update_sheet(
+    config: dict,
+    ledger: dict,
+    changes: list[tuple[str, dict, int, str]],
+    withdrawn: list[str],
+    styles: dict[str, ParagraphStyle],
+) -> list[Flowable]:
+    """Lay out the first page of an update pack: what to replace and where."""
+    previous = ledger["editions"][-1]
+    printed = ledger.get("skills", {})
+    version = str(config["version"])
+    title = Paragraph(
+        f"{inline_markup(config['title_en'])} "
+        f"v{inline_markup(previous['version'])} → v{inline_markup(version)}",
+        styles["chapter-title"],
+    )
+    title._toc_level = 0
+    title._toc_text = "Update 更新说明"
+    title._chapter_title = "Update 更新说明"
+    title._section_key = "__update__"
+    actions = {
+        "updated": "Updated 更新 · replace",
+        "new": "New 新增 · insert",
+    }
+    rows = [("Chapter 章节", "Skill 技能", "Change 变更", "Printed 原页码")]
+    for kind, skill, chapter, _ in changes:
+        entry = printed.get(skill["name"])
+        rows.append(
+            (
+                f"{chapter:02d}",
+                skill["title_en"],
+                actions[kind],
+                printed_pages(entry) if entry else "-",
+            )
+        )
+    for name in withdrawn:
+        entry = printed[name]
+        rows.append(
+            (
+                f"{entry['chapter']:02d}",
+                entry.get("title", name),
+                "Withdrawn 撤除 · remove",
+                printed_pages(entry),
+            )
+        )
+    story: list[Flowable] = [
+        Paragraph("UPDATE · 更新说明", styles["chapter-kicker"]),
+        title,
+        Paragraph(
+            f"Printed edition v{inline_markup(previous['version'])} · "
+            f"{previous['commit'][:8]} → this pack v{inline_markup(version)} · "
+            f"{config['commit'][:8]}. Only changed and new chapters follow, each "
+            "starting on a new sheet; unchanged chapters, the reading guide, the "
+            "contents, and the appendix stay as printed.",
+            styles["chapter-en"],
+        ),
+    ]
+    if not config.get("monolingual"):
+        story.append(
+            Paragraph(
+                "更新说明：仅收录有变化和新增的章节，每章从新纸开始；"
+                "未变章节、阅读导引、目录与附录沿用已印版本。",
+                styles["chapter-zh"],
+            )
+        )
+    story.extend(
         [
-            PageTemplate(id="Cover", frames=[cover_frame], onPage=cover_background),
-            PageTemplate(
-                id="Content",
-                frames=[content_frame],
-                onPageEnd=content_header_footer,
+            HRFlowable(
+                width="100%",
+                thickness=0.7,
+                color=BLACK,
+                spaceBefore=1 * mm,
+                spaceAfter=7 * mm,
             ),
-            PageTemplate(id="Notes", frames=[content_frame]),
+            table_flowable(tuple(rows), styles),
         ]
+    )
+    return story
+
+
+def next_sheet_front() -> list[Flowable]:
+    """Start the next section on a sheet front; a blank back fills the gap."""
+    return [
+        NextPageTemplate("Notes"),
+        SheetParityBreak(),
+        NextPageTemplate("Content"),
+        PageBreak(),
+    ]
+
+
+def build(project_dir: Path, output: Path, config: dict) -> None:
+    register_fonts()
+    styles = build_styles()
+    validate_inputs(project_dir, config)
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    monolingual = bool(config.get("monolingual"))
+    title_en = config["title_en"]
+    title_zh = config["title_zh"]
+    version = str(config["version"])
+    commit = str(config["commit"])
+    build_date = str(config["build_date"])
+    fingerprints = {
+        skill["name"]: skill_fingerprint(project_dir, skill)
+        for skill in config["skills"]
+    }
+
+    doc = make_doc(
+        project_dir,
+        output,
+        config,
+        f"{title_en} {version} 的 {len(config['skills'])} 个正式技能"
+        + ("学习版" if monolingual else "英中逐块对照学习版"),
+        with_cover=True,
     )
 
     story: list[Flowable] = [
@@ -1562,63 +1880,13 @@ def build(project_dir: Path, output: Path, config: dict, notes_pages: int) -> No
         )
     )
     story.extend(pair_flowables(front_en, front_zh, styles))
-    story.append(PageBreak())
 
+    # Every chapter and the appendix start on a sheet front, so an update pack
+    # can replace a chapter's sheets without touching its neighbours.
     for chapter_number, skill in enumerate(config["skills"], start=1):
-        english_title = skill["title_en"]
-        set_link_base_url(skill["source_url"])
-        translation_path = (
-            None if monolingual else project_path(project_dir, skill["translation"])
-        )
-        source_meta, translation_meta, source_blocks, translation_blocks = load_pair(
-            content_path(project_dir, skill), translation_path
-        )
-        source_blocks, translation_blocks = strip_leading_h1(
-            source_blocks, translation_blocks
-        )
-        chinese_title = (
-            "" if monolingual else translation_meta.get("zh_title", english_title)
-        )
-        story.extend(
-            chapter_opener(
-                english_title,
-                chinese_title,
-                f"CHAPTER {chapter_number:02d} · SKILL",
-                source_meta.get("description", ""),
-                translation_meta.get("description", ""),
-                styles,
-                skill["source_url"],
-                version,
-                commit,
-            )
-        )
-        story.extend(pair_flowables(source_blocks, translation_blocks, styles))
-        for reference in reference_entries(skill):
-            set_link_base_url(reference["source_url"])
-            (
-                reference_title_en,
-                reference_title_zh,
-                reference_en,
-                reference_zh,
-            ) = load_reference(project_dir, skill, reference, commit, monolingual)
-            story.append(CondPageBreak(70 * mm))
-            story.extend(
-                reference_opener(
-                    project_path(project_dir, reference["source"]).name,
-                    reference_title_en,
-                    reference_title_zh,
-                    reference["source_url"],
-                    styles,
-                )
-            )
-            story.extend(pair_flowables(reference_en, reference_zh, styles))
-        if notes_pages:
-            story.append(NextPageTemplate("Notes"))
-            # Finish the current duplex sheet before adding headerless notes.
-            story.append(SheetParityBreak())
-            story.extend(PageBreak() for _ in range(notes_pages))
-            story.append(NextPageTemplate("Content"))
-        story.append(PageBreak())
+        story.extend(next_sheet_front())
+        story.extend(skill_chapter(project_dir, config, skill, chapter_number, styles))
+    story.extend(next_sheet_front())
 
     back = config["back"]
     set_link_base_url(config.get("repo_url", ""))
@@ -1637,12 +1905,73 @@ def build(project_dir: Path, output: Path, config: dict, notes_pages: int) -> No
             back.get("description_en", ""),
             back.get("description_zh", ""),
             styles,
+            section_key="__back__",
         )
     )
     story.extend(pair_flowables(back_en, back_zh, styles))
 
     doc.multiBuild(story)
     print(output)
+
+    ranges = section_ranges(doc.section_starts, doc.page)
+    write_ledger(
+        project_dir,
+        {
+            "title": title_en,
+            "editions": [edition_record("full", output, config)],
+            "skills": {
+                skill["name"]: printed_record(
+                    config,
+                    skill,
+                    chapter_number,
+                    fingerprints[skill["name"]],
+                    output,
+                    ranges[skill["name"]],
+                )
+                for chapter_number, skill in enumerate(config["skills"], start=1)
+            },
+        },
+    )
+
+
+def build_update(project_dir: Path, output: Path, config: dict) -> None:
+    """Print only chapters that differ from the printed edition."""
+    ledger = read_ledger(project_dir)
+    register_fonts()
+    styles = build_styles()
+    validate_inputs(project_dir, config)
+    changes, withdrawn = plan_update(project_dir, config, ledger)
+    for line in describe_plan(changes, withdrawn, ledger):
+        print(line)
+    if not changes and not withdrawn:
+        return
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    previous = ledger["editions"][-1]
+    doc = make_doc(
+        project_dir,
+        output,
+        config,
+        f"{config['title_en']} v{previous['version']} → v{config['version']} 更新",
+        with_cover=False,
+    )
+    story = update_sheet(config, ledger, changes, withdrawn, styles)
+    for kind, skill, chapter, _ in changes:
+        story.extend(next_sheet_front())
+        story.extend(skill_chapter(project_dir, config, skill, chapter, styles))
+
+    doc.multiBuild(story)
+    print(output)
+
+    ranges = section_ranges(doc.section_starts, doc.page)
+    for kind, skill, chapter, fingerprint in changes:
+        ledger["skills"][skill["name"]] = printed_record(
+            config, skill, chapter, fingerprint, output, ranges[skill["name"]]
+        )
+    for name in withdrawn:
+        del ledger["skills"][name]
+    ledger["editions"].append(edition_record("update", output, config))
+    write_ledger(project_dir, ledger)
 
 
 def main() -> None:
@@ -1660,10 +1989,10 @@ def main() -> None:
         help="validate source/translation block pairing without generating a PDF",
     )
     parser.add_argument(
-        "--is-note",
+        "--update",
         action="store_true",
-        help="add one duplex sheet of blank note pages after every skill "
-        "chapter; omit for none",
+        help=f"print only chapters changed since the edition in {LEDGER_FILE}; "
+        "with --check, list the planned changes",
     )
     args = parser.parse_args()
     try:
@@ -1678,11 +2007,24 @@ def main() -> None:
                     "output", f"{config['title_en']}-bilingual-study-handbook.pdf"
                 ),
             )
+            if args.update:
+                output = output.with_name(
+                    f"{output.stem}-update-{config['version']}{output.suffix}"
+                )
         if args.check:
+            if args.update:
+                # Plan from sources first: it names the skills to translate.
+                ledger = read_ledger(project_dir)
+                changes, withdrawn = plan_update(project_dir, config, ledger)
+                for line in describe_plan(changes, withdrawn, ledger):
+                    print(line)
             for result in validate_inputs(project_dir, config):
                 print(result)
             return
-        build(project_dir, output, config, NOTE_SHEET_PAGES if args.is_note else 0)
+        if args.update:
+            build_update(project_dir, output, config)
+        else:
+            build(project_dir, output, config)
     except Exception as error:
         print(f"Error: {error}", file=sys.stderr)
         raise SystemExit(1) from None

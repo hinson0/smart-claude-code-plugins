@@ -7,6 +7,7 @@ The calling workflow creates the project directory. Recommended layout:
 ```text
 book/
 ├── book.json
+├── print-ledger.json   # written by the builder
 ├── FRONT_EN.md
 ├── FRONT_ZH.md
 ├── BACK_EN.md
@@ -94,7 +95,7 @@ author.
 When the source repository already uses one language, there is no source/
 translation pair to align. Set `"monolingual": true` at the root. The body uses
 one stream while the contents, bookmarks, headers, page numbers, fixed source
-links, references, and `--is-note` sheets remain unchanged.
+links, and references remain unchanged.
 
 Monolingual projects use neutral field names instead of `_en` and `_zh`:
 
@@ -167,17 +168,42 @@ Use `skip_references` for files that genuinely are not part of the body:
 
 Every skip is printed by `--check`; it is never silent.
 
-## Note sheets
+## Sheet fronts
 
-By default the builder inserts no note pages. Pass `--is-note` to reserve one
-duplex sheet of blank note pages after each skill chapter. Blank pages omit
-headers, page numbers, and borders. Front and back matter receive no note
-sheets.
+Odd pages are duplex sheet fronts. Every skill chapter and the appendix start
+on a front: when the previous section ends on a front, the builder adds one
+blank back without header, page number, or border. A chapter therefore
+occupies whole sheets that an update pack can replace.
 
-Notes count physical sheets rather than pages. If a chapter ends on the front
-of a duplex sheet, the builder adds a blank back before the note sheet. A note
-run is therefore two or three blank pages, always occupies complete sheets, and
-the next chapter starts on a front.
+## Print ledger and update packs
+
+Every full build writes `print-ledger.json` to the project directory. Per
+skill it records the chapter number, a fingerprint of the rendered source, the
+version and commit, and the PDF and pages it was printed on. The fingerprint
+covers the English title, source, references, and overrides, never source links
+or translations, so moving to a new commit or retouching a translation reprints
+nothing.
+
+To follow a new upstream commit, update `book.json` (version, commit,
+`source_url` values, skill list) in the same project, then:
+
+1. Run `--check --update`. Before validating, it prints one line per updated,
+   new, or withdrawn chapter; translate only the updated and new ones.
+2. Run `--update`. The pack
+   opens with an update sheet listing each chapter's action (replace, insert,
+   remove) and printed pages, followed by the updated and new chapters, each on
+   whole sheets. Printed chapters keep their numbers; new skills continue after
+   the highest printed chapter.
+3. The builder merges the pack into the ledger, so the next update compares
+   against everything on paper. With no changes it prints "nothing to print"
+   and writes no PDF.
+
+The default output name is `<output stem>-update-<version>.pdf`. Update packs
+omit the reading guide, contents, and appendix. A full build starts a fresh
+ledger.
+
+For an edition printed before ledgers existed, rebuild it once at its printed
+commit to record its ledger.
 
 ## Malformed source fences
 
