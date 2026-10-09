@@ -5,21 +5,8 @@ argument-hint: No arguments needed. Group changes by type and independent purpos
 model: haiku
 ---
 
-## Host routing
-
-- **Claude Code:** the frontmatter pins this turn to `haiku`. Execute the Commit Workflow below directly.
-- **Codex commit worker:** if the dispatch prompt explicitly identifies you as the commit worker, skip the rest of this section and execute the Commit Workflow directly. Never delegate again.
-- **Codex primary agent:** delegate all workflow steps to exactly one subagent with the complete current context. Identify it as the commit worker and instruct it to read this skill and complete the workflow without delegation. Request model `gpt-5.6-luna` with reasoning effort `low`, then wait and relay its result without redoing its analysis.
-- If the Luna spawn fails because that model is unavailable, retry exactly once with the same worker instruction and no model override so the user's configured default subagent model applies. If that retry fails, report the failure and stop; the primary agent must not execute the workflow itself.
-
-## Commit Workflow
-
-1. Read repository instructions, `git status --short`, staged and unstaged diffs, untracked file contents, and recent commit messages. Stop if there are no changes.
-2. Split changes by type, then independent purpose. Different types stay separate; shared directories or scopes never justify combining unrelated changes. Split hunks when one file contains multiple purposes.
-3. Briefly list each group's commit message and files before committing.
-4. Commit groups sequentially. Stage only the current group's explicit paths or hunks; never use bulk staging. Before each commit, verify the staged diff contains only that group, excluding any previously staged changes belonging to other groups. Stop on failure.
-5. Report commit hashes, messages, and remaining changes.
-
-Follow project message format and language rules (`AGENTS.md`, `CLAUDE.md`, `CLAUDE.local.md`), then recent history. Otherwise use English Conventional Commits: `<type>(<scope>): <description>`, optional scope, at most 72 characters.
-
-Only group and commit. Do not edit files, run checks, bump versions, push, create PRs, change Git config, or use `--amend`, `--force`, or `--no-verify`.
+1. **Model:** Claude Code runs here on `haiku`. A Codex primary agent spawns one low-reasoning worker on the latest Luna model to run steps 2–5 without delegating, then relays its result.
+2. **Read** repository instructions, `git status --short`, staged and unstaged diffs, untracked file contents, and recent commit messages; with no changes, stop.
+3. **Group** by type (hard boundary), then independent purpose (soft boundary), splitting hunks when one file mixes purposes. Write each message per `AGENTS.md`, `CLAUDE.md`, `CLAUDE.local.md`, then recent history, else English `<type>(<scope>): <description>` within 72 characters. List each group's message and files.
+4. **Commit** groups one at a time: stage only that group's explicit paths or hunks, confirm the staged diff holds exactly that group, commit, and stop on the first failure. Report hashes, messages, and remaining changes.
+5. **Boundary:** only group and commit. Files, checks, versions, remotes, PRs, and Git config stay untouched; every commit is new (no `--amend`, `--force`, or `--no-verify`).
