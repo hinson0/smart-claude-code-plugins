@@ -79,7 +79,7 @@ invocation name without the leading slash or a separate title.
 
 **Smart Commit**
 
-- **Low-Cost Execution** — Runs directly in the current turn with no subagents; Claude Code uses Haiku, Codex uses the session model.
+- **Low-Cost Execution** — Claude Code uses Haiku; Codex delegates the commit workflow to one low-reasoning GPT-5.6 Luna worker.
 - **Semantic Grouping** — Type is a hard boundary and purpose is a soft boundary, so independent changes become independent commits.
 - **Repository-Aware Messages** — Respects project rules, recent Git history, then Conventional Commits.
 - **Commit Only** — No CI checks, version changes, push, or pull request creation.
@@ -135,7 +135,7 @@ invocation name without the leading slash or a separate title.
 
 `/smart:commit` reads status, staged and unstaged diffs, untracked file contents, and recent history; splits by type and independent purpose, including hunks within a file; and lists each group’s message and files before committing.
 
-The workflow runs directly in the current turn without subagents. Claude Code runs the turn on `haiku`; Codex uses the session model.
+Claude Code runs the turn on `haiku`. Codex delegates the workflow to one low-reasoning `gpt-5.6-luna` worker and relays its result; the worker never delegates again.
 
 Every group stages only explicit paths or hunks and verifies its staged diff before committing; bulk staging is prohibited. The skill reports commit hashes, messages, and remaining changes. It never runs checks, changes versions, pushes, or creates pull requests.
 
