@@ -118,7 +118,7 @@ invocation name without the leading slash or a separate title.
 | `/smart:clean-branches [branch]` | Delete local and remote branches fully merged into the target; omitted target requires confirmation of `main`; protected and checked-out branches are kept |
 | `/smart:code-simplifier [paths-or-diff]` | Use one fresh-context worker to simplify recent code while preserving observable behavior |
 | `/smart:generate-wiki` | Distill source material into a guarded GitLab, GitHub, or local Wiki |
-| `/smart:github-skills-pdf [--notes 2\|4]` | Build a verified English-Chinese A4 handbook from a GitHub skills repository |
+| `/smart:github-skills-pdf <repo> [is_note=true]` | Build a verified English-Chinese A4 handbook from a GitHub skills repository; `is_note=true` adds a blank duplex note sheet after each chapter |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | Install statusline (`1`/`normal`=minimal, `2`/`all`=full) or restore backup (`0`/`reset`), user scope |
 | `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
 | `/smart:learning [0\|1]` | Persistent learning mode: `1` enables, `0` disables, empty shows status; the user writes and the agent reviews one step at a time |
