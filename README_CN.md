@@ -96,7 +96,7 @@ Codex 界面统一显示 `smart:<name>`，保留 Claude Code 原调用名但省�
 - **单 Cycle TDD** — `/smart:one-by-one` 验证一个最小 Red，再指导用户完成对应 Green。
 - **结对手写** — `/smart:pair-write` 为一个用户手写步骤同轮提供注释骨架和直接展开的完整参考实现，默认只检查书写是否正确以及落盘内容是否与指导一致。
 - **Wiki 生成** — `/smart:generate-wiki` 把资料整理为 GitLab、GitHub 或本地 Markdown Wiki，并安全发布。
-- **双语 Skills PDF** — `/smart:github-skills-pdf` 固定 GitHub skills 仓库版本并生成经验证的英中 A4 手册。
+- **双语 Skills PDF** — `/smart:github-skills-pdf` 固定 GitHub skills 仓库版本并生成经验证的英中 A4 手册；上游更新后只把有变化的章节打成更新包。
 - **个人周报** — `/smart:my-weekly` 按自然周汇总当前用户的 Git 提交。
 - **内置编码规则** — 预置规则文件（如 Pydantic V2 标准）存于 `rules/` 目录，按需软链到项目的 `.claude/rules/` 即可激活。
 - **学习模式** — `/smart:learning 1` 开启持久化的“用户写、AI 审”流程；`0` 关闭，无参数查看状态。只修改 `.claude/CLAUDE.local.md` 中的受管区块。
@@ -117,7 +117,7 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 | `/smart:clean-branches [分支]` | 清理完整合并到目标的本地和远端分支；无参数须确认默认 `main`；保留保护分支和 worktree 占用分支 |
 | `/smart:code-simplifier [路径或diff]` | 使用一个全新上下文 worker 简化近期代码，同时保持可观察行为不变 |
 | `/smart:generate-wiki` | 把资料整理为受保护的 GitLab、GitHub 或本地 Wiki |
-| `/smart:github-skills-pdf <仓库> [is_note=true]` | 从 GitHub skills 仓库生成经验证的英中 A4 手册；`is_note=true` 时每章后加一张双面空白笔记纸 |
+| `/smart:github-skills-pdf <仓库> [full=true]` | 从 GitHub skills 仓库生成经验证的英中 A4 手册；打印过之后只打印有变化的章节，除非 `full=true` |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安装状态栏（`1`/`normal`=简化版，`2`/`all`=完整版）或恢复备份（`0`/`reset`），user 作用域 |
 | `/smart:help [skill\|hook\|agent]` | 显示所有插件组件概览（或按类别筛选） |
 | `/smart:learning [0\|1]` | 持久化学习模式：`1` 开启、`0` 关闭、无参数查看状态；用户写代码，AI 逐步审阅 |

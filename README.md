@@ -97,7 +97,7 @@ invocation name without the leading slash or a separate title.
 - **One-Cycle TDD** — `/smart:one-by-one` validates one minimal Red test, then guides the user through the matching Green implementation.
 - **Pair Writing** — `/smart:pair-write` gives one user-written coding step a comment skeleton and directly expanded reference, then checks only transcription and agreement with that guidance by default.
 - **Wiki Generation** — `/smart:generate-wiki` turns source material into a GitLab, GitHub, or local Markdown Wiki with guarded publishing.
-- **Bilingual Skills PDF** — `/smart:github-skills-pdf` pins a GitHub skills repository and builds a verified English-Chinese A4 handbook.
+- **Bilingual Skills PDF** — `/smart:github-skills-pdf` pins a GitHub skills repository and builds a verified English-Chinese A4 handbook; after upstream updates it prints only the changed chapters as an update pack.
 - **Personal Weekly Report** — `/smart:my-weekly` summarizes the current user's commits for a selected natural week.
 - **Bundled Coding Rules** — Pre-written rule files (e.g. Pydantic V2 standards) in `rules/`. Symlink any file to your project's `.claude/rules/` to activate it.
 - **Learning Mode** — `/smart:learning 1` enables a persistent user-writes, agent-reviews loop; `0` disables it and no argument shows status. Only the managed block in `.claude/CLAUDE.local.md` is changed.
@@ -118,7 +118,7 @@ invocation name without the leading slash or a separate title.
 | `/smart:clean-branches [branch]` | Delete local and remote branches fully merged into the target; omitted target requires confirmation of `main`; protected and checked-out branches are kept |
 | `/smart:code-simplifier [paths-or-diff]` | Use one fresh-context worker to simplify recent code while preserving observable behavior |
 | `/smart:generate-wiki` | Distill source material into a guarded GitLab, GitHub, or local Wiki |
-| `/smart:github-skills-pdf <repo> [is_note=true]` | Build a verified English-Chinese A4 handbook from a GitHub skills repository; `is_note=true` adds a blank duplex note sheet after each chapter |
+| `/smart:github-skills-pdf <repo> [full=true]` | Build a verified English-Chinese A4 handbook from a GitHub skills repository; once printed, later runs print only changed chapters unless `full=true` |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | Install statusline (`1`/`normal`=minimal, `2`/`all`=full) or restore backup (`0`/`reset`), user scope |
 | `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
 | `/smart:learning [0\|1]` | Persistent learning mode: `1` enables, `0` disables, empty shows status; the user writes and the agent reviews one step at a time |
