@@ -78,7 +78,7 @@ Codex 界面统一显示 `smart:<name>`，保留 Claude Code 原调用名但省�
 
 **Smart Commit**
 
-- **低成本执行** — Claude Code 使用 Haiku；Codex 把完整提交工作流交给一个低 reasoning 的 GPT-5.6 Luna worker，并允许一次默认子 agent 兜底。
+- **低成本执行** — 在当前 turn 直接执行，不派生子 agent；Claude Code 使用 Haiku，Codex 使用当前会话模型。
 - **语义分组** — type 是硬边界，purpose 是软边界，独立改动必须成为独立提交。
 - **仓库感知 message** — 依次遵循项目规则、近期 Git 历史和 Conventional Commits。
 - **仅提交** — 不执行 CI 检查、版本修改、push 或创建 PR。
@@ -134,7 +134,7 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 
 `/smart:commit` 读取状态、已暂存和未暂存 diff、未追踪文件内容及近期历史；先按 type、再按独立目的分组，同一文件可按改动块拆分；提交前简要列出各组的提交信息和文件。
 
-Claude Code 使用 `haiku` 执行整个 turn。Codex 把完整工作流交给一个低 reasoning 的 `gpt-5.6-luna` worker；Luna 不可用时，用用户配置的默认子 agent 重试一次。主 agent 不自行分组或提交。
+工作流在当前 turn 直接执行，不派生子 agent。Claude Code 使用 `haiku` 执行整个 turn；Codex 使用当前会话模型。
 
 每组只暂存明确路径或改动块，提交前核对暂存差异，禁止全量暂存。技能输出提交哈希、提交信息和剩余改动，不运行检查、不改版本、不 push，也不创建 PR。
 
