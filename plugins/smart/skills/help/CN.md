@@ -1,18 +1,23 @@
 ---
 name: help
-description: 展示 Smart 的 skills、hooks 或 agents，可按组件类型筛选。
+description: 列出 Smart 的每个 skill，简要说明其能力和用途。
 disable-model-invocation: true
-argument-hint: "[skill|hook|agent]（空=显示全部）"
 ---
 
-读取已安装插件的实际组件，不维护静态目录。
+显示已安装 Smart 的全部 skill 简表，包含 `help` 自身。
+始终显示完整简表；接受并忽略旧参数。
 
-参数接受 `skill`/`skills`、`hook`/`hooks`、`agent`/`agents`；留空显示全部。
-使用 `${CLAUDE_PLUGIN_ROOT}`，或从当前 skill 所在位置解析插件根目录。
+使用 `${CLAUDE_PLUGIN_ROOT}`，或从当前 skill 目录向上两级解析插件根目录。
+读取 `skills/*/SKILL.md` 和 `skills/*/*/SKILL.md` 的 frontmatter。
+以各 skill 的 `name` 和 `description` 为事实来源。
+不维护静态目录，不调用列出的 skill。
 
-- Skills：读取 `skills/*/SKILL.md` frontmatter，排除 `help`。显示命令、说明及可选的
-  `argument-hint`；Claude Code 使用 `/smart:<name>`，Codex 使用 `$smart:<name>`。
-- Hooks：读取 `hooks/hooks.json`，显示事件、脚本，以及脚本开头注释中的一行说明。
-- Agents：读取 `agents/*.md` frontmatter，显示名称（缺失则用文件名）、说明首行及模型。
+使用用户的语言输出一张表：分类 | 调用名 | 能力与用途。
+Claude Code 使用 `/smart:<name>`，Codex 使用 `$smart:<name>`。
+按 `git`、`coding`、`docs`、`utilities` 分组；根目录的 `help` 最后显示，归入“帮助”。
+组内按名称排序，分类名称翻译为用户语言。
+每个 skill 用一句短句说明做什么、用于什么。
+省略参数、实现细节、hooks 和 agents。
 
-只读取所需元数据，跳过无法读取或格式错误的条目；按对话语言为每个所选类别输出简洁表格。
+只读取所需元数据。遇到不可读或格式错误的条目时跳过。
+在表后用一条简短说明列出遗漏条目，不声称列表完整。

@@ -1,22 +1,23 @@
 ---
 name: help
-description: Show Smart skills, hooks, or agents, optionally filtered by component type.
+description: Show every Smart skill with a brief explanation of its capability and purpose.
 disable-model-invocation: true
-argument-hint: "[skill|hook|agent] (empty=show all)"
 ---
 
-Read the installed plugin's current components; do not maintain a static catalog.
+Show a concise guide to every installed Smart skill, including `help` itself.
+Always show the full guide; accept and ignore legacy arguments.
 
-Accept `skill`/`skills`, `hook`/`hooks`, or `agent`/`agents`; no argument shows all.
-Use `${CLAUDE_PLUGIN_ROOT}`, or resolve the plugin root from this skill's location.
+Use `${CLAUDE_PLUGIN_ROOT}`, or resolve the plugin root two directories above
+this skill's directory. Read frontmatter from `skills/*/SKILL.md` and
+`skills/*/*/SKILL.md`. Use each skill's `name` and `description` as the source
+of truth; do not maintain a static catalog or invoke the listed skills.
 
-- Skills: read `skills/*/SKILL.md` frontmatter, excluding `help`. Show command,
-  description, and optional `argument-hint`; use `/smart:<name>` in Claude Code
-  and `$smart:<name>` in Codex.
-- Hooks: read `hooks/hooks.json`. Show event, script, and a one-line description
-  from the script's leading comments.
-- Agents: read `agents/*.md` frontmatter. Show name (fallback: filename), first
-  description line, and model.
+Return one table in the user's language: Category | Command | Capability and purpose.
+Use `/smart:<name>` in Claude Code and `$smart:<name>` in Codex.
+Group by `git`, `coding`, `docs`, then `utilities`; place root-level `help` last
+under Help. Sort skills within each group by name. Translate category labels.
+Give each skill one short sentence describing what it does and what it is for.
+Omit arguments, implementation details, hooks, and agents.
 
-Read only the metadata needed, skip unreadable or malformed entries, and present
-one compact table per requested category in the conversation's language.
+Read only the metadata needed. If an entry is unreadable or malformed, skip it
+and add one brief note identifying the omitted entry; do not claim a complete list.
