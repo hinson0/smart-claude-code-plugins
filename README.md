@@ -66,6 +66,19 @@ codex plugin add smart@smart
 Smart includes thirteen skills: `clean-branches`, `code-simplifier`, `commit`,
 `generate-wiki`, `github-skills-pdf`, `help`, `hud`, `learning`, `local`,
 `my-weekly`, `one-by-one`, `pair-write`, `pr`.
+
+Version 7.5.0 groups skills by purpose. Invocation names stay unchanged:
+
+| Directory under `plugins/smart/skills/` | Skills |
+|---|---|
+| `git/` | `commit`, `pr`, `clean-branches` |
+| `coding/` | `code-simplifier`, `learning`, `one-by-one`, `pair-write` |
+| `docs/` | `generate-wiki`, `github-skills-pdf`, `my-weekly` |
+| `utilities/` | `hud`, `local` |
+| `help/` | `help` stays at the root |
+
+Each skill keeps its own resources. Help reads both directory levels dynamically.
+
 Some workflows require Git, `gh`, `glab`, Python/PDF
 tooling, browser access, or document capabilities; each skill checks its own prerequisites.
 `commit` and `pr` allow model invocation on both hosts. All other skills are
@@ -92,7 +105,7 @@ invocation name without the leading slash or a separate title.
 **Utilities**
 
 - **HUD / Statusline Installer** — One command to install a feature-rich statusline showing model, git branch, context usage, rate limits, system stats, and tool call counts. Two install levels (minimal / full) plus restore from backup, user scope.
-- **Help Overview** — `/smart:help` dynamically scans and lists all skills, hooks, and agents with descriptions.
+- **Skill Guide** — `/smart:help` lists every skill, including itself, with one short sentence about its capability and purpose. Legacy arguments still show the full guide.
 - **Fresh-Context Code Simplification** — `/smart:code-simplifier` sends the complete run to one serial, non-recursive worker with no conversation history. The primary stays out of the target code while the worker scopes recent changes, follows repository standards, and proves behavior equivalence.
 - **One-Cycle TDD** — `/smart:one-by-one` validates one minimal Red test, then guides the user through the matching Green implementation.
 - **Pair Writing** — `/smart:pair-write` gives one user-written coding step a comment skeleton and directly expanded reference, then checks only transcription and agreement with that guidance by default.
@@ -120,7 +133,7 @@ invocation name without the leading slash or a separate title.
 | `/smart:generate-wiki` | Distill source material into a guarded GitLab, GitHub, or local Wiki |
 | `/smart:github-skills-pdf <repo> [full=true]` | Build a verified English-Chinese A4 handbook from a GitHub skills repository; once printed, later runs print only changed chapters unless `full=true` |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | Install statusline (`1`/`normal`=minimal, `2`/`all`=full) or restore backup (`0`/`reset`), user scope |
-| `/smart:help [skill\|hook\|agent]` | Show overview of all plugin components (or filter by category) |
+| `/smart:help` | Show every skill with a one-sentence explanation of its capability and purpose |
 | `/smart:learning [0\|1]` | Persistent learning mode: `1` enables, `0` disables, empty shows status; the user writes and the agent reviews one step at a time |
 | `/smart:local` | Create a git-ignored personal configuration file without overwriting existing notes |
 | `/smart:my-weekly <repo> [-N]` | Summarize the current user's commits for a selected natural week |

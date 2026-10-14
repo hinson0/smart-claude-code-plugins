@@ -66,6 +66,19 @@ codex plugin add smart@smart
 Smart 包含十三个 skills：`clean-branches`、`code-simplifier`、`commit`、
 `generate-wiki`、`github-skills-pdf`、`help`、`hud`、`learning`、`local`、
 `my-weekly`、`one-by-one`、`pair-write`、`pr`。
+
+7.5.0 按用途组织目录，调用名保持不变：
+
+| `plugins/smart/skills/` 下的目录 | Skills |
+|---|---|
+| `git/` | `commit`、`pr`、`clean-branches` |
+| `coding/` | `code-simplifier`、`learning`、`one-by-one`、`pair-write` |
+| `docs/` | `generate-wiki`、`github-skills-pdf`、`my-weekly` |
+| `utilities/` | `hud`、`local` |
+| `help/` | `help` 留在根目录 |
+
+每个 skill 保留自己的资源目录。Help 动态读取两级目录。
+
 部分流程依赖 Git、`gh`、`glab`、Python/PDF 工具、
 浏览器或文档能力；每个 skill 都会检查自己的前置条件。
 `commit` 和 `pr` 在两个宿主中都允许模型自动调用。其余 skill 仍只由用户主动调用：
@@ -91,7 +104,7 @@ Codex 界面统一显示 `smart:<name>`，保留 Claude Code 原调用名但省�
 **实用工具**
 
 - **HUD / Statusline 安装器** — 一条命令安装功能丰富的状态栏，显示模型、Git 分支、上下文用量、速率限制、系统资源和工具调用统计。提供两个安装级别（简化版 / 完整版）及从备份恢复，仅 user 作用域。
-- **帮助概览** — `/smart:help` 动态扫描并列出所有技能、hook 和 agent 及其描述。
+- **技能简表** — `/smart:help` 列出全部 skill，包含自身。每项用一句短句说明能力和用途。旧参数仍显示完整简表。
 - **全新上下文代码简化** — `/smart:code-simplifier` 把完整流程交给一个串行、不可递归委派且不带对话历史的 worker。主 agent 不接触目标代码；worker 负责限定近期改动范围、遵循仓库规范并证明行为等价。
 - **单 Cycle TDD** — `/smart:one-by-one` 验证一个最小 Red，再指导用户完成对应 Green。
 - **结对手写** — `/smart:pair-write` 为一个用户手写步骤同轮提供注释骨架和直接展开的完整参考实现，默认只检查书写是否正确以及落盘内容是否与指导一致。
@@ -119,7 +132,7 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 | `/smart:generate-wiki` | 把资料整理为受保护的 GitLab、GitHub 或本地 Wiki |
 | `/smart:github-skills-pdf <仓库> [full=true]` | 从 GitHub skills 仓库生成经验证的英中 A4 手册；打印过之后只打印有变化的章节，除非 `full=true` |
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安装状态栏（`1`/`normal`=简化版，`2`/`all`=完整版）或恢复备份（`0`/`reset`），user 作用域 |
-| `/smart:help [skill\|hook\|agent]` | 显示所有插件组件概览（或按类别筛选） |
+| `/smart:help` | 列出全部 skill，每项用一句话说明能力和用途 |
 | `/smart:learning [0\|1]` | 持久化学习模式：`1` 开启、`0` 关闭、无参数查看状态；用户写代码，AI 逐步审阅 |
 | `/smart:local` | 创建被 Git 忽略的个人配置文件，不覆盖已有笔记 |
 | `/smart:my-weekly <repo> [-N]` | 按指定自然周汇总当前用户的 Git 提交 |

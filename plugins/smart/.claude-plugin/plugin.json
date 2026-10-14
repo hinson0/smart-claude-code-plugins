@@ -1,9 +1,15 @@
 {
   "name": "smart",
   "description": "My name is smart. Smart provides focused developer workflows, fresh-worker code simplification, content tools, session utilities, and engineering rules.",
-  "version": "7.4.0",
+  "version": "7.5.0",
   "author": {
     "name": "Hinson",
     "github": "https://github.com/hinson0"
-  }
+  },
+  "skills": [
+    "./skills/git/",
+    "./skills/coding/",
+    "./skills/docs/",
+    "./skills/utilities/"
+  ]
 }

@@ -6,8 +6,8 @@ const ROOT = new URL("../", import.meta.url);
 const read = (path) => readFile(new URL(path, ROOT), "utf8");
 
 test("Wiki preserves publication targets and safe, truthful writes", async () => {
-  const skill = await read("plugins/smart/skills/generate-wiki/SKILL.md");
-  const chinese = await read("plugins/smart/skills/generate-wiki/CN.md");
+  const skill = await read("plugins/smart/skills/docs/generate-wiki/SKILL.md");
+  const chinese = await read("plugins/smart/skills/docs/generate-wiki/CN.md");
   for (const target of ["GitLab Wiki", "GitHub Wiki", "Local Wiki"]) assert.ok(skill.includes(target));
   assert.match(skill, /Create without overwriting; update only on explicit request/);
   assert.match(skill, /Preserve concurrent changes/);

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
+import { discoverSkills } from "./skill-discovery.mjs";
 
 const ROOT = new URL("../", import.meta.url);
 const READMES = ["README.md", "README_CN.md"];
@@ -43,8 +44,7 @@ test("only English and Simplified Chinese README variants are published", async 
 
 
 test("README command tables cover every published skill", async () => {
-  const entries = await readdir(new URL("plugins/smart/skills/", ROOT), { withFileTypes: true });
-  const skills = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+  const skills = (await discoverSkills()).map((skill) => skill.name);
   for (const file of READMES) {
     const content = await readFile(new URL(file, ROOT), "utf8");
     const commands = [...new Set([...content.matchAll(/^\| `\/smart:([a-z-]+)/gm)].map((match) => match[1]))].sort();

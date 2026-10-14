@@ -11,12 +11,12 @@ async function read(path) {
 test("Smart routes code simplification to one fresh non-recursive worker", async () => {
   const [skill, chinese, worker, chineseWorker, agent, openaiMetadata] =
     await Promise.all([
-      read("plugins/smart/skills/code-simplifier/SKILL.md"),
-      read("plugins/smart/skills/code-simplifier/CN.md"),
-      read("plugins/smart/skills/code-simplifier/references/worker.md"),
-      read("plugins/smart/skills/code-simplifier/references/CN[worker].md"),
+      read("plugins/smart/skills/coding/code-simplifier/SKILL.md"),
+      read("plugins/smart/skills/coding/code-simplifier/CN.md"),
+      read("plugins/smart/skills/coding/code-simplifier/references/worker.md"),
+      read("plugins/smart/skills/coding/code-simplifier/references/CN[worker].md"),
       read("plugins/smart/agents/code-simplifier-worker.md"),
-      read("plugins/smart/skills/code-simplifier/agents/openai.yaml"),
+      read("plugins/smart/skills/coding/code-simplifier/agents/openai.yaml"),
     ]);
 
   assert.match(skill, /smart:code-simplifier-worker/);
@@ -40,7 +40,7 @@ test("Smart routes code simplification to one fresh non-recursive worker", async
   assert.doesNotMatch(agent.match(/^tools:.*$/m)?.[0] ?? "", /Agent|Skill/);
   assert.match(
     agent,
-    /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/code-simplifier\/references\/worker\.md/,
+    /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/coding\/code-simplifier\/references\/worker\.md/,
   );
 
   for (const contract of [
@@ -66,5 +66,5 @@ test("Smart routes code simplification to one fresh non-recursive worker", async
   }
 
   assert.match(openaiMetadata, /display_name: "smart:code-simplifier"/);
-  await access(new URL("plugins/smart/skills/code-simplifier/LICENSE", ROOT));
+  await access(new URL("plugins/smart/skills/coding/code-simplifier/LICENSE", ROOT));
 });

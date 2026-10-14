@@ -12,7 +12,7 @@ argument-hint: "[0|1|2|reset|normal|all]（0/reset=恢复备份，1/normal=简�
 
 ## 路径
 
-- 源文件位于 `${CLAUDE_PLUGIN_ROOT}/skills/hud/scripts/`：
+- 源文件位于 `${CLAUDE_PLUGIN_ROOT}/skills/utilities/hud/scripts/`：
   level 1 用 `statusline-command-level1.sh`，level 2 用 `statusline-command.sh`。
 - 目标：`~/.claude/statusline-command.sh`
 - 备份：`~/.claude/statusline-command.sh.bak`
