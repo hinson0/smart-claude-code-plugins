@@ -7,9 +7,9 @@ const read = (path) => readFile(new URL(path, ROOT), "utf8");
 
 test("Smart pair-write preserves the focused comparison loop", async () => {
   const [skill, translation, metadata] = await Promise.all([
-    read("plugins/smart/skills/pair-write/SKILL.md"),
-    read("plugins/smart/skills/pair-write/CN.md"),
-    read("plugins/smart/skills/pair-write/agents/openai.yaml"),
+    read("plugins/smart/skills/coding/pair-write/SKILL.md"),
+    read("plugins/smart/skills/coding/pair-write/CN.md"),
+    read("plugins/smart/skills/coding/pair-write/agents/openai.yaml"),
   ]);
 
   for (const document of [skill, translation]) {

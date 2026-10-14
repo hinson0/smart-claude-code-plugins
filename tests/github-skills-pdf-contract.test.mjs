@@ -81,14 +81,14 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
   ] = await Promise.all([
     readJson("plugins/smart/.codex-plugin/plugin.json"),
     readJson("plugins/smart/.claude-plugin/plugin.json"),
-    read("plugins/smart/skills/github-skills-pdf/SKILL.md"),
-    read("plugins/smart/skills/github-skills-pdf/agents/openai.yaml"),
+    read("plugins/smart/skills/docs/github-skills-pdf/SKILL.md"),
+    read("plugins/smart/skills/docs/github-skills-pdf/agents/openai.yaml"),
     read(
-      "plugins/smart/skills/github-skills-pdf/scripts/build_bilingual_skills_pdf.py",
+      "plugins/smart/skills/docs/github-skills-pdf/scripts/build_bilingual_skills_pdf.py",
     ),
-    read("plugins/smart/skills/github-skills-pdf/references/book-format.md"),
+    read("plugins/smart/skills/docs/github-skills-pdf/references/book-format.md"),
     read(
-      "plugins/smart/skills/github-skills-pdf/references/translation-guide.md",
+      "plugins/smart/skills/docs/github-skills-pdf/references/translation-guide.md",
     ),
   ]);
 
@@ -112,7 +112,7 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
   for (const contract of [
     "GitHub",
     "full commit",
-    "skills/\\*/SKILL.md",
+    "skills/\\*\\*/SKILL.md",
     "English source",
     "Simplified Chinese translation",
     "book-format.md",
@@ -182,7 +182,7 @@ test("Smart publishes the GitHub Skills bilingual PDF contract", async () => {
 
 test("每个 skill 章节都从纸的正面开始，空白页只补齐纸背", async () => {
   const skillDirectory = fileURLToPath(
-    new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
+    new URL("../plugins/smart/skills/docs/github-skills-pdf/", import.meta.url),
   );
   const script = join(skillDirectory, "scripts/build_bilingual_skills_pdf.py");
   const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-fronts-"));
@@ -242,7 +242,7 @@ test("每个 skill 章节都从纸的正面开始，空白页只补齐纸背", a
 
 test("构建器收录 skill 目录的参考文档并拒绝漏收", async () => {
   const skillDirectory = fileURLToPath(
-    new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
+    new URL("../plugins/smart/skills/docs/github-skills-pdf/", import.meta.url),
   );
   const script = join(skillDirectory, "scripts/build_bilingual_skills_pdf.py");
   const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-refs-"));
@@ -340,7 +340,7 @@ test("构建器收录 skill 目录的参考文档并拒绝漏收", async () => {
 
 test("构建器支持单语项目", async () => {
   const skillDirectory = fileURLToPath(
-    new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
+    new URL("../plugins/smart/skills/docs/github-skills-pdf/", import.meta.url),
   );
   const script = join(skillDirectory, "scripts/build_bilingual_skills_pdf.py");
   const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-mono-"));
@@ -440,7 +440,7 @@ test("构建器支持单语项目", async () => {
 
 test("builder runs from the skill directory and rejects a moving ref", async () => {
   const skillDirectory = fileURLToPath(
-    new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
+    new URL("../plugins/smart/skills/docs/github-skills-pdf/", import.meta.url),
   );
   const script = join(
     skillDirectory,
@@ -487,7 +487,7 @@ test("builder runs from the skill directory and rejects a moving ref", async () 
 function withBuilder(code) {
   const script = fileURLToPath(
     new URL(
-      "../plugins/smart/skills/github-skills-pdf/scripts/build_bilingual_skills_pdf.py",
+      "../plugins/smart/skills/docs/github-skills-pdf/scripts/build_bilingual_skills_pdf.py",
       import.meta.url,
     ),
   );
@@ -540,7 +540,7 @@ test("代码块按 CommonMark 规则结束，未结束时指出行号", () => {
 
 test("只改围栏行的 source_override 可以通过，并在 --check 中留痕", async () => {
   const skillDirectory = fileURLToPath(
-    new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
+    new URL("../plugins/smart/skills/docs/github-skills-pdf/", import.meta.url),
   );
   const script = join(skillDirectory, "scripts/build_bilingual_skills_pdf.py");
   const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-override-"));
@@ -672,7 +672,7 @@ test("排版：代码块不重叠、堆叠标题随正文、下划线强调", ()
 
 test("增量更新只打印有变化的章节，并按账本记录已印内容", async () => {
   const skillDirectory = fileURLToPath(
-    new URL("../plugins/smart/skills/github-skills-pdf/", import.meta.url),
+    new URL("../plugins/smart/skills/docs/github-skills-pdf/", import.meta.url),
   );
   const script = join(skillDirectory, "scripts/build_bilingual_skills_pdf.py");
   const project = await mkdtemp(join(tmpdir(), "github-skills-pdf-update-"));

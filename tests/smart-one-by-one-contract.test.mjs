@@ -7,9 +7,9 @@ const read = (path) => readFile(new URL(path, ROOT), "utf8");
 
 test("Smart one-by-one preserves one complete Red-to-Green cycle", async () => {
   const [skill, translation, metadata] = await Promise.all([
-    read("plugins/smart/skills/one-by-one/SKILL.md"),
-    read("plugins/smart/skills/one-by-one/CN.md"),
-    read("plugins/smart/skills/one-by-one/agents/openai.yaml"),
+    read("plugins/smart/skills/coding/one-by-one/SKILL.md"),
+    read("plugins/smart/skills/coding/one-by-one/CN.md"),
+    read("plugins/smart/skills/coding/one-by-one/agents/openai.yaml"),
   ]);
 
   assert.match(skill, /^name: one-by-one$/m);

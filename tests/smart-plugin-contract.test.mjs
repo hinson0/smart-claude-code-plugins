@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
+import { discoverSkills } from "./skill-discovery.mjs";
 
 const ROOT = new URL("../", import.meta.url);
+const discovered = await discoverSkills();
+const skillPath = (name) => discovered.find((skill) => skill.name === name)?.path;
 const SMART_SKILLS = [
   "clean-branches",
   "code-simplifier",
@@ -19,9 +22,9 @@ const SMART_SKILLS = [
   "pr",
 ];
 const REFERENCES = [
-  "skills/code-simplifier/references/worker.md",
-  "skills/github-skills-pdf/references/book-format.md",
-  "skills/github-skills-pdf/references/translation-guide.md",
+  "skills/coding/code-simplifier/references/worker.md",
+  "skills/docs/github-skills-pdf/references/book-format.md",
+  "skills/docs/github-skills-pdf/references/translation-guide.md",
 ];
 
 async function readJson(path) {
@@ -42,7 +45,7 @@ test("both marketplaces publish only Smart", async () => {
   assert.deepEqual(pluginNames(claude), ["smart"]);
 });
 
-test("Smart is one dual-host version 7.4.0 release", async () => {
+test("Smart is one dual-host version 7.5.0 release", async () => {
   const [codex, claude] = await Promise.all([
     readJson("plugins/smart/.codex-plugin/plugin.json"),
     readJson("plugins/smart/.claude-plugin/plugin.json"),
@@ -50,9 +53,10 @@ test("Smart is one dual-host version 7.4.0 release", async () => {
 
   assert.equal(codex.name, "smart");
   assert.equal(claude.name, "smart");
-  assert.equal(codex.version, "7.4.0");
-  assert.equal(claude.version, "7.4.0");
+  assert.equal(codex.version, "7.5.0");
+  assert.equal(claude.version, "7.5.0");
   assert.equal(codex.skills, "./skills/");
+  assert.deepEqual(claude.skills, ["./skills/git/", "./skills/coding/", "./skills/docs/", "./skills/utilities/"]);
   assert.ok(codex.interface.defaultPrompt.length <= 3);
 });
 
@@ -65,7 +69,11 @@ test("Smart exposes exactly the agreed skill surface", async () => {
     .map((entry) => entry.name)
     .sort();
 
-  assert.deepEqual(actual, SMART_SKILLS);
+  assert.deepEqual(actual, ["coding", "docs", "git", "help", "utilities"]);
+  assert.deepEqual(discovered.map((skill) => skill.name), SMART_SKILLS);
+  for (const skill of discovered) {
+    assert.equal(skill.path.split("/").length, skill.name === "help" ? 1 : 2);
+  }
   await assert.rejects(access(new URL("plugins/fuzz/.codex-plugin/plugin.json", ROOT)));
 });
 
@@ -84,15 +92,15 @@ test("agent instructions have one root source of truth", async () => {
 
 test("every Smart skill and reference has its Chinese companion", async () => {
   for (const skill of SMART_SKILLS) {
-    const files = await readdir(new URL(`plugins/smart/skills/${skill}/`, ROOT));
+    const files = await readdir(new URL(`plugins/smart/skills/${skillPath(skill)}/`, ROOT));
     assert.ok(files.includes("SKILL.md"), `${skill} is missing SKILL.md`);
     assert.ok(files.includes("CN.md"), `${skill} is missing CN.md`);
 
     const [source, translation, openaiMetadata] = await Promise.all([
-      readFile(new URL(`plugins/smart/skills/${skill}/SKILL.md`, ROOT), "utf8"),
-      readFile(new URL(`plugins/smart/skills/${skill}/CN.md`, ROOT), "utf8"),
+      readFile(new URL(`plugins/smart/skills/${skillPath(skill)}/SKILL.md`, ROOT), "utf8"),
+      readFile(new URL(`plugins/smart/skills/${skillPath(skill)}/CN.md`, ROOT), "utf8"),
       readFile(
-        new URL(`plugins/smart/skills/${skill}/agents/openai.yaml`, ROOT),
+        new URL(`plugins/smart/skills/${skillPath(skill)}/agents/openai.yaml`, ROOT),
         "utf8",
       ),
     ]);
@@ -145,9 +153,9 @@ test("every Smart skill and reference has its Chinese companion", async () => {
 test("Commit and PR allow model invocation while branch cleanup remains explicit", async () => {
   for (const skill of ["commit", "pr", "clean-branches"]) {
     const [source, translation, metadata] = await Promise.all([
-      readFile(new URL(`plugins/smart/skills/${skill}/SKILL.md`, ROOT), "utf8"),
-      readFile(new URL(`plugins/smart/skills/${skill}/CN.md`, ROOT), "utf8"),
-      readFile(new URL(`plugins/smart/skills/${skill}/agents/openai.yaml`, ROOT), "utf8"),
+      readFile(new URL(`plugins/smart/skills/${skillPath(skill)}/SKILL.md`, ROOT), "utf8"),
+      readFile(new URL(`plugins/smart/skills/${skillPath(skill)}/CN.md`, ROOT), "utf8"),
+      readFile(new URL(`plugins/smart/skills/${skillPath(skill)}/agents/openai.yaml`, ROOT), "utf8"),
     ]);
     const implicit = skill !== "clean-branches";
     for (const document of [source, translation]) {
