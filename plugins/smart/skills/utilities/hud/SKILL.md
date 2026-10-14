@@ -12,7 +12,7 @@ Arguments are case-insensitive: `1`/`normal` (default) installs session + contex
 
 ## Paths
 
-- Sources under `${CLAUDE_PLUGIN_ROOT}/skills/hud/scripts/`:
+- Sources under `${CLAUDE_PLUGIN_ROOT}/skills/utilities/hud/scripts/`:
   `statusline-command-level1.sh` for level 1, `statusline-command.sh` for level 2.
 - Target: `~/.claude/statusline-command.sh`
 - Backup: `~/.claude/statusline-command.sh.bak`

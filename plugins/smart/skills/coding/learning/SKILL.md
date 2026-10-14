@@ -13,7 +13,7 @@ working directory outside Git. The marked block in `.claude/CLAUDE.local.md` is
 the only state; do not use `.smart/settings.json`.
 
 - Enable: ensure the personal file exists and is git-ignored using the setup in
-  [local](../local/SKILL.md). Replace an existing complete marked block or append
+  [local](../../utilities/local/SKILL.md). Replace an existing complete marked block or append
   it once, separated by a blank line. Apply the rules immediately in this session.
 - Disable: remove only the marked block and one adjacent blank line. Preserve the
   file, other user content, and `.gitignore`; stop applying the rules immediately.

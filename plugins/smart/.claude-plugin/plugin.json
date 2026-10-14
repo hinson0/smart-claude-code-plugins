@@ -5,5 +5,11 @@
   "author": {
     "name": "Hinson",
     "github": "https://github.com/hinson0"
-  }
+  },
+  "skills": [
+    "./skills/git/",
+    "./skills/coding/",
+    "./skills/docs/",
+    "./skills/utilities/"
+  ]
 }

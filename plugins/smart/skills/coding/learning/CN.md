@@ -10,7 +10,7 @@ argument-hint: "[0|1] —— 1=开启，0=关闭，留空=查看状态"
 用 `git rev-parse --show-toplevel` 解析项目根目录；非 Git 项目使用当前目录。
 `.claude/CLAUDE.local.md` 的标记块是唯一状态，不使用 `.smart/settings.json`。
 
-- 开启：按 [local](../local/SKILL.md) 的创建步骤确保个人文件存在并被 git 忽略。
+- 开启：按 [local](../../utilities/local/SKILL.md) 的创建步骤确保个人文件存在并被 git 忽略。
   替换已有完整标记块，否则隔一个空行追加一次；当前会话立即遵守规则。
 - 关闭：只删除标记块和相邻一个空行，保留文件、其他用户内容及 `.gitignore`；立即停止应用规则。
 - 状态：块存在则开，否则关，不写文件。
