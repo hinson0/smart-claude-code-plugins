@@ -67,22 +67,20 @@ Smart includes thirteen skills: `clean-branches`, `code-simplifier`, `commit`,
 `generate-wiki`, `github-skills-pdf`, `help`, `hud`, `learning`, `local`,
 `my-weekly`, `one-by-one`, `pair-write`, `pr`.
 
-Version 7.5.0 groups skills by purpose. Invocation names stay unchanged:
+Version 7.5.1 groups skills by purpose. Invocation names stay unchanged:
 
 | Directory under `plugins/smart/skills/` | Skills |
 |---|---|
 | `git/` | `commit`, `pr`, `clean-branches` |
 | `coding/` | `code-simplifier`, `learning`, `one-by-one`, `pair-write` |
 | `docs/` | `generate-wiki`, `github-skills-pdf`, `my-weekly` |
-| `utilities/` | `hud`, `local` |
-| `help/` | `help` stays at the root |
+| `utilities/` | `help`, `hud`, `local` |
 
 Each skill keeps its own resources. Help reads both directory levels dynamically.
 
 Some workflows require Git, `gh`, `glab`, Python/PDF
 tooling, browser access, or document capabilities; each skill checks its own prerequisites.
-`commit` and `pr` allow model invocation on both hosts. All other skills are
-user-invoked only: start them explicitly with their `/smart:*` or `$smart:*` names.
+All skills are user-invoked only on both hosts: start them explicitly with their `/smart:*` or `$smart:*` names.
 Codex displays each skill as `smart:<name>`, preserving its Claude Code
 invocation name without the leading slash or a separate title.
 
@@ -144,7 +142,7 @@ invocation name without the leading slash or a separate title.
 
 ## Smart Commit
 
-`commit` and `pr` allow implicit invocation in Codex metadata. `clean-branches` still requires explicit user invocation.
+`commit`, `pr`, and `clean-branches` require explicit user invocation. Codex metadata disables implicit invocation for all three.
 
 `/smart:commit` reads status, staged and unstaged diffs, untracked file contents, and recent history; splits by type and independent purpose, including hunks within a file; and lists each group’s message and files before committing.
 
