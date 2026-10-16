@@ -45,7 +45,7 @@ test("both marketplaces publish only Smart", async () => {
   assert.deepEqual(pluginNames(claude), ["smart"]);
 });
 
-test("Smart is one dual-host version 7.5.0 release", async () => {
+test("Smart is one dual-host version 7.5.1 release", async () => {
   const [codex, claude] = await Promise.all([
     readJson("plugins/smart/.codex-plugin/plugin.json"),
     readJson("plugins/smart/.claude-plugin/plugin.json"),
@@ -53,8 +53,8 @@ test("Smart is one dual-host version 7.5.0 release", async () => {
 
   assert.equal(codex.name, "smart");
   assert.equal(claude.name, "smart");
-  assert.equal(codex.version, "7.5.0");
-  assert.equal(claude.version, "7.5.0");
+  assert.equal(codex.version, "7.5.1");
+  assert.equal(claude.version, "7.5.1");
   assert.equal(codex.skills, "./skills/");
   assert.deepEqual(claude.skills, ["./skills/git/", "./skills/coding/", "./skills/docs/", "./skills/utilities/"]);
   assert.ok(codex.interface.defaultPrompt.length <= 3);
@@ -69,10 +69,11 @@ test("Smart exposes exactly the agreed skill surface", async () => {
     .map((entry) => entry.name)
     .sort();
 
-  assert.deepEqual(actual, ["coding", "docs", "git", "help", "utilities"]);
+  assert.deepEqual(actual, ["coding", "docs", "git", "utilities"]);
   assert.deepEqual(discovered.map((skill) => skill.name), SMART_SKILLS);
+  assert.equal(skillPath("help"), "utilities/help");
   for (const skill of discovered) {
-    assert.equal(skill.path.split("/").length, skill.name === "help" ? 1 : 2);
+    assert.equal(skill.path.split("/").length, 2);
   }
   await assert.rejects(access(new URL("plugins/fuzz/.codex-plugin/plugin.json", ROOT)));
 });
@@ -104,14 +105,8 @@ test("every Smart skill and reference has its Chinese companion", async () => {
         "utf8",
       ),
     ]);
-    const invocationPattern = ["commit", "pr"].includes(skill)
-      ? /^disable-model-invocation:/m
-      : /^disable-model-invocation: true$/m;
-    const checkInvocation = ["commit", "pr"].includes(skill)
-      ? assert.doesNotMatch
-      : assert.match;
-    checkInvocation(source, invocationPattern, `${skill} invocation policy`);
-    checkInvocation(translation, invocationPattern, `${skill} Chinese invocation policy`);
+    assert.match(source, /^disable-model-invocation: true$/m, `${skill} invocation policy`);
+    assert.match(translation, /^disable-model-invocation: true$/m, `${skill} Chinese invocation policy`);
 
     const sourceDescription = source.match(/^description: (.+)$/m)?.[1];
     const translatedDescription = translation.match(/^description: (.+)$/m)?.[1];
@@ -150,22 +145,17 @@ test("every Smart skill and reference has its Chinese companion", async () => {
 });
 
 
-test("Commit and PR allow model invocation while branch cleanup remains explicit", async () => {
+test("Git skills require explicit invocation on both hosts", async () => {
   for (const skill of ["commit", "pr", "clean-branches"]) {
     const [source, translation, metadata] = await Promise.all([
       readFile(new URL(`plugins/smart/skills/${skillPath(skill)}/SKILL.md`, ROOT), "utf8"),
       readFile(new URL(`plugins/smart/skills/${skillPath(skill)}/CN.md`, ROOT), "utf8"),
       readFile(new URL(`plugins/smart/skills/${skillPath(skill)}/agents/openai.yaml`, ROOT), "utf8"),
     ]);
-    const implicit = skill !== "clean-branches";
     for (const document of [source, translation]) {
-      if (implicit) {
-        assert.doesNotMatch(document.split("---")[1], /^disable-model-invocation:/m);
-      } else {
-        assert.match(document.split("---")[1], /^disable-model-invocation: true$/m);
-      }
+      assert.match(document.split("---")[1], /^disable-model-invocation: true$/m);
     }
-    assert.match(metadata, new RegExp(`^policy:\n  allow_implicit_invocation: ${implicit}$`, "m"));
+    assert.match(metadata, /^policy:\n  allow_implicit_invocation: false$/m);
   }
 });
 
