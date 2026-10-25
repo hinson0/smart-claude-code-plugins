@@ -1,0 +1,6 @@
+interface:
+  display_name: "smart:bilibili-douyin-publish"
+  short_description: "Publish finished videos to Bilibili and Douyin with verification"
+  default_prompt: "Use $smart:bilibili-douyin-publish to publish my final video to Bilibili and Douyin and verify each platform's result."
+policy:
+  allow_implicit_invocation: false

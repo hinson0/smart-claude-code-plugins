@@ -63,18 +63,18 @@ Claude Code 使用 `/smart:*`；Codex 提供对应的 `$smart:*` skills。
 codex plugin add smart@smart
 ```
 
-Smart 包含十三个 skills：`clean-branches`、`code-simplifier`、`commit`、
+Smart 包含十四个 skills：`bilibili-douyin-publish`、`clean-branches`、`code-simplifier`、`commit`、
 `generate-wiki`、`github-skills-pdf`、`help`、`hud`、`learning`、`local`、
 `my-weekly`、`one-by-one`、`pair-write`、`pr`。
 
-7.5.1 按用途组织目录，调用名保持不变：
+7.6.0 按用途组织目录，调用名保持不变：
 
 | `plugins/smart/skills/` 下的目录 | Skills |
 |---|---|
 | `git/` | `commit`、`pr`、`clean-branches` |
 | `coding/` | `code-simplifier`、`learning`、`one-by-one`、`pair-write` |
 | `docs/` | `generate-wiki`、`github-skills-pdf`、`my-weekly` |
-| `utilities/` | `help`、`hud`、`local` |
+| `utilities/` | `bilibili-douyin-publish`、`help`、`hud`、`local` |
 
 每个 skill 保留自己的资源目录。Help 动态读取两级目录。
 
@@ -133,6 +133,7 @@ Claude Code 使用 `/smart:*`，Codex 使用 `$smart:*`。
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | 安装状态栏（`1`/`normal`=简化版，`2`/`all`=完整版）或恢复备份（`0`/`reset`），user 作用域 |
 | `/smart:help` | 列出全部 skill，每项用一句话说明能力和用途 |
 | `/smart:learning [0\|1]` | 持久化学习模式：`1` 开启、`0` 关闭、无参数查看状态；用户写代码，AI 逐步审阅 |
+| `/smart:bilibili-douyin-publish` | 整理视频文案与封面，发布到 B站或抖音，并核验实际结果 |
 | `/smart:local` | 创建被 Git 忽略的个人配置文件，不覆盖已有笔记 |
 | `/smart:my-weekly <repo> [-N]` | 按指定自然周汇总当前用户的 Git 提交 |
 | `/smart:one-by-one` | 每次执行一个最小 Red-to-Green Cycle |

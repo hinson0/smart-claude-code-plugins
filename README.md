@@ -63,18 +63,18 @@ Claude Code uses `/smart:*`; Codex exposes the corresponding `$smart:*` skills.
 codex plugin add smart@smart
 ```
 
-Smart includes thirteen skills: `clean-branches`, `code-simplifier`, `commit`,
+Smart includes fourteen skills: `bilibili-douyin-publish`, `clean-branches`, `code-simplifier`, `commit`,
 `generate-wiki`, `github-skills-pdf`, `help`, `hud`, `learning`, `local`,
 `my-weekly`, `one-by-one`, `pair-write`, `pr`.
 
-Version 7.5.1 groups skills by purpose. Invocation names stay unchanged:
+Version 7.6.0 groups skills by purpose. Invocation names stay unchanged:
 
 | Directory under `plugins/smart/skills/` | Skills |
 |---|---|
 | `git/` | `commit`, `pr`, `clean-branches` |
 | `coding/` | `code-simplifier`, `learning`, `one-by-one`, `pair-write` |
 | `docs/` | `generate-wiki`, `github-skills-pdf`, `my-weekly` |
-| `utilities/` | `help`, `hud`, `local` |
+| `utilities/` | `bilibili-douyin-publish`, `help`, `hud`, `local` |
 
 Each skill keeps its own resources. Help reads both directory levels dynamically.
 
@@ -133,6 +133,7 @@ invocation name without the leading slash or a separate title.
 | `/smart:hud [0\|1\|2\|reset\|normal\|all]` | Install statusline (`1`/`normal`=minimal, `2`/`all`=full) or restore backup (`0`/`reset`), user scope |
 | `/smart:help` | Show every skill with a one-sentence explanation of its capability and purpose |
 | `/smart:learning [0\|1]` | Persistent learning mode: `1` enables, `0` disables, empty shows status; the user writes and the agent reviews one step at a time |
+| `/smart:bilibili-douyin-publish` | Prepare video copy and covers, publish to Bilibili or Douyin, and verify results |
 | `/smart:local` | Create a git-ignored personal configuration file without overwriting existing notes |
 | `/smart:my-weekly <repo> [-N]` | Summarize the current user's commits for a selected natural week |
 | `/smart:one-by-one` | Run one minimal Red-to-Green cycle at a time |
